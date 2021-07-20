@@ -1,0 +1,21 @@
+<div class="alert shadow fade show" role="alert">
+    <p class="d-flex justify-content-between">
+        <strong>Evaluate model</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </p>
+    <p>Table 1. Regression coefficients with statistical significance.</p>
+{% if mode == '5_fold' %}
+    <p><i>Parameters are the <b>average</b> value on folds.</i></p>
+{% endif %}
+    <div style="overflow-x: auto;">{{ coefficients | safe }}</div>
+{% if mode == '5_fold' %}
+    <p><i>The max derivation from average in the folds:</i></p>
+    <div style="overflow-x: auto;">{{ coefficients_dev | safe }}</div>
+{% endif %}
+    <p>Table 2. Model's statistical significance.</p>
+    <div style="overflow-x: auto;">{{ significances | safe }}</div>
+{% if mode != 'full_train' %}
+        <p>Table 3. Performance on validation set.</p>
+        <div style="overflow-x: auto">{{ errors | safe }}</div>
+{% endif %}
+</div>

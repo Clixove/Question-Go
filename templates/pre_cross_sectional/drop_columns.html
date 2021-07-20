@@ -1,0 +1,29 @@
+<div class="alert shadow fade show" role="alert">
+    <p class="d-flex justify-content-between">
+        <label class="flex-item">
+            <strong>Drop columns </strong> <label style="width: 2ch;"></label>
+            <label>
+                Change view:
+                <a role="button" class="text-primary" onclick="set_compact('drop_column_tc')">Compact</a>
+                <a role="button" class="text-primary" onclick="set_expand('drop_column_tc')">Expand</a>
+            </label> <label style="width: 2ch;"></label>
+            <label>Check all:
+                <input class="form-check-input" type="checkbox" onchange="check_all(this, 'targeted_columns')" />
+            </label>
+        </label>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </p>
+    <p class="text-danger"><b>Make sure that you want to drop columns. The action cannot be retrieved.</b></p>
+    <form id="drop-column">
+        {{ drop_column.as_p }}
+        <div class="text-center">
+            <input type="submit" value="Handle" class="btn btn-outline-success">
+        </div>
+    </form>
+    <div id="drop-column-return"></div>
+</div>
+
+<script>
+    set_compact('drop_column_tc');
+    async_submit_form('drop-column', '/pre_cross_sectional/action/drop_column', 'drop-column-return');
+</script>

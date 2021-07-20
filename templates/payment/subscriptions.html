@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'clixove.org/header.html' %}
+</head>
+<body>
+    {% include 'clixove.org/navigator.html' %}
+    <div class="container-md">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 text-center">
+                <label class="lead fw-normal">{{ product.name }}</label>
+            </div>
+            <div class="col-md-3 text-end">
+                <a role="button" class="btn btn-outline-primary" href="/task/instances">Back</a>
+            </div>
+            <hr class="mt-2">
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <ul class="nav flex-column">
+                    {% for pd in product_lines %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/payment?product_line={{ pd.id }}">{{ pd.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-10">
+<div class="row">
+    {% for plan in plans %}
+    <div class="col-md-4">
+        <div class="card mx-auto my-4" style="max-width: 20rem;">
+            <div class="card-header text-center p-2"><h5 class="card-title">{{ plan.name }}</h5></div>
+            <div class="{% if plan.badge %}bg-warning{% endif %} text-end fw-bold">
+                <span class="me-2">{{ plan.badge }}</span>
+            </div>
+            <div class="card-body">
+                <p class="text-nowrap">
+                    <span class="badge rounded-pill text-dark bg-info">{{ product.coin }}</span>
+                    <span class="display-6">{{ plan.price }}</span>
+                    / {{ plan.subscription_days }} Days
+                </p>
+                <ul class="feature-items">
+                    {% for item in plan.feature_list %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="text-center">
+                    <button class="w-100 btn btn-lg btn-primary" onclick="transmit_plan_id({{ plan.id }})"
+                            data-bs-toggle="modal" data-bs-target="#createOrder">
+                        Purchase Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="createOrder" tabindex="-1" aria-labelledby="createOrderLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createOrderLabel">Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+        <form action="/payment/add" method="post">
+            <div class="modal-body">
+                {{ create_order.as_p }}
+            </div>
+            <div class="modal-footer">
+                <p>Please wait for response and don't click multiple times.</p>
+                <input type="submit" class="btn btn-primary" value="Create Order">
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+            </div>
+        </div>
+    </div>
+    {% include 'clixove.org/copyright.html' %}
+</body>
+</html>
+
+<script>
+    let ul_items = document.getElementsByClassName("feature-items");
+    let ul_heights = [];
+    Array.prototype.forEach.call(ul_items, function (ul_item) {
+        ul_heights.push(ul_item.offsetHeight);
+    })
+    max_height = Math.max(...ul_heights);
+    Array.prototype.forEach.call(ul_items, function (ul_item) {
+        ul_item.setAttribute("style", "height: " + max_height + "px;");
+    })
+
+    function transmit_plan_id(plan_id) {
+        document.getElementById("id_plan").setAttribute("value", plan_id);
+    }
+</script>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'clixove.org/header.html' %}
+</head>
+<body>
+    {% include 'clixove.org/navigator.html' %}
+    <div class="container-md">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 text-center">
+                <label class="lead fw-normal">Cart</label>
+            </div>
+            <div class="col-md-3 text-end">
+                <a role="button" class="btn btn-outline-primary" href="/task/instances">Back</a>
+            </div>
+            <hr class="mt-2">
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <caption class="caption-top">My Subscriptions</caption>
+                    <thead>
+                    <tr>
+                        <td>Product</td><td>Plan</td><td>Expired Time</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        {% for subscription in subscriptions %}
+                            <td>{{ subscription.plan.product_line.name }}</td>
+                            <td>{{ subscription.plan.name }}</td>
+                            <td>{{ subscription.expired_time }}</td>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+
+                <table class="table table-hover">
+                    <caption class="caption-top">Transactions</caption>
+                    <thead>
+                    <tr>
+                        <td>Created Time</td><td>Product</td><td>Plan</td><td>Amount</td><td>Trade Number</td>
+                        <td>Action</td><td>Paid</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for tran in transactions %}
+                        <tr>
+                        <td>{{ tran.created_time }}</td>
+                        <td>{{ tran.plan.product_line.name }}</td><td>{{ tran.plan.name }}</td>
+                        <td>{{ tran.amount | floatformat:2 }}</td><td>{{ tran.trade_number }}</td>
+                    {% if tran.paid %}
+                        <td></td><td>✔</td>
+                    {% else %}
+                        <td><a href="/payment/pay/{{ tran.id }}" target="_blank">Pay</a></td>
+                        <td>❌ <a href="/payment/query/{{ tran.id }}">Update</a></td>
+                    {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    {% include 'clixove.org/copyright.html' %}
+</body>
+</html>

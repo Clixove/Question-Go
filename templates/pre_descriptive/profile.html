@@ -1,0 +1,25 @@
+<div class="alert shadow fade show" role="alert">
+    <p class="d-flex justify-content-between">
+        <strong>Profile</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </p>
+    <p><i>"Generate" is a time consuming action. You can either leave this page or wait for minutes, and view result
+        after a while by clicking "View profile".</i></p>
+    <div class="row" style="overflow-x: auto;">
+        <div class="col-6">
+            <form role="form" id="profile">
+                {{ profile.as_p }}
+                <input type="submit" class="btn btn-outline-primary" id="profile-submit" value="Generate">
+            </form>
+        </div>
+        <div class="col-6">
+            <a role="button" class="btn btn-outline-primary" href="/pre_descriptive/profile/{{ pre_dp.id }}"
+               target="_blank">View profile</a>
+        </div>
+    </div>
+    <div id="profile-return"></div>
+</div>
+
+<script>
+    async_submit_form('profile', '/pre_descriptive/profile/generate', 'profile-return');
+</script>

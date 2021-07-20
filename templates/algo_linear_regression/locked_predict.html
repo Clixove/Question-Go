@@ -1,0 +1,13 @@
+<div class="alert shadow fade show" role="alert">
+    <p class="d-flex justify-content-between">
+        <strong>Predict on new samples</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </p>
+    <p>
+        Click to download the result: <a href="/library/paper/{{ algo_lr.predict.id }}">{{ algo_lr.predict }}</a>
+        <label style="width: 2ch;"></label> <a href="/algo_linear_regression/clear-predict/{{ algo_lr.id }}">Clear</a>
+    </p>
+    {% if five_fold %}
+        <p><i>The result is based on the average of a 5-fold cross validation model.</i></p>
+    {% endif %}
+</div>

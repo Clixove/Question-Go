@@ -1,0 +1,17 @@
+<div class="alert shadow fade show" role="alert">
+    <div class="d-flex justify-content-between">
+        <p><strong>Take note</strong></p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div id="return-change-note"></div>
+    <form id="change-note">
+        {{ notepad.as_p }}
+        <div class="text-center">
+            <input type="submit" class="btn btn-outline-success" value="Update">
+        </div>
+    </form>
+</div>
+
+<script>
+    async_submit_form('change-note', '/pre_descriptive/change-note', 'return-change-note');
+</script>

@@ -1,0 +1,120 @@
+<nav class="navbar navbar-expand-lg navbar-light p-0" id="clixove-navigator">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/main">Clixove</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon btn-sm"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="nav me-auto">
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-1" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Task
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-1">
+                        <li><a class="dropdown-item" href="/task/instances">View list</a></li>
+                        <li><a class="dropdown-item" href="/task/new">New</a></li>
+                        <li><a class="dropdown-item" href="/task/retrieve">Opened task</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="/library" class="nav-link" id="nav-2">File</a></li>
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-3" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Explore
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-3">
+                        <li><a href="/pre_descriptive/add" class="dropdown-item">Descriptive statistics</a> </li>
+                        <li><a href="/pre_cross_sectional/add" class="dropdown-item">Cross-sectional data pre-processing</a> </li>
+                        <li><a href="#" class="dropdown-item">Time series pre-processing</a> </li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-4" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Classification
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-4">
+                        <li><a href="#" class="dropdown-item">Feature importance</a></li>
+                        <li><a href="#" class="dropdown-item">Small sample classification</a></li>
+                        <li><a href="#" class="dropdown-item">Abnormal detection</a></li>
+                        <li><a href="#" class="dropdown-item">Binary classification</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-5" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Regression
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-5">
+                        <li><a href="/algo_linear_regression/add" class="dropdown-item">Linear regression</a></li>
+                        <li><a href="#" class="dropdown-item">Linear regression with regularization</a></li>
+                        <li><a href="#" class="dropdown-item">Feature importance</a></li>
+                        <li><a href="#" class="dropdown-item">Small sample regression</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-6" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Hypothesis
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-6">
+
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-7" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Prediction
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-7">
+
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-8" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Clustering
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-8">
+
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-9" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Application
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-9">
+
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <div class="nav-link dropdown-toggle" id="nav-10" role="button" data-bs-toggle="dropdown"
+                         aria-expanded="false">
+                        Help
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="nav-10">
+                        <li><a class="dropdown-item disabled">Pricing</a> </li>
+                        <li><a class="dropdown-item" href="/payment">Plans and subscription</a></li>
+                        <li><a class="dropdown-item" href="/payment/transactions">My cart</a> </li>
+                        <li class="dropdown-divider"></li>
+                        <li><a class="dropdown-item disabled">Setting</a> </li>
+                        <li><a class="dropdown-item" href="/admin">My account</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="d-flex flex-row">
+                <a class="btn">{{ request.user }}</a>
+                <a class="btn text-danger" href="/my_login/quit">Quit</a>
+            </div>
+        </div>
+    </div>
+</nav>
+{% if request.GET.message and request.GET.color %}
+<div class="alert alert-{{ request.GET.color }} alert-dismissible fade show" role="alert"
+     style="position: fixed; top: 0; width: 100%; z-index: 1000;">
+    <strong>Message:</strong> {{ request.GET.message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}

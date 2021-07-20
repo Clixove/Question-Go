@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'clixove.org/header.html' %}
+</head>
+<body>
+    {% include 'clixove.org/navigator.html' %}
+    <div class="container-md">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 text-center">
+                <label class="lead fw-normal">Linear Regression</label>
+            </div>
+            <div class="col-md-3 text-end">
+                <a role="button" class="btn btn-outline-primary" href="/task/retrieve">Back</a>
+            </div>
+            <hr class="mt-2">
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+            {# ---------- Asynchronous Error Monitor START ---------- #}
+            {% if algo_lr.error_message %}
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: x-large"></i>
+                    {{ algo_lr.error_message }} &nbsp;
+                    <a href="/algo_linear_regression/confirm-error/{{ algo_lr.id }}">
+                        Confirm and try again
+                    </a>
+                </div>
+            {% endif %}
+            {# ---------- Asynchronous Error Monitor EMD   ---------- #}
+            {% if algo_lr.dataframe %}
+                {% include 'algo_linear_regression/locked_data.html' %}
+            {% else %}
+                {% include 'algo_linear_regression/import_data.html' %}
+            {% endif %}
+            {% if x_var and y_var %}
+                {% include 'algo_linear_regression/locked_variables.html' %}
+            {% else %}
+                {% include 'algo_linear_regression/set_variables.html' %}
+            {% endif %}
+            {% if algo_lr.model %}
+                {% include 'algo_linear_regression/locked_model.html' %}
+            {% else %}
+                {% include 'algo_linear_regression/train.html' %}
+            {% endif %}
+            {% include 'algo_linear_regression/evaluate.html' %}
+            {% include 'algo_linear_regression/regression_line.html' %}
+            {% if algo_lr.predict %}
+                {% include 'algo_linear_regression/locked_predict.html' %}
+            {% else %}
+                {% include 'algo_linear_regression/predict.html' %}
+            {% endif %}
+            {% include 'algo_linear_regression/note.html' %}
+            </div>
+        </div>
+    </div>
+    {% include 'clixove.org/copyright.html' %}
+</body>
+</html>

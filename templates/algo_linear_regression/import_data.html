@@ -1,0 +1,31 @@
+<div class="alert shadow fade show" role="alert">
+    <p class="d-flex justify-content-between">
+        <strong>Import data</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </p>
+    <p>Find a dataset from you library.</p>
+    <p><i>Hello, you can search for files by filename. The query string is case sensitive. If you select the data format
+        "Spreadsheet", the file should be *.xlsx format, and its role should be "Data". Otherwise, if you select the
+    data format "Intermediate", the file should be *.pkl format, and its role should be "Intermediate".</i></p>
+    <form id="search-file-form">
+        <div class="row" style="overflow-x: auto;">
+            <div class="col-10">{{ search_file.as_p }}</div>
+            <div class="col-2"><input type="submit" value="Search" class="btn btn-outline-success"></div>
+        </div>
+    </form>
+    <form id="select-file-form">
+        <div class="row" style="overflow-x: auto;">
+            <div class="col-10" id="search-file-results">{{ search_result_empty.as_p }}</div>
+            <div class="col-2">
+                <label style="width: 100%;"></label>
+                <input type="submit" value="Use" class="btn btn-outline-success">
+            </div>
+        </div>
+    </form>
+    <div id="use-data-return"></div>
+</div>
+
+<script>
+    async_submit_form('search-file-form', '/algo_linear_regression/search-data', 'search-file-results');
+    async_submit_form('select-file-form', '/algo_linear_regression/use-data', 'use-data-return');
+</script>
