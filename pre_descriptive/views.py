@@ -46,7 +46,7 @@ class SelectFile(PublicAlgorithm):
         self.fields['paper'].initial = paper_queryset.first()
 
     def ownership_paper(self, user):
-        self.fields['paper'].queryset = Paper.objects.filter(Q(role=1) | Q(role=2), user=user)
+        self.fields['paper'].queryset = Paper.objects.filter(user=user)
 
 
 class VariablePicker(PublicAlgorithm):

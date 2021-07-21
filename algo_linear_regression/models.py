@@ -7,9 +7,13 @@ class LinearRegression(models.Model):
     step = models.ForeignKey(Step, models.CASCADE, blank=True, null=True)
     dataframe = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_dataframe")
 
-    matrix = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_matrix")
+    matrix = models.BinaryField(blank=True, null=True)
+    coefficients = models.BinaryField(blank=True, null=True)
+    coefficients_deviate = models.BinaryField(blank=True, null=True)
+    significance = models.BinaryField(blank=True, null=True)
+    mode = models.CharField(max_length=16, blank=True)
+    regression_errors = models.BinaryField(blank=True, null=True)
     model = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_model")
-    evaluate = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_evaluate")
     predict = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_predict")
 
     note = models.TextField(blank=True)
