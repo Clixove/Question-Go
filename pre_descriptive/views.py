@@ -31,14 +31,14 @@ class Note(PublicAlgorithm):
 
 class SearchFile(PublicAlgorithm):
     search_file = forms.CharField(max_length=64, widget=forms.TextInput({"class": "form-control"}), label="")
-    data_format = forms.ChoiceField(choices=[(1, "Spreadsheet [*.xlsx]"), (2, "Binary [*.pkl]")],
-                                    widget=forms.Select({"class": "form-select"}))
 
 
 class SelectFile(PublicAlgorithm):
     paper = forms.ModelChoiceField(Paper.objects.none(), widget=forms.Select({"class": "form-select"}),
                                    label="Searching Result", empty_label=None,
                                    help_text="Choose one from searching results.")
+    data_format = forms.ChoiceField(choices=[(1, "Spreadsheet [*.xlsx]"), (2, "Binary [*.pkl]")],
+                                    widget=forms.Select({"class": "form-select"}))
 
     def search_paper(self, user, search_query, role):
         paper_queryset = Paper.objects.filter(name__contains=search_query, user=user, role=role)
@@ -171,9 +171,9 @@ def use_data(req):
     paper = select_file.cleaned_data['paper']
     try:
         # ---------- Asynchronous Algorithm START ----------
-        if paper.role == 1:
+        if select_file.cleaned_data['data_format'] == 1:
             table = pd.read_excel(paper.file.path)
-        else:  # paper.role == 2
+        else:
             with open(paper.file.path, "rb") as f:
                 table = pickle.load(f)
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
