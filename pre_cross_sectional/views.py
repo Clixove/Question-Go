@@ -271,15 +271,6 @@ class DropColumns(PublicPreProcessing):
     pass
 
 
-def pandas_drop_column(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
-    dataframe.drop(
-        columns=[x.name for x in config.cleaned_data['targeted_columns']],
-        inplace=True,
-    )
-    config.cleaned_data['targeted_columns'].delete()
-    return dataframe
-
-
 class FillNa(PublicPreProcessing):
     method = forms.ChoiceField(
         choices=(
@@ -309,6 +300,20 @@ class FillNa(PublicPreProcessing):
     )
 
 
+def pandas_drop_column(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
+    dataframe.drop(
+        columns=[x.name for x in config.cleaned_data['targeted_columns']],
+        inplace=True,
+    )
+    config.cleaned_data['targeted_columns'].delete()
+    return dataframe
+
+
+def pandas_cast(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
+
+    return dataframe
+
+
 def pandas_fill_na(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
     columns = [x.name for x in config.cleaned_data['targeted_columns']]
     if config.cleaned_data['method']:
@@ -331,15 +336,6 @@ def pandas_fill_na(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
         else:
             na_value = config.cleaned_data['constant'] or 0
         dataframe[columns] = dataframe[columns].fillna(value=na_value)
-    return dataframe
-
-
-class CastSheet(PublicPreProcessing):
-    pass
-
-
-def pandas_cast(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
-
     return dataframe
 
 
@@ -414,8 +410,9 @@ def preprocessing_wrapper(req, form_name):
         csp.step.save()
         csp.error_message = str(e)
         csp.save()
-        context = {"color": "danger", "content": "Interrupted.", "refresh": f"/pre_cross_sectional/{csp.id}"}
-        return render(req, "task_manager/hint_widget.html", context)
+        raise e
+        # context = {"color": "danger", "content": "Interrupted.", "refresh": f"/pre_cross_sectional/{csp.id}"}
+        # return render(req, "task_manager/hint_widget.html", context)
     csp.step.status = 3
     csp.step.save()
     context = {"color": "success", "content": "The dataset has been updated.", "refresh": f"/pre_cross_sectional/{csp.id}"}

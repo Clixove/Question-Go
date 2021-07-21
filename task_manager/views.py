@@ -5,7 +5,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from question_go_v2.settings import TIME_ZONE
 from .models import *
-import pickle
 
 
 class RenameTask(forms.Form):
@@ -161,11 +160,3 @@ def delete_step(req, step_id):
         return redirect(f"/task/{opened_task_id}?message=This step is running so cannot be deleted.&color=danger")
     step.delete()
     return redirect(f"/task/{opened_task_id}?message=Delete successfully.&color=success")
-
-
-def make_table(x) -> str:
-    if x:
-        x_ = pickle.loads(x)
-        return x_.to_html(classes="table table-sm table-bordered", justify='left', bold_rows=False)
-    else:
-        return ''

@@ -8,6 +8,7 @@ import statsmodels.api as linear_regression
 from django import forms
 from django.contrib.auth.decorators import permission_required
 from django.core.files.base import ContentFile
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -16,7 +17,6 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import KFold, train_test_split
 
 from task_manager.models import OpenedTask
-from task_manager.views import make_table
 from .models import *
 
 
@@ -51,7 +51,7 @@ class SelectFile(PublicAlgorithm):
         self.fields['paper'].initial = paper_queryset.first()
 
     def ownership_paper(self, user):
-        self.fields['paper'].queryset = Paper.objects.filter(user=user)
+        self.fields['paper'].queryset = Paper.objects.filter(Q(role=1) | Q(role=2), user=user)
 
 
 class VariablePicker(PublicAlgorithm):
@@ -138,12 +138,17 @@ def view_lr(req, algo_id):
     context = {
         "algo_lr": algorithm_, "notepad": note, "search_file": search_file, "search_result_empty": SelectFile(),
         "variable_picker": variable_picker, "x_var": x_var, "y_var": y_var, "train_config": train_config,
-        "regression_line_form": rlv, "mode": algorithm_.mode,
-        "coefficients": make_table(algorithm_.coefficients),
-        "coefficients_dev": make_table(algorithm_.coefficients_deviate),
-        "significances": make_table(algorithm_.significance),
-        "errors": make_table(algorithm_.regression_errors),
+        "regression_line_form": rlv,
     }
+    # ---------- Load Model Evaluation START ----------
+    if algorithm_.evaluate:
+        with open(algorithm_.evaluate.file.path, "rb") as f:
+            reports = pickle.load(f)
+        context['mode'] = reports['mode']
+        for table in ['coefficients', 'coefficients_dev', 'significances', 'errors']:
+            context[table] = reports[table].to_html(
+            classes="table table-sm table-bordered", justify='left', bold_rows=False)
+    # ---------- Load Model Evaluation END   ----------
     return render(req, "algo_linear_regression/main.html", context)
 
 
@@ -359,13 +364,13 @@ def train_model(req):
             k_fold = KFold(n_splits=5, random_state=train.cleaned_data['random_seed'], shuffle=True)
             x, y = dataframe[x_col].values, dataframe[y_col].values
             dataset, lr_models = [], []
-            coefficient, significance, errors = [], [], []
+            coefficients, significance, errors = [], [], []
             for train_index, valid_index in k_fold.split(x):
                 x_train, x_valid, y_train, y_valid = x[train_index], x[valid_index], y[train_index], y[valid_index]
                 x_train = linear_regression.add_constant(x_train)
                 x_valid = linear_regression.add_constant(x_valid)
                 lr_model = linear_regression.OLS(y_train, x_train).fit()
-                coef = np.array([lr_model.params, lr_model.bse, lr_model.tvalues, lr_model.pvalues]).T
+                coefficient = np.array([lr_model.params, lr_model.bse, lr_model.tvalues, lr_model.pvalues]).T
                 sig = np.array([lr_model.fvalue, lr_model.f_pvalue, lr_model.rsquared, lr_model.rsquared_adj,
                                 lr_model.ssr, lr_model.ess, lr_model.llf])
                 y_valid_hat = lr_model.predict(x_valid)
@@ -373,29 +378,36 @@ def train_model(req):
 
                 lr_models.append(lr_model)
                 dataset.append([x_train, x_valid, y_train, y_valid])
-                coefficient.append(coef)
+                coefficients.append(coefficient)
                 significance.append(sig)
                 errors.append(error)
 
-            coefficient = np.mean(coefficient, axis=0)
+            coefficients_avg = np.mean(coefficients, axis=0)
             significance = np.array(significance).T
             errors = np.array(errors).T
-
-            algorithm_.coefficients_deviate = pickle.dumps(pd.DataFrame(
-                data=np.max([np.max(coefficient, axis=0) - coefficient,
-                             coefficient - np.min(coefficient, axis=0)], axis=0),
-                columns=['Coefficient ±', 'Std. Error ±', 't-Statistic ±', 'Prob. ±'],
-                index=["Constant"] + x_col
-            ))
-            algorithm_.significance = pickle.dumps(pd.DataFrame(
-                data=significance, columns=[f"Fold {i}" for i in range(1, 6)],
-                index=['F-statistic', 'p-value of F-statistic', 'R-squared', 'Adjusted R-squared',
-                       'SSR', 'SSE', 'Log likelihood']
-            ))
-            algorithm_.regression_errors = pickle.dumps(pd.DataFrame(
-                data=errors, columns=[f"Fold {i}" for i in range(1, 6)],
-                index=["MAE", "MSE"]
-            ))
+            parameters = {
+                "coefficients": pd.DataFrame(
+                    data=coefficients_avg,
+                    columns=['Coefficient', 'Std. Error', 't-Statistic', 'Prob.'],
+                    index=["Constant"] + x_col
+                ),
+                "coefficients_dev": pd.DataFrame(
+                    data=np.max([np.max(coefficients, axis=0) - coefficients_avg,
+                                 coefficients_avg - np.min(coefficients, axis=0)], axis=0),
+                    columns=['Coefficient ±', 'Std. Error ±', 't-Statistic ±', 'Prob. ±'],
+                    index=["Constant"] + x_col
+                ),
+                "significances": pd.DataFrame(
+                    data=significance, columns=[f"Fold {i}" for i in range(1, 6)],
+                    index=['F-statistic', 'p-value of F-statistic', 'R-squared', 'Adjusted R-squared',
+                           'SSR', 'SSE', 'Log likelihood']
+                ),
+                "mode": mode,
+                "errors": pd.DataFrame(
+                    data=errors, columns=[f"Fold {i}" for i in range(1, 6)],
+                    index=["MAE", "MSE"]
+                ),
+            }
 
         elif mode == "split":
             x_train, x_valid, y_train, y_valid = train_test_split(
@@ -408,18 +420,25 @@ def train_model(req):
             coefficient = np.array([lr_model.params, lr_model.bse, lr_model.tvalues, lr_model.pvalues]).T
             y_valid_hat = lr_model.predict(x_valid)
 
-            algorithm_.coefficients_deviate = pickle.dumps(pd.DataFrame())
-            algorithm_.significance = pickle.dumps(pd.DataFrame(
-                data=[[lr_model.fvalue], [lr_model.f_pvalue], [lr_model.rsquared], [lr_model.rsquared_adj],
-                      [lr_model.ssr], [lr_model.ess], [lr_model.llf]],
-                index=['F-statistic', 'p-value of F-statistic', 'R-squared', 'Adjusted R-squared',
-                       'SSR', 'SSE', 'Log likelihood'],
-                columns=["Value"]
-            ))
-            algorithm_.regression_errors = pickle.dumps(pd.DataFrame(
-                data=[mean_absolute_error(y_valid, y_valid_hat), mean_squared_error(y_valid, y_valid_hat)],
-                columns=["Value"], index=["MAE", "MSE"]
-            ))
+            parameters = {
+                "coefficients": pd.DataFrame(
+                    data=coefficient, columns=['Coefficient', 'Std. Error', 't-Statistic', 'Prob.'],
+                    index=["Constant"] + x_col
+                ),
+                "coefficients_dev": pd.DataFrame(),
+                "significances": pd.DataFrame(
+                    data=[[lr_model.fvalue], [lr_model.f_pvalue], [lr_model.rsquared], [lr_model.rsquared_adj],
+                          [lr_model.ssr], [lr_model.ess], [lr_model.llf]],
+                    index=['F-statistic', 'p-value of F-statistic', 'R-squared', 'Adjusted R-squared',
+                           'SSR', 'SSE', 'Log likelihood'],
+                    columns=["Value"]
+                ),
+                "mode": mode,
+                "errors": pd.DataFrame(
+                    data=[mean_absolute_error(y_valid, y_valid_hat), mean_squared_error(y_valid, y_valid_hat)],
+                    columns=["Value"], index=["MAE", "MSE"]
+                ),
+            }
 
         else:  # mode == "full_train"
             x_train, y_train = dataframe[x_col].values, dataframe[y_col].values
@@ -428,15 +447,27 @@ def train_model(req):
             lr_models = lr_model = linear_regression.OLS(y_train, x_train).fit()
             coefficient = np.array([lr_model.params, lr_model.bse, lr_model.tvalues, lr_model.pvalues]).T
 
-            algorithm_.coefficients_deviate = pickle.dumps(pd.DataFrame())
-            algorithm_.significance = pickle.dumps(pd.DataFrame(
-                data=[[lr_model.fvalue], [lr_model.f_pvalue], [lr_model.rsquared], [lr_model.rsquared_adj],
-                      [lr_model.ssr], [lr_model.ess], [lr_model.llf]],
-                index=['F-statistic', 'p-value of F-statistic', 'R-squared', 'Adjusted R-squared',
-                       'SSR', 'SSE', 'Log likelihood'],
-                columns=["Value"]
-            ))
-            algorithm_.regression_errors = pickle.dumps(pd.DataFrame())
+            parameters = {
+                "coefficients": pd.DataFrame(
+                    data=coefficient, columns=['Coefficient', 'Std. Error', 't-Statistic', 'Prob.'],
+                    index=["Constant"] + x_col
+                ),
+                "coefficients_dev": pd.DataFrame(),
+                "significances": pd.DataFrame(
+                    data=[[lr_model.fvalue], [lr_model.f_pvalue], [lr_model.rsquared], [lr_model.rsquared_adj],
+                          [lr_model.ssr], [lr_model.ess], [lr_model.llf]],
+                    index=['F-statistic', 'p-value of F-statistic', 'R-squared', 'Adjusted R-squared',
+                           'SSR', 'SSE', 'Log likelihood'],
+                    columns=["Value"]
+                ),
+                "mode": mode,
+                "errors": pd.DataFrame(),
+            }
+        # zip parameters
+        parameters_bin = ContentFile(pickle.dumps(parameters))
+        parameters_paper = Paper(user=req.user, role=2, name=f"Linear Regression #{algorithm_.id} Parameters")
+        parameters_paper.file.save(f"lr_{algorithm_.id}_paras_{mode}.pkl", parameters_bin)
+        algorithm_.evaluate = parameters_paper
 
         # zip models
         models_bin = ContentFile(pickle.dumps(lr_models))
@@ -444,13 +475,12 @@ def train_model(req):
         models_paper.file.save(f"lr_{algorithm_.id}_model_{mode}.pkl", models_bin)
         algorithm_.model = models_paper
 
-        algorithm_.coefficients = pickle.dumps(pd.DataFrame(
-            data=coefficient, columns=['Coefficient', 'Std. Error', 't-Statistic', 'Prob.'],
-            index=["Constant"] + x_col
-        ))
-        algorithm_.matrix = pickle.dumps(dataset)
-        algorithm_.mode = mode
-
+        # zip dataset
+        dataset_bin = ContentFile(pickle.dumps(dataset))
+        dataset_paper = Paper(user=req.user, role=2, name=f"Linear Regression #{algorithm_.id} Matrix")
+        dataset_paper.file.save(f"lr_{algorithm_.id}_matrix_{mode}.pkl", dataset_bin)
+        dataset_paper.save()
+        algorithm_.matrix = dataset_paper
         # ---------- Asynchronous Algorithm END   ----------
     except Exception as e:
         algorithm_.step.status = 4
@@ -481,14 +511,9 @@ def clear_model(req, algo_id):
     # ---------- Algorithm Ownership Navigator END   ----------
     if algorithm_.step.status == 2:
         return redirect("/task/retrieve?message=Cannot start because this algorithm is busy.&color=warning")
-    algorithm_.matrix = None
-    algorithm_.coefficients = None
-    algorithm_.coefficients_deviate = None
-    algorithm_.significance = None
-    algorithm_.mode = ""
-    algorithm_.regression_errors = None
-    algorithm_.save()
     algorithm_.model.delete()
+    algorithm_.matrix.delete()
+    algorithm_.evaluate.delete()
     return redirect(f"/algo_linear_regression/{algorithm_.id}")
 
 
@@ -518,16 +543,16 @@ def regression_line(req):
         y_col = Column.objects.filter(algorithm=algorithm_, y_column=True).first().name
         other_variables = [x.name for x in
                            Column.objects.filter(algorithm=algorithm_, x_column=True).exclude(name=x_col)]
-        source = pickle.loads(algorithm_.coefficients)
-        other_slope = {j: source.loc[j, 'Coefficient'] for j in other_variables}
+        with open(algorithm_.evaluate.file.path, "rb") as f:
+            evaluation = pickle.load(f)
+        other_slope = {j: evaluation['coefficients'].loc[j, 'Coefficient'] for j in other_variables}
         with open(algorithm_.dataframe.file.path, "rb") as f:
             dataframe = pickle.load(f)
-
         f, fig = io.StringIO(), plt.figure()
         x, y = dataframe[x_col].values, dataframe[y_col].values
-        slope = source.loc[x_col, 'Coefficient']
+        slope = evaluation['coefficients'].loc[x_col, 'Coefficient']
         intercept = np.sum([dataframe[j].mean(axis=0) * other_slope[j] for j in other_slope]) + \
-            source.loc['Constant', 'Coefficient']
+            evaluation['coefficients'].loc['Constant', 'Coefficient']
         plt.plot([x.min(), x.max()], [x.min() * slope + intercept, x.max() * slope + intercept], "r")
         sampling = np.random.choice(x.shape[0], 100)
         plt.scatter(x[sampling], y[sampling])
@@ -561,6 +586,8 @@ def predict(req):
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
     try:
+        with open(algorithm_.evaluate.file.path, "rb") as f:
+            evaluation = pickle.load(f)
         with open(algorithm_.model.file.path, "rb") as f:
             lr_model = pickle.load(f)
         paper = select_file.cleaned_data['paper']
@@ -571,7 +598,7 @@ def predict(req):
                 table = pickle.load(f)
         x_col = [x.name for x in Column.objects.filter(algorithm=algorithm_, x_column=True)]
         y_col = Column.objects.filter(algorithm=algorithm_, y_column=True).first().name
-        mode = algorithm_.mode
+        mode = evaluation['mode']
         x = linear_regression.add_constant(table[x_col].values)
         if mode == '5_fold':
             y_hat = np.empty(shape=(table.shape[0], 5))
