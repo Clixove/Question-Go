@@ -13,6 +13,12 @@
 
 ## Installation
 
+The `token/` folder is hidden, because it includes passwords and keys. These files should be in this folder:
+- `alipay_public_key.pem`
+- `app_private_key.pem` There 2 files are generated when you apply for an Alipay merchant account.
+- `app_id` It contains your Alipay APP ID.
+- `django_secret_key` It's a string encrypting sessions and cookies, and can be generated in [Djecrety](https://djecrety.ir/).
+
 `${...}` contains variables that you need to replace according to your 
 environment.
 
