@@ -47,7 +47,7 @@ class SelectFile(PublicAlgorithm):
         self.fields['paper'].initial = paper_queryset.first()
 
     def ownership_paper(self, user):
-        self.fields['paper'].queryset = Paper.objects.filter(Q(role=1) | Q(role=2), user=user)
+        self.fields['paper'].queryset = Paper.objects.filter(user=user)
 
 
 class Profile(PublicAlgorithm):
@@ -271,6 +271,15 @@ class DropColumns(PublicPreProcessing):
     pass
 
 
+def pandas_drop_column(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
+    dataframe.drop(
+        columns=[x.name for x in config.cleaned_data['targeted_columns']],
+        inplace=True,
+    )
+    config.cleaned_data['targeted_columns'].delete()
+    return dataframe
+
+
 class FillNa(PublicPreProcessing):
     method = forms.ChoiceField(
         choices=(
@@ -300,20 +309,6 @@ class FillNa(PublicPreProcessing):
     )
 
 
-def pandas_drop_column(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
-    dataframe.drop(
-        columns=[x.name for x in config.cleaned_data['targeted_columns']],
-        inplace=True,
-    )
-    config.cleaned_data['targeted_columns'].delete()
-    return dataframe
-
-
-def pandas_cast(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
-
-    return dataframe
-
-
 def pandas_fill_na(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
     columns = [x.name for x in config.cleaned_data['targeted_columns']]
     if config.cleaned_data['method']:
@@ -336,6 +331,12 @@ def pandas_fill_na(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
         else:
             na_value = config.cleaned_data['constant'] or 0
         dataframe[columns] = dataframe[columns].fillna(value=na_value)
+    return dataframe
+
+
+
+def pandas_cast(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
+
     return dataframe
 
 
