@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import *
+from admin_site_controller.admin import RestrictedAdmin
 
 
 @admin.register(Plan)
@@ -38,7 +39,7 @@ class FeatureAdmin(admin.ModelAdmin):
 
 
 @admin.register(Subscription)
-class SubscriptionAdmin(admin.ModelAdmin):
+class SubscriptionAdmin(RestrictedAdmin):
     list_display = ['user', 'plan', 'expired_time']
     list_filter = ['plan', 'expired_time']
     search_fields = ['user__username']
@@ -46,7 +47,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Transaction)
-class TransactionAdmin(admin.ModelAdmin):
+class TransactionAdmin(RestrictedAdmin):
     list_display = ['created_time', 'created_user', 'amount', 'trade_number', 'paid', 'plan']
     list_filter = ['created_time', 'paid', 'plan']
     search_fields = ['trade_number']

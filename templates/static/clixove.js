@@ -26,11 +26,6 @@ function copy_selected_instances(selected_table, target_id) {
 function async_submit_form(form_id, url, response_id) {
     $('#' + form_id).submit(function (e) {
         e.preventDefault();
-        // document.getElementById(response_id).innerHTML = '' +
-        //     '<div class="alert alert-warning alert-dismissible fade show" role="alert">' +
-        //     '    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-        //     '    Start running ...' +
-        //     '</div>';
         $.ajax({
             type: 'POST',
             url: url,

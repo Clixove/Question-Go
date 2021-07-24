@@ -22,7 +22,6 @@ import task_manager.views as v2
 import payment.views as v3
 import library.views as v4
 import algo_linear_regression.views as v5
-import pre_descriptive.views as v6
 import pre_cross_sectional.views as v7
 
 urlpatterns = [
@@ -71,18 +70,6 @@ urlpatterns = [
     path('algo_linear_regression/regression-line', v5.regression_line),
     path('algo_linear_regression/predict', v5.predict),
     path('algo_linear_regression/clear-predict/<int:algo_id>', v5.clear_predict),
-    # pre-processing: descriptive
-    path('pre_descriptive/add', v6.add_dp),
-    path('pre_descriptive/<int:algo_id>', v6.view_dp),
-    path('pre_descriptive/change-note', v6.change_note),
-    path('pre_descriptive/search-data', v6.search_data),
-    path('pre_descriptive/use-data', v6.use_data),
-    path('pre_descriptive/clear-data/<int:algo_id>', v6.clear_data),
-    path('pre_descriptive/confirm-error/<int:algo_id>', v6.confirm_error),
-    path('pre_descriptive/variables', v6.set_variables),
-    path('pre_descriptive/clear-variables/<int:algo_id>', v6.clear_variables),
-    path('pre_descriptive/profile/generate', v6.generate_profile),
-    path('pre_descriptive/profile/<int:algo_id>', v6.view_profile),
     # pre-processing: cross-sectional data
     path('pre_cross_sectional/add', v7.add_csp),
     path('pre_cross_sectional/<int:algo_id>', v7.view_csp),

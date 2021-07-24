@@ -26,7 +26,8 @@ class OpenedTask(models.Model):
 class Step(models.Model):
     task = models.ForeignKey(Task, models.CASCADE)
     name = models.CharField(max_length=64)
-    view_link = models.TextField(blank=True)
+    model_id = models.PositiveBigIntegerField()
+    view_link = models.TextField()
     status = models.IntegerField(choices=[(1, "NOT STARTED"), (2, "RUNNING"), (3, "DONE"), (4, "INTERRUPTED")], default=1)
 
     def __str__(self):

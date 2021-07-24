@@ -102,7 +102,10 @@ def add_lr(req):
         return redirect("/task/instances?message=You should open a task first.&color=danger")
     new_algorithm = LinearRegression()
     new_algorithm.save()
-    new_step = Step(task=opened_task, name="Linear Regression", view_link=f"/algo_linear_regression/{new_algorithm.id}")
+    new_step = Step(
+        task=opened_task, name="Linear Regression", view_link=f"/algo_linear_regression/{new_algorithm.id}",
+        model_id=new_algorithm.id
+    )
     new_step.save()
     new_algorithm.step = new_step
     new_algorithm.save()
@@ -215,7 +218,7 @@ def use_data(req):
     paper = select_file.cleaned_data['paper']
     try:
         # ---------- Asynchronous Algorithm START ----------
-        if select_file.cleaned_data['data_format'] == 1:
+        if select_file.cleaned_data['data_format'] == '1':
             table = pd.read_excel(paper.file.path)
         else:
             with open(paper.file.path, "rb") as f:
@@ -227,7 +230,7 @@ def use_data(req):
         algorithm_.dataframe = new_paper
         for column in Column.objects.filter(algorithm=algorithm_):
             column.delete()
-        for col in table.targeted_columns:
+        for col in table.columns:
             new_column = Column(algorithm=algorithm_, name=col)
             new_column.save()
         # ---------- Asynchronous Algorithm END   ----------
@@ -467,12 +470,14 @@ def train_model(req):
         parameters_bin = ContentFile(pickle.dumps(parameters))
         parameters_paper = Paper(user=req.user, role=2, name=f"Linear Regression #{algorithm_.id} Parameters")
         parameters_paper.file.save(f"lr_{algorithm_.id}_paras_{mode}.pkl", parameters_bin)
+        parameters_paper.save()
         algorithm_.evaluate = parameters_paper
 
         # zip models
         models_bin = ContentFile(pickle.dumps(lr_models))
         models_paper = Paper(user=req.user, role=3, name=f"Linear Regression #{algorithm_.id} Model")
         models_paper.file.save(f"lr_{algorithm_.id}_model_{mode}.pkl", models_bin)
+        models_paper.save()
         algorithm_.model = models_paper
 
         # zip dataset
@@ -591,7 +596,7 @@ def predict(req):
         with open(algorithm_.model.file.path, "rb") as f:
             lr_model = pickle.load(f)
         paper = select_file.cleaned_data['paper']
-        if select_file.cleaned_data['data_format'] == 1:
+        if select_file.cleaned_data['data_format'] == '1':
             table = pd.read_excel(paper.file.path)
         else:
             with open(paper.file.path, "rb") as f:

@@ -4,7 +4,6 @@ import pandas as pd
 from django import forms
 from django.contrib.auth.decorators import permission_required
 from django.core.files.base import ContentFile
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -72,7 +71,9 @@ def add_dp(req):
     new_algorithm = Description()
     new_algorithm.save()
     new_step = Step(
-        task=opened_task, name="Descriptive Statistics", view_link=f"/pre_descriptive/{new_algorithm.id}")
+        task=opened_task, name="Descriptive Statistics", view_link=f"/pre_descriptive/{new_algorithm.id}",
+        model_id=new_algorithm.id
+    )
     new_step.save()
     new_algorithm.step = new_step
     new_algorithm.save()
@@ -171,7 +172,7 @@ def use_data(req):
     paper = select_file.cleaned_data['paper']
     try:
         # ---------- Asynchronous Algorithm START ----------
-        if select_file.cleaned_data['data_format'] == 1:
+        if select_file.cleaned_data['data_format'] == '1':
             table = pd.read_excel(paper.file.path)
         else:
             with open(paper.file.path, "rb") as f:
@@ -183,7 +184,7 @@ def use_data(req):
         algorithm_.dataframe = new_paper
         for column in Column.objects.filter(algorithm=algorithm_):
             column.delete()
-        for col in table.targeted_columns:
+        for col in table.columns:
             new_column = Column(algorithm=algorithm_, name=col)
             new_column.save()
         # ---------- Asynchronous Algorithm END   ----------

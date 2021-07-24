@@ -20,12 +20,12 @@
             <div class="col-md-12" style="overflow-x: auto;">
                 <table class="table table-hover table-borderless">
                     <thead>
-                    <tr><th>Step ID</th><th>Name</th><th>Status</th><th>Action</th></tr>
+                    <tr><th>Model ID</th><th>Name</th><th>Status</th><th>Action</th></tr>
                     </thead>
                     <tbody>
                     {% for step in task.step_set.all %}
                         <tr>
-                            <td>{{ step.id }}</td><td><a href="{{ step.view_link }}">{{ step.name }}</a></td>
+                            <td>{{ step.model_id }}</td><td><a href="{{ step.view_link }}">{{ step.name }}</a></td>
                             <td class="text-nowrap {{ step.status_color }}">
                                 <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                                 {{ step.get_status_display }}

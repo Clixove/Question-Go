@@ -1,20 +1,20 @@
 import pickle
-from scipy.stats import mode as math_mode
+
 import numpy as np
 import pandas as pd
 from django import forms
 from django.contrib.auth.decorators import permission_required
 from django.core.files.base import ContentFile
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from pandas_profiling import ProfileReport
+from sklearn.preprocessing import OneHotEncoder
 
 from task_manager.models import OpenedTask
 from .models import *
-
+from .safe_math import safe_eval
 
 class PublicAlgorithm(forms.Form):
     algorithm = forms.ModelChoiceField(PreProcessing.objects.all(), widget=forms.HiddenInput())
@@ -41,8 +41,8 @@ class SelectFile(PublicAlgorithm):
     data_format = forms.ChoiceField(choices=[(1, "Spreadsheet [*.xlsx]"), (2, "Binary [*.pkl]")],
                                     widget=forms.Select({"class": "form-select"}))
 
-    def search_paper(self, user, search_query, role):
-        paper_queryset = Paper.objects.filter(name__contains=search_query, user=user, role=role)
+    def search_paper(self, user, search_query):
+        paper_queryset = Paper.objects.filter(name__contains=search_query, user=user)
         self.fields['paper'].queryset = paper_queryset
         self.fields['paper'].initial = paper_queryset.first()
 
@@ -65,7 +65,7 @@ def add_csp(req):
     new_algorithm.save()
     new_step = Step(
         task=opened_task, name="Pre-processing for Cross-sectional Data",
-        view_link=f"/pre_cross_sectional/{new_algorithm.id}"
+        view_link=f"/pre_cross_sectional/{new_algorithm.id}", model_id=new_algorithm.id
     )
     new_step.save()
     new_algorithm.step = new_step
@@ -96,8 +96,7 @@ def generate_profile(req):
     csp.step.status = 2
     csp.step.save()
     try:
-        with open(csp.dataframe.file.path, "rb") as f:
-            dataframe = pickle.load(f)
+        dataframe = pd.read_pickle(csp.dataframe.file.path)
         profile = ProfileReport(dataframe, title=f"Cross-sectional Data Pre-processing #{csp.id}",
                                 plot={"dpi": 200, "image_format": "png"})
         csp.report = profile.to_html()
@@ -159,7 +158,7 @@ def search_data(req):
         return render(req, "task_manager/hint_widget.html", context)
     # ---------- Algorithm Ownership Validator v2 END   ----------
     select_file = SelectFile()
-    select_file.search_paper(req.user, search_file.cleaned_data['search_file'], search_file.cleaned_data['data_format'])
+    select_file.search_paper(req.user, search_file.cleaned_data['search_file'])
     select_file.link_to_algorithm(algorithm_.id)
     return HttpResponse(select_file.as_p())
 
@@ -186,11 +185,10 @@ def use_data(req):
     paper = select_file.cleaned_data['paper']
     try:
         # ---------- Asynchronous Algorithm START ----------
-        if select_file.cleaned_data['data_format'] == 1:
+        if select_file.cleaned_data['data_format'] == '1':
             table = pd.read_excel(paper.file.path)
         else:
-            with open(paper.file.path, "rb") as f:
-                table = pickle.load(f)
+            table = pd.read_pickle(paper.file.path)
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
         new_paper = Paper(user=req.user, role=2, name=f"Cross-sectional Data Pre-processing #{algorithm_.id} Parsed Data")
         new_paper.file.save(f"csp_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
@@ -283,9 +281,9 @@ def pandas_drop_column(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFr
 class FillNa(PublicPreProcessing):
     method = forms.ChoiceField(
         choices=(
+            (None, "use constant to fill gap (eg. 0)"),
             ("ffill", "propagate last valid observation forward to next valid"),
             ("bfill", "use next valid observation to fill gap"),
-            (None, "use constant to fill holes (e.g. 0)"),
         ),
         required=False,
         widget=forms.Select({"class": "form-select"}),
@@ -303,10 +301,7 @@ class FillNa(PublicPreProcessing):
         widget=forms.Select({"class": "form-select"}),
         help_text="For more values, obtain statistical metrics in data profile."
     )
-    constant = forms.FloatField(
-        widget=forms.NumberInput({"class": "form-control"}),
-        required=False,
-    )
+    constant = forms.FloatField(widget=forms.NumberInput({"class": "form-control"}), required=False)
 
 
 def pandas_fill_na(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -319,11 +314,15 @@ def pandas_fill_na(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
         elif config.cleaned_data['quick_constant'] == 'average-95':
             n = dataframe.shape[0]
             na_value = {
-                col: np.mean(np.sort(dataframe[col])[round(.05 * n):round(.95 * n)])
+                col: np.nanmean(np.sort(dataframe[col])[round(.05 * n):round(.95 * n)])
                 for col in columns
             }
         elif config.cleaned_data['quick_constant'] == 'mode':
-            na_value = dict(zip(columns, math_mode(dataframe[columns]).mode.squeeze()))
+            na_value = {}
+            for col in columns:
+                not_nan_array = dataframe[col].dropna().values
+                not_nan_array_uni, not_nan_array_freq = np.unique(not_nan_array, return_counts=True)
+                na_value[col] = not_nan_array_uni[np.argmax(not_nan_array_freq)]
         elif config.cleaned_data['quick_constant'] == 'min':
             na_value = dataframe[columns].min(axis=0).to_dict()
         elif config.cleaned_data['quick_constant'] == 'max':
@@ -334,15 +333,113 @@ def pandas_fill_na(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
     return dataframe
 
 
+class Cast(PublicPreProcessing):
+    data_type = forms.ChoiceField(
+        choices=(
+            ('numerical', 'Numerical (Automatically decided)'),
+            ('datetime', 'Datetime'),
+            ('timedelta', 'Datetime duration'),
+            ('string', 'String'),
+            ('int32', 'Integer 32-bit'),
+            ('int64', 'Integer 64-bit'),
+            ('float32', 'Float 32-bit'),
+            ('float64', 'Float 64-bit'),
+        ),
+        widget=forms.Select({"class": "form-select"}),
+    )
+    datetime_format = forms.CharField(
+        widget=forms.TextInput({"class": "form-control"}),
+        required=False,
+        help_text="(eg. %Y-%m-%d) Reference: "
+                  "https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior",
+    )
+    datetime_combined_from_multiple_columns = forms.BooleanField(
+        required=False, initial=False,
+        widget=forms.Select({"class": "form-select"}, choices=((True, 'Yes'), (False, 'No'))),
+        help_text="The keys can be common abbreviations like [‘year’, ‘month’, ‘day’, ‘minute’, ‘second’, ‘ms’, "
+                  "‘us’, ‘ns’]) or plurals of the same.",
+    )
+    datetime_duration_unit = forms.ChoiceField(
+        choices=(
+            ('W', 'Week'), ('D', 'Day'), ('h', 'Hour'), ('m', 'Minute'), ('S', 'Second'),
+            ('us', 'Micro-second'), ('ns', 'Nano-second')
+        ),
+        initial='D',
+        widget=forms.Select({"class": "form-select"})
+    )
+
 
 def pandas_cast(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
+    columns = [x.name for x in config.cleaned_data['targeted_columns']]
+    if config.cleaned_data['data_type'] == 'numerical':
+        for col in columns:
+            dataframe[col] = pd.to_numeric(dataframe[col])
+    elif config.cleaned_data['data_type'] == 'datetime':
+        if config.cleaned_data['datetime_combined_from_multiple_columns']:
+            dataframe = pd.to_datetime \
+                (dataframe, format=config.cleaned_data['datetime_format'], infer_datetime_format=True)
+        else:
+            for col in columns:
+                dataframe[col] = pd.to_datetime \
+                    (dataframe[col], format=config.cleaned_data['datetime_format'], infer_datetime_format=True)
+    elif config.cleaned_data['data_type'] == 'timedelta':
+        for col in columns:
+            dataframe[col] = pd.to_timedelta(dataframe[col], unit=config.cleaned_data['datetime_duration_unit'])
+    else:
+        dataframe = dataframe.astype({col: config.cleaned_data['data_type'] for col in columns})
+    return dataframe
 
+
+class Encode(PublicPreProcessing):
+    method = forms.ChoiceField(
+        choices=(('o', 'one-hot encode'), ('t', 'target encode')),
+        widget=forms.Select({"class": "form-select"}),
+        initial='t'
+    )
+
+
+def sklearn_encode(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
+    columns = [x.name for x in config.cleaned_data['targeted_columns']]
+    if config.cleaned_data['method'] == 'o':
+        this_algorithm = config.cleaned_data['targeted_columns'].first().algorithm
+        oh = OneHotEncoder()
+        for col in columns:
+            oh_matrix = oh.fit_transform(dataframe[[col]])
+            categories = [f"{col}/{col_}" for col_ in oh.categories_[0]]
+            oh_frame = pd.DataFrame(data=oh_matrix.toarray(), columns=categories)
+            dataframe = pd.concat([dataframe, oh_frame], axis=1, join='inner')
+            for col_ in categories:
+                new_column = Column(algorithm=this_algorithm, name=col_)
+                new_column.save()
+    elif config.cleaned_data['method'] == 't':
+        for col in columns:
+            content, frequency = np.unique(dataframe[col], return_counts=True)
+            frequency = frequency / max(dataframe.shape[0], 1)
+            content = dict(zip(content, frequency))
+            dataframe[col] = dataframe[col].apply(lambda x: content[x], convert_dtype='float32')
+    return dataframe
+
+
+class MathOp(PublicPreProcessing):
+    expression = forms.CharField(
+        widget=forms.TextInput({"class": "form-control"}),
+        max_length=99,
+        help_text="'x' is variables as column arrays. Simple mathematical operations only."
+    )
+
+
+def math_op(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
+    columns = [x.name for x in config.cleaned_data['targeted_columns']]
+    dataframe[columns] = dataframe[columns].apply(lambda x: safe_eval(config.cleaned_data['expression'], x.values))
     return dataframe
 
 
 preprocessing_wrapper_menu = {
     "drop_column": {"form": DropColumns, "function": pandas_drop_column},
     "fill_na": {"form": FillNa, "function": pandas_fill_na},
+    "cast": {"form": Cast, "function": pandas_cast},
+    "encode": {"form": Encode, "function": sklearn_encode},
+    "math_op": {"form": MathOp, "function": math_op},
 }
 
 
@@ -400,20 +497,17 @@ def preprocessing_wrapper(req, form_name):
     csp.step.save()
     try:
         # ---------- Asynchronous Algorithm START ----------
-        with open(csp.dataframe.file.path, "rb") as f:
-            dataframe = pickle.load(f)
+        dataframe = pd.read_pickle(csp.dataframe.file.path)
         dataframe = preprocessing_wrapper_menu[form_name]['function'](preprocessing_form, dataframe)
-        with open(csp.dataframe.file.path, "wb") as f:
-            pickle.dump(dataframe, f)
+        dataframe.to_pickle(csp.dataframe.file.path)
         # ---------- Asynchronous Algorithm END   ----------
     except Exception as e:
         csp.step.status = 4
         csp.step.save()
         csp.error_message = str(e)
         csp.save()
-        raise e
-        # context = {"color": "danger", "content": "Interrupted.", "refresh": f"/pre_cross_sectional/{csp.id}"}
-        # return render(req, "task_manager/hint_widget.html", context)
+        context = {"color": "danger", "content": "Interrupted.", "refresh": f"/pre_cross_sectional/{csp.id}"}
+        return render(req, "task_manager/hint_widget.html", context)
     csp.step.status = 3
     csp.step.save()
     context = {"color": "success", "content": "The dataset has been updated.", "refresh": f"/pre_cross_sectional/{csp.id}"}

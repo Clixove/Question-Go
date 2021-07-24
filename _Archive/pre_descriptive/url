@@ -1,0 +1,12 @@
+    # pre-processing: descriptive
+    path('pre_descriptive/add', v6.add_dp),
+    path('pre_descriptive/<int:algo_id>', v6.view_dp),
+    path('pre_descriptive/change-note', v6.change_note),
+    path('pre_descriptive/search-data', v6.search_data),
+    path('pre_descriptive/use-data', v6.use_data),
+    path('pre_descriptive/clear-data/<int:algo_id>', v6.clear_data),
+    path('pre_descriptive/confirm-error/<int:algo_id>', v6.confirm_error),
+    path('pre_descriptive/variables', v6.set_variables),
+    path('pre_descriptive/clear-variables/<int:algo_id>', v6.clear_variables),
+    path('pre_descriptive/profile/generate', v6.generate_profile),
+    path('pre_descriptive/profile/<int:algo_id>', v6.view_profile),
