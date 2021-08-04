@@ -4,36 +4,27 @@
     {% include 'clixove.org/header.html' %}
 </head>
 <body>
-{% include 'clixove.org/navigator.html' %}
-    <div class="container-md">
-        <div class="justify-content-center d-flex flex-column" id="app-main-page">
-            <div class="row justify-content-center ">
-                <div class="col-md-6 text-center">
-                    <p class="display-6">Question Go</p>
-                    <p class="lead">Construct and Reuse Machine Learning Models as a Workflow</p>
-                    <hr>
-                </div>
-            </div>
-            <div class="row justify-content-center ">
-                <div class="col-md-4">
-                    <form action="/my_login/login" method="post">
+<div class="container-fluid d-flex flex-column justify-content-between" style="height: 100vh;">
+    {% include 'clixove.org/navigator.html' %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <p class="display-6 text-center">Question Go</p>
+            <hr>
+            <p class="lead text-center">Construct and reuse machine learning workflow</p>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <form class="alert alert-light" action="/my_login/login" method="post">
                         {{ LoginSheet.as_p }}
                         <div class="text-center">
                             <input type="submit" class="btn btn-success" value="Login">
                         </div>
                     </form>
-                    <p>No account? <a href="/my_login/register">Register</a> </p>
                 </div>
             </div>
         </div>
     </div>
+    <placeholder></placeholder>
     {% include 'clixove.org/copyright.html' %}
+</div>
 </body>
 </html>
-
-<script>
-    navbar_height = document.getElementById("clixove-navigator").offsetHeight;
-    copyright_height = document.getElementById("copyright").offsetHeight + 5;
-    main_height = window.visualViewport.height - navbar_height - copyright_height;
-    document.getElementById("app-main-page").setAttribute("style", "height: " + main_height + "px;");
-</script>

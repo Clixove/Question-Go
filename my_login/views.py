@@ -127,3 +127,7 @@ def add_register(req):
     )
     new_register.save()
     return redirect("/my_login/register?message=Success.&success=1")
+
+
+def view_contact(req):
+    return render(req, "my_login/contact.html")

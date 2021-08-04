@@ -32,6 +32,7 @@ urlpatterns = [
     path('my_login/quit', v1.delete_login),
     path('my_login/register', v1.view_register),
     path('my_login/register/add', v1.add_register),
+    path('my_login/contact', v1.view_contact),
     # task manager
     path('task/instances', v2.view_instances),
     path('task/<int:task_id>', v2.view_task),
