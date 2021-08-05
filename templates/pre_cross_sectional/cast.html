@@ -1,17 +1,14 @@
 <div class="alert shadow fade show" role="alert">
-    <p class="d-flex justify-content-between">
-        <label class="flex-item">
-            <strong>Convert data type </strong> <label style="width: 2ch;"></label>
-            <label>
-                Change view:
-                <a role="button" class="text-primary" onclick="set_compact('cast_tc')">Compact</a>
-                <a role="button" class="text-primary" onclick="set_expand('cast_tc')">Expand</a>
-            </label> <label style="width: 2ch;"></label>
-            <label>Check all:
-                <input class="form-check-input" type="checkbox" onchange="check_all(this, 'targeted_columns')" />
-            </label>
+    <p>
+        <strong>Convert data type</strong><label style="width: 2ch;"></label>
+        <label>
+            Change view:
+            <a role="button" class="text-primary" onclick="set_compact('cast_tc')">Compact</a>
+            <a role="button" class="text-primary" onclick="set_expand('cast_tc')">Expand</a>
+        </label> <label style="width: 2ch;"></label>
+        <label>Check all:
+            <input class="form-check-input" type="checkbox" onchange="check_all(this, 'cast_tc')" />
         </label>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </p>
     <form id="cast">
         {{ cast.as_p }}

@@ -1,5 +1,5 @@
 function check_all(button, class_name) {
-    const cbs = document.getElementsByName(class_name);
+    const cbs = document.getElementById(class_name).querySelectorAll('input[type=checkbox]');
     if (button.checked) {
         cbs.forEach((cb) => cb.checked = true);
     } else {
