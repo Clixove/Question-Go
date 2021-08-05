@@ -4,7 +4,11 @@
     {% include 'clixove.org/header.html' %}
 </head>
 <body>
-    {% include 'clixove.org/navigator.html' %}
+    <div class="container-fluid">
+        <div class="col-md-12">
+            {% include 'clixove.org/navigator.html' %}
+        </div>
+    </div>
     <div class="container-md">
         <div class="row">
             <div class="col-md-3"></div>
@@ -12,7 +16,7 @@
                 <label class="lead fw-normal">{{ product.name }}</label>
             </div>
             <div class="col-md-3 text-end">
-                <a role="button" class="btn btn-outline-primary" href="/task/instances">Back</a>
+                <a role="button" class="btn btn-outline-primary" href="/task/retrieve">Back</a>
             </div>
             <hr class="mt-2">
         </div>

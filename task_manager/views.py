@@ -123,9 +123,12 @@ def add_task(req):
 def retrieve_task(req):
     try:
         opened_task_id = OpenedTask.objects.get(user=req.user).task_id
+        return redirect(f"/task/{opened_task_id}")
     except OpenedTask.DoesNotExist:
-        return redirect("/task/instances")
-    return redirect(f"/task/{opened_task_id}")
+        if Task.objects.filter(user=req.user).exists():
+            return redirect("/task/instances")
+        else:
+            return redirect("/task/new")
 
 
 @permission_required("task_manager.change_task",

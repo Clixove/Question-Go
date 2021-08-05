@@ -22,6 +22,7 @@ import task_manager.views as v2
 import payment.views as v3
 import library.views as v4
 import algo_linear_regression.views as v5
+import pre_norm.views as v6
 import pre_cross_sectional.views as v7
 
 urlpatterns = [
@@ -32,7 +33,7 @@ urlpatterns = [
     path('my_login/quit', v1.delete_login),
     path('my_login/register', v1.view_register),
     path('my_login/register/add', v1.add_register),
-    path('my_login/contact', v1.view_contact),
+    path('articles/<article_name>', v1.view_article),
     # task manager
     path('task/instances', v2.view_instances),
     path('task/<int:task_id>', v2.view_task),
@@ -82,6 +83,18 @@ urlpatterns = [
     path('pre_cross_sectional/profile/generate', v7.generate_profile),
     path('pre_cross_sectional/profile/<int:algo_id>', v7.view_profile),
     path('pre_cross_sectional/action/<str:form_name>', v7.preprocessing_wrapper),
+    # pre-processing: normalization
+    path('pre_norm/add', v6.add_norm),
+    path('pre_norm/<int:algo_id>', v6.view_norm),
+    path('pre_norm/change-note', v6.change_note),
+    path('pre_norm/search-data', v6.search_data),
+    path('pre_norm/use-data', v6.use_data),
+    path('pre_norm/clear-data/<int:algo_id>', v6.clear_data),
+    path('pre_norm/confirm-error/<int:algo_id>', v6.confirm_error),
+    path('pre_norm/train', v6.train),
+    path('pre_norm/clear-model/<int:algo_id>', v6.clear_model),
+    path('pre_norm/predict', v6.predict),
+    path('pre_norm/clear-predict/<int:algo_id>', v6.clear_predict),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

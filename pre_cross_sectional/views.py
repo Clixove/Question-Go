@@ -16,6 +16,7 @@ from task_manager.models import OpenedTask
 from .models import *
 from .safe_math import safe_eval
 
+
 class PublicAlgorithm(forms.Form):
     algorithm = forms.ModelChoiceField(PreProcessing.objects.all(), widget=forms.HiddenInput())
 

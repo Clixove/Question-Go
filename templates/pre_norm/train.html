@@ -1,0 +1,25 @@
+<div class="alert shadow fade show" role="alert">
+    <p>
+        <strong>Fit and transform</strong> <label style="width: 2ch;"></label>
+        <label>
+            Change view:
+            <a role="button" class="text-primary" onclick="set_compact('id_columns')">Compact</a>
+            <a role="button" class="text-primary" onclick="set_expand('id_columns')">Expand</a>
+        </label> <label style="width: 2ch;"></label>
+        <label>Check all:
+            <input class="form-check-input" type="checkbox" onchange="check_all(this, 'id_columns')" />
+        </label>
+    </p>
+    <form id="add-model">
+        {{ norm_sheet.as_p }}
+        <div class="text-center">
+            <input type="submit" class="btn btn-outline-success" value="Train">
+        </div>
+    </form>
+    <div id="return-add-model"></div>
+</div>
+
+<script>
+    set_compact("id_columns");
+    async_submit_form('add-model', '/pre_norm/train', 'return-add-model');
+</script>

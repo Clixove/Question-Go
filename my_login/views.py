@@ -8,6 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from .models import *
+from payment.models import Subscription, LockedGroup
+from django.utils.timezone import now
 
 for password_validator in settings.AUTH_PASSWORD_VALIDATORS:
     if password_validator['NAME'] == 'django.contrib.auth.password_validation.MinimumLengthValidator' and \
@@ -42,24 +44,11 @@ def add_login(req):
                         password=sheet1.cleaned_data['password'])
     if not user:
         return redirect('/main?message=Username or password is not correct.&color=danger')
-    if 'payment.apps.PaymentConfig' in settings.INSTALLED_APPS:
-        from payment.models import Subscription, LockedGroup
-        from django.utils.timezone import now
-        [user.groups.remove(p.group) for p in LockedGroup.objects.all()]
-        for subscription in Subscription.objects.filter(user=user, expired_time__gt=now()):
-            [user.groups.add(g) for g in subscription.plan.permitted_groups.all()]
+    [user.groups.remove(p.group) for p in LockedGroup.objects.all()]
+    for subscription in Subscription.objects.filter(user=user, expired_time__gt=now()):
+        [user.groups.add(g) for g in subscription.plan.permitted_groups.all()]
     login(req, user)
-    if 'task_manager.apps.TaskManagerConfig' in settings.INSTALLED_APPS:
-        from task_manager.models import OpenedTask, Task
-        if Task.objects.filter(user=user).count() == 0:
-            return redirect('/task/new')
-        try:
-            opened_task_id = OpenedTask.objects.get(user=user).task_id
-            return redirect(f'/task/{opened_task_id}')
-        except OpenedTask.DoesNotExist:
-            return redirect('/task/instances')
-    else:
-        return redirect('/task/instances')
+    return redirect("/task/retrieve")
 
 
 @login_required(login_url='/main')
@@ -129,5 +118,5 @@ def add_register(req):
     return redirect("/my_login/register?message=Success.&success=1")
 
 
-def view_contact(req):
-    return render(req, "my_login/contact.html")
+def view_article(req, article_name):
+    return render(req, f"articles/{article_name}")

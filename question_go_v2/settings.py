@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # pre-processing
     'pre_cross_sectional.apps.PreCrossSectionalConfig',
     'pre_time_series.apps.PreTimeSeriesConfig',
+    'pre_norm.apps.PreNormConfig',
     # algorithm
     'algo_linear_regression.apps.AlgoLinearRegressionConfig',
     # application
