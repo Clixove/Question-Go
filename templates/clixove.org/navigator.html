@@ -110,8 +110,7 @@
     </div>
 </nav>
 {% if request.GET.message and request.GET.color %}
-<div class="alert alert-{{ request.GET.color }} alert-dismissible fade show" role="alert"
-     style="position: fixed; top: 0; width: 100%; z-index: 1000;">
+<div class="alert alert-{{ request.GET.color }} alert-dismissible fade show sticky-top" role="alert">
     <strong>Message:</strong> {{ request.GET.message }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
