@@ -1,5 +1,13 @@
-function check_all(button, class_name) {
-    const cbs = document.getElementById(class_name).querySelectorAll('input[type=checkbox]');
+function check_all(button, checkbox_list_id) {
+    const cbs = document.getElementById(checkbox_list_id).querySelectorAll('input[type=checkbox]');
+    if (button.checked) {
+        cbs.forEach((cb) => cb.checked = true);
+    } else {
+        cbs.forEach((cb) => cb.checked = false);
+    }
+}
+function check_all_by_names(button, name) {
+    const cbs = document.getElementsByName(name);
     if (button.checked) {
         cbs.forEach((cb) => cb.checked = true);
     } else {
