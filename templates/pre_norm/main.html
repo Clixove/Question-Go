@@ -1,30 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% include 'clixove.org/header.html' %}
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                {% include 'clixove.org/navigator.html' %}
-            </div>
-        </div>
-{#    </div>#}
-{#    <div class="container-md">#}
-        <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-md-6 text-center">
-                <label class="lead fw-normal">Normalization and zipping</label>
-            </div>
-            <div class="col-md-3 text-end">
-                <a role="button" class="btn btn-outline-primary" href="/task/retrieve">Back</a>
-            </div>
-            <hr class="mt-2">
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-            {# ---------- Asynchronous Error Monitor START ---------- #}
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert">
+        <div class="col-md-12">
+        <p class="lead fw-normal">Normalization and Zipping #{{ pre_csp.id }}</p>
+{# ---------- Asynchronous Error Monitor START ---------- #}
             {% if pre_csp.error_message %}
                 <div class="alert alert-danger d-flex align-items-center" role="alert">
                     <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: x-large"></i>
@@ -52,10 +39,9 @@
             {% endif %}
 
             {% include 'pre_norm/note.html' %}
-            </div>
         </div>
     </div>
-
-    {% include 'clixove.org/copyright.html' %}
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
 </body>
 </html>
