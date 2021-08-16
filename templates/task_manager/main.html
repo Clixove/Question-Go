@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert bg-light">
+        <div class="col-md-8 text-center d-flex flex-column justify-content-center">
+            <p class="display-4">QuestionGo</p>
+            <p class="lead">Construct and reuse machine learning models</p>
+            <label><a class="btn btn-lg btn-primary" href="/task/retrieve">Quick start</a></label>
+        </div>
+        <div class="col-md-4">
+            <p>Features:</p>
+            <p><span class="badge rounded-pill bg-secondary text-light">1</span>
+                Store and reuse datasets and models</p>
+            <p><span class="badge rounded-pill bg-secondary text-light">2</span>
+                Organize thinking to a analytical project</p>
+            <p><span class="badge rounded-pill bg-secondary text-light">3</span>
+                Compare and select the best model</p>
+            <p><span class="badge rounded-pill bg-secondary text-light">4</span>
+                Guide you to search hyper-parameters</p>
+            <p><span class="badge rounded-pill bg-secondary text-light">5</span>
+                Integrate visualization toolkits</p>
+            <p><span class="badge rounded-pill bg-secondary text-light">6</span>
+                Make contributions: <a href="https://github.com/Clixove/Question-Go/pulls">Pull request</a></p>
+        </div>
+    </div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Project</p>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Projects</strong></p>
+                <p>View, create, and switch between your projects.</p>
+                <div class="text-center m-2">
+                    <a href="/task/instances" class="btn btn-outline-primary">Enter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Data pre-processing</p>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Cross-sectional</strong></p>
+                <p>Process cross-sectional data: dropping, filling missing values, converting type, encoding, and
+                basic maths operations.</p>
+                <div class="text-center m-2">
+                    <a href="/pre_cross_sectional/add" class="btn btn-outline-success">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Time series</strong></p>
+                <p>Converting records from a table to a multi-dimension time series.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Normalization and zipping</strong></p>
+                <p>Perform normalization and zipping, prepared for inverse results back at any time.</p>
+                <div class="text-center m-2">
+                    <a href="/pre_norm/add" class="btn btn-outline-success">Create</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Hypothesis</p>
+        </div>
+    </div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Classification</p>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Random Forest</strong></p>
+                <p>Classify and calculate the importance of each feature.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Support Vector Classifier</strong></p>
+                <p>Classify small number of samples, and draw classification boundary in non-linear space.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Abnormal Detection</strong></p>
+                <p>Use one-class SVM method to draw envelope of normal samples and detect abnormal samples.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Logistic regression</strong></p>
+                <p>Classify samples into dual classes based on the linear method.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Regression</p>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Linear regression</strong></p>
+                <p>The most classic method in computational economics.</p>
+                <div class="text-center m-2">
+                    <a href="/algo_linear_regression/add" class="btn btn-outline-success">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Elastic net</strong></p>
+                <p>An improvement of linear regression with L1 and L2 regularization.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Random Forest</strong></p>
+                <p>Regress and calculate the importance of each feature.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>Support Vector Regressor</strong></p>
+                <p>Regress small number of samples by calculating the distance between each sample and the boundary.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Prediction</p>
+        </div>
+    </div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Clustering</p>
+        </div>
+    </div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Advanced applications</p>
+        </div>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
+</html>

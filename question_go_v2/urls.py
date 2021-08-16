@@ -28,13 +28,14 @@ import pre_cross_sectional.views as v7
 urlpatterns = [
     path('admin/', admin.site.urls),
     # my login
-    path('main/', v1.view_login),
-    path('my_login/login', v1.add_login),
-    path('my_login/quit', v1.delete_login),
+    path('my_login/view', v1.view_login),
+    path('my_login/add', v1.add_login),
+    path('my_login/delete', v1.delete_login),
     path('my_login/register', v1.view_register),
     path('my_login/register/add', v1.add_register),
-    path('articles/<article_name>', v1.view_article),
+    path('my_login/register/confirm/<str:invitation_code>', v1.add_user),
     # task manager
+    path('main', v2.view_main_page),
     path('task/instances', v2.view_instances),
     path('task/<int:task_id>', v2.view_task),
     path('task/open/<int:task_id>', v2.open_task),

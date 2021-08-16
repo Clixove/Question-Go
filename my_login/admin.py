@@ -6,11 +6,11 @@ from .models import *
 
 @admin.register(Register)
 class RegisterAdmin(admin.ModelAdmin):
-    list_display = ['group', 'username', 'bio']
+    list_display = ['username', 'group', 'email']
     list_filter = ['group']
     actions = ['admit']
     exclude = ['password']
-    search_fields = ['bio']
+    search_fields = ['username']
 
     def admit(self, _, queryset):
         for application in queryset:
@@ -28,3 +28,9 @@ class RegisterAdmin(admin.ModelAdmin):
             application.delete()
 
     admit.short_description = "Admit"
+
+
+@admin.register(RegisterGroup)
+class RegisterGroupAdmin(admin.ModelAdmin):
+    list_display = ['group']
+    autocomplete_fields = ['group']

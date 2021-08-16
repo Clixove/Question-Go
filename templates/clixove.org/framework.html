@@ -1,26 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% include 'clixove.org/header.html' %}
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
 </head>
 <body>
-    <div class="container-fluid">
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row">
         <div class="col-md-12">
-            {% include 'clixove.org/navigator.html' %}
+
         </div>
     </div>
-    <div class="container-md">
-        <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-md-6 text-center">
-                <label class="lead fw-normal">Heading</label>
-            </div>
-            <div class="col-md-3 text-end">
-                <a role="button" class="btn btn-outline-primary" href="/task/retrieve">Back</a>
-            </div>
-            <hr class="mt-2">
-        </div>
-    </div>
-    {% include 'clixove.org/copyright.html' %}
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
 </body>
 </html>

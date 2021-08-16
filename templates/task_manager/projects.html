@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert justify-content-center">
+        <div class="col-md-8">
+            <a class="btn btn-success mb-4" href="/task/new">New project</a>
+            {% if opened_task %}
+            <div class="alert alert-primary" role="alert">
+                <div class="row">
+                    <div class="col-md-8">
+                        <strong>(open) {{ opened_task }}</strong>
+                        <div class="d-flex">
+                            <small class="me-auto">Modified: {{ opened_task.modified_time | date:"Y-m-d H:i:s" }}</small>
+                            <small class="me-auto">Created: {{ opened_task.created_time | date:"Y-m-d H:i:s" }}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end" style="min-width: 21ch;">
+                        <!-- min-width = the natural width of the two buttons -->
+                        <a href="/task/{{ opened_task.id }}" class="btn btn-success">Enter</a>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Action
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/task/close">
+                                    Close <span class="badge rounded-pill text-dark">not recommended</span>
+                                </a></li>
+                                <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#renameTask"
+                                    onclick="transfer_task_id({{ opened_task.id }})">Rename</button></li>
+                               <li><a class="dropdown-item" href="/task/delete/{{ opened_task.id }}">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %} {% for task in tasks %}
+            <div class="alert alert-light" role="alert">
+                <div class="row">
+                    <div class="col-md-8">
+                        <strong>{{ task }}</strong>
+                        <div class="d-flex">
+                            <small class="me-auto">Modified: {{ task.modified_time | date:"Y-m-d H:i:s" }}</small>
+                            <small class="me-auto">Created: {{ task.created_time | date:"Y-m-d H:i:s" }}</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Action
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/task/open/{{ task.id }}">Open</a></li>
+                                <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#renameTask"
+                                    onclick="transfer_task_id({{ task.id }})">Rename</button></li>
+                                <li><a class="dropdown-item" href="/task/delete/{{ task.id }}">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% endfor %}
+            <p><small>* The timezone of software server is {{ timezone }}.</small></p>
+        </div>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
+</html>
+
+<div class="modal fade" id="renameTask" tabindex="-1" aria-labelledby="renameTaskLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameTaskLabel">Rename Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="rename-task-form">
+                <div class="modal-body">
+                    {{ rename_task_form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="Rename" class="btn btn-success">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function transfer_task_id(id) {
+        document.getElementById('rename-task-form').setAttribute('action', '/task/rename/' + id.toString());
+    }
+</script>

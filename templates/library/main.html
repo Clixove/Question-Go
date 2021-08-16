@@ -1,163 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        {% include 'clixove.org/header.html' %}
-    </head>
-    <body>
-        <div class="container-fluid">
-            <div class="col-md-12">
-                {% include 'clixove.org/navigator.html' %}
-            </div>
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert">
+        <div class="col-md-2">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a role="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#addPaper">
+                        New file
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a role="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#deletePaper"
+                       onclick="copy_selected_instances('papers', 'delete-paper-signal')">
+                        Delete
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a role="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#renamePaper"
+                       onclick="copy_selected_instances('papers', 'rename-paper-signal')">
+                        Rename
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled">Storage</a>
+                    <a class="nav-link disabled">{{ UsedStorage | filesizeformat }} / {{ TotalStorage | filesizeformat }}</a>
+                </li>
+                <li class="nav-item">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ RateStorage | floatformat:1 }}%" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </li>
+            </ul>
         </div>
-        <div class="container-md">
-            <div class="row">
-                <div class="col-md-3"></div>
-                <div class="col-md-6 text-center">
-                    <label class="lead fw-normal">My Files</label>
+        <div class="col-md-10">
+            <form class="row">
+                <div class="col-md-10">{{ SearchSheet.as_p }}</div>
+                <div class="col-md-2">
+                    <input type="submit" class="btn btn-outline-success" value="Search">
                 </div>
-                <div class="col-md-3 text-end">
-                    <a href="/task/retrieve" class="btn btn-outline-primary">Back</a>
-                </div>
-                <hr class="mt-2" />
+            </form>
+
+            <!-- Views -->
+            <div style="overflow-x: auto;">
+                <table class="table table-borderless table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label><input class="form-check-input" type="checkbox"
+                                              onchange="check_all_by_names(this, 'papers')" /></label>
+                            </th>
+                            <th>Role</th><th>Name</th><th>Modified Time</th><th>Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paper in Papers %}
+                        <tr>
+                            <td>
+                                <label>
+                                    <input type="checkbox" class="form-check-input" name="papers" value="{{ paper.id }}" />
+                                </label>
+                            </td>
+                            <td>{{ paper.get_role_display }}</td>
+                            <td><a href="/library/paper/{{ paper.id }}" class="text-dark">{{ paper }}</a></td>
+                            <td class="text-nowrap">{{ paper.modified_time | date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ paper.file.size | filesizeformat }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            <ul class="text-muted">Hints:
+                <li>The timezone of software server is {{ timezone }}.</li>
+                <li>Clicking PDF or image triggers preview, and clicking file of other formats triggers download.</li>
+            </ul>
             </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="alert bg-light">
-                        <!-- Advance function module -->
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a role="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#addPaper">
-                                    New file
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a role="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#deletePaper"
-                                   onclick="copy_selected_instances('papers', 'delete-paper-signal')">
-                                    Delete
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a role="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#renamePaper"
-                                   onclick="copy_selected_instances('papers', 'rename-paper-signal')">
-                                    Rename
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link disabled">Storage</a>
-                                <a class="nav-link disabled">{{ UsedStorage | filesizeformat }} / {{ TotalStorage | filesizeformat }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" style="width: {{ RateStorage | floatformat:1 }}%" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-9">
-                    <form class="row">
-                        <div class="col-md-10">{{ SearchSheet.as_p }}</div>
-                        <div class="col-md-2 text-center">
-                            <input type="submit" class="btn btn-outline-success" value="Search">
-                        </div>
-                    </form>
-                    <!-- Submission module -->
-                    <div class="modal fade" id="addPaper" tabindex="-1" aria-labelledby="addPaper" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <strong class="modal-title" id="addPaper">New file</strong>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form action="/library/paper/add" method="post" enctype="multipart/form-data">
-                                    <div class="modal-body">
-                                        {{ AddPaperSheet.as_p }}
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="submit" class="btn btn-success" value="Add" />
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="modal fade" id="deletePaper" tabindex="-1" aria-labelledby="deletePaper" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <strong class="modal-title" id="deletePaper">Delete</strong>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form action="/library/paper/delete" method="post" enctype="multipart/form-data">
-                                    <div class="modal-body">
-                                        <p>Are you sure to delete these papers?</p>
-                                        <div id="delete-paper-signal" hidden></div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="submit" class="btn btn-danger" value="Yes" />
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal fade" id="renamePaper" tabindex="-1" aria-labelledby="renamePaper" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <strong class="modal-title" id="addPaper">Rename</strong>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form action="/library/paper/rename" method="post" enctype="multipart/form-data">
-                                    <div class="modal-body">
-                                        {{ RenamePaperSheet.as_p }}
-                                        <div id="rename-paper-signal" hidden></div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="submit" class="btn btn-success" value="Rename" />
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Views -->
-                    <div style="overflow-x: auto;">
-                        <table class="table table-borderless table-hover">
-                            <caption class="caption-top">
-                                <i>Click name of PDF and image to preview; click file of other formats to download.</i>
-                            </caption>
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <label><input class="form-check-input" type="checkbox"
-                                                      onchange="check_all_by_names(this, 'papers')" /></label>
-                                    </th>
-                                    <th>Role</th><th>Name</th><th>Modified Time</th><th>Size</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for paper in Papers %}
-                                <tr>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" class="form-check-input" name="papers" value="{{ paper.id }}" />
-                                        </label>
-                                    </td>
-                                    <td>{{ paper.get_role_display }}</td>
-                                    <td><a href="/library/paper/{{ paper.id }}" class="text-dark">{{ paper }}</a></td>
-                                    <td class="text-nowrap">{{ paper.modified_time | date:"Y-m-d H:i:s" }}</td>
-                                    <td>{{ paper.file.size | filesizeformat }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        <p><small>* Modified and created time: The timezone of software server is {{ timezone }}.</small></p>
-                    </div>
-                </div>
-            </div>
         </div>
-
-        {% include 'clixove.org/copyright.html' %}
-    </body>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
 </html>
+
+<!-- Submission module -->
+<div class="modal fade" id="addPaper" tabindex="-1" aria-labelledby="addPaper" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="modal-title" id="addPaper">New file</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/library/paper/add" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {{ AddPaperSheet.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-success" value="Add" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deletePaper" tabindex="-1" aria-labelledby="deletePaper" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="modal-title" id="deletePaper">Delete</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/library/paper/delete" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <p>Are you sure to delete these papers?</p>
+                    <div id="delete-paper-signal" hidden></div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-danger" value="Yes" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="renamePaper" tabindex="-1" aria-labelledby="renamePaper" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong class="modal-title" id="addPaper">Rename</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/library/paper/rename" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {{ RenamePaperSheet.as_p }}
+                    <div id="rename-paper-signal" hidden></div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-success" value="Rename" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

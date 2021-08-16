@@ -42,6 +42,12 @@ function async_submit_form(form_id, url, response_id) {
         });
     });
 }
+function async_visit(url, response_id) {
+    $.ajax({
+        type: 'GET', url: url,
+        success: (response) => {document.getElementById(response_id).innerHTML = response},
+    });
+}
 function export_html(id, filename) {
     const text = document.getElementById(id).innerHTML;
     if (text.length > 0) {

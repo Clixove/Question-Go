@@ -1,100 +1,84 @@
-<nav class="navbar navbar-expand-lg navbar-light p-0 sticky-top bg-white" id="clixove-navigator">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="/main">Clixove</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon btn-sm"></span>
+        <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="nav me-auto">
-            <li class="nav-item dropdown">
-                <div class="nav-link dropdown-toggle" id="nav-1" role="button" data-bs-toggle="dropdown"
-                     aria-expanded="false">
-                    Task
-                </div>
-                <ul class="dropdown-menu" aria-labelledby="nav-1">
-                    <li><a class="dropdown-item" href="/task/new">New</a></li>
-                    <li><a class="dropdown-item" href="/task/instances">My tasks</a></li>
-                    <li><a class="dropdown-item" href="/task/retrieve">Quick start</a></li>
-                </ul>
+        <ul class="nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a class="nav-link text-light" href="/task/{{ request.user.openedtask.task.id }}">Home</a>
             </li>
-            <li class="nav-item"><a href="/library" class="nav-link" id="nav-2">File</a></li>
+            <li class="nav-item"><a class="nav-link text-light" href="/library">Data</a></li>
             <li class="nav-item dropdown">
-                <div class="nav-link dropdown-toggle" id="nav-3" role="button" data-bs-toggle="dropdown"
+                <div class="nav-link text-light" id="navbar-pricing" role="button" data-bs-toggle="dropdown"
                      aria-expanded="false">
-                    Statistics
+                    Pricing
                 </div>
-                <ul class="dropdown-menu" aria-labelledby="nav-3">
-                    <li><label class="dropdown-item disabled">Pre-processing</label> </li>
-                    <li><a href="/pre_cross_sectional/add" class="dropdown-item">Cross-sectional</a> </li>
-                    <li><a href="#" class="dropdown-item">Time series</a> </li>
-                    <li><a href="/pre_norm/add" class="dropdown-item">Normalization and zipping</a> </li>
-                    <li class="dropdown-divider"></li>
-                    <li><label class="dropdown-item disabled">Hypothesis</label> </li>
-                </ul>
-            </li>
-            <li class="nav-item dropdown">
-                <div class="nav-link dropdown-toggle" id="nav-4" role="button" data-bs-toggle="dropdown"
-                     aria-expanded="false">
-                    Machine Learning
-                </div>
-                <ul class="dropdown-menu" aria-labelledby="nav-4"
-                style="max-height: 60vh; overflow-y: auto;">
-                    <li><label class="dropdown-item disabled">Classification</label> </li>
-                    <li><a href="#" class="dropdown-item">Random forest classifier</a></li>
-                    <li><a href="#" class="dropdown-item">SVC</a></li>
-                    <li><a href="#" class="dropdown-item">One-class SVC</a></li>
-                    <li><a href="#" class="dropdown-item">Logistic regression</a></li>
-                    <li class="dropdown-divider"></li>
-                    <li><label class="dropdown-item disabled">Regression</label> </li>
-                    <li><a href="/algo_linear_regression/add" class="dropdown-item">Linear regression</a></li>
-                    <li><a href="#" class="dropdown-item">Elastic net</a></li>
-                    <li><a href="#" class="dropdown-item">Random forest regressor</a></li>
-                    <li><a href="#" class="dropdown-item">SVR</a></li>
-                    <li class="dropdown-divider"></li>
-                    <li><label class="dropdown-item disabled">Prediction</label> </li>
-                    <li class="dropdown-divider"></li>
-                    <li><label class="dropdown-item disabled">Clustering</label> </li>
-                    <li class="dropdown-divider"></li>
-                </ul>
-            </li>
-            <li class="nav-item dropdown">
-                <div class="nav-link dropdown-toggle" id="nav-5" role="button" data-bs-toggle="dropdown"
-                     aria-expanded="false">
-                    Application
-                </div>
-                <ul class="dropdown-menu" aria-labelledby="nav-5">
-
-                </ul>
-            </li>
-            <li class="nav-item dropdown">
-                <div class="nav-link dropdown-toggle" id="nav-6" role="button" data-bs-toggle="dropdown"
-                     aria-expanded="false">
-                    Account
-                </div>
-                <ul class="dropdown-menu" aria-labelledby="nav-6">
-                    <li><a class="dropdown-item" href="/admin">Administration</a></li>
+                <ul class="dropdown-menu" aria-labelledby="navbar-pricing">
                     <li><a class="dropdown-item" href="/payment">Plans and subscription</a></li>
-                    <li><a class="dropdown-item" href="/payment/transactions">My shopping cart</a> </li>
+                    <li><a class="dropdown-item" href="/payment/transactions">My shopping cart</a></li>
                 </ul>
             </li>
             <li class="nav-item dropdown">
-                <div class="nav-link dropdown-toggle" id="nav-7" role="button" data-bs-toggle="dropdown"
+                <div class="nav-link text-light" id="navbar-help" role="button" data-bs-toggle="dropdown"
                      aria-expanded="false">
                     Help
                 </div>
-                <ul class="dropdown-menu" aria-labelledby="nav-7">
-                    <li><a class="dropdown-item" href="/articles/contact.html">Contact us</a></li>
+                <ul class="dropdown-menu" aria-labelledby="navbar-help">
+                    <li><a class="dropdown-item" href="https://github.com/Clixove/Question-Go/issues">
+                        Open an issue on GitHub</a></li>
+                    <li><a class="dropdown-item" href="mailto:cloudy@clixove.com">Contact me</a></li>
+                    <li><a class="dropdown-item" href="https://blog.clixove.com">About clixove</a></li>
                 </ul>
             </li>
         </ul>
-        <div class="d-flex flex-row">
-            <a class="btn">{{ request.user }}</a>
-            <a class="btn text-danger" href="/my_login/quit">Quit</a>
+        <div class="d-flex">
+            {% if request.user.is_active %}
+            <div class="nav-item dropdown">
+                <div class="nav-link text-light" id="navbar-account" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Account
+                </div>
+                <ul class="dropdown-menu" aria-labelledby="navbar-account">
+                    <li><label class="dropdown-item disabled">{{ request.user.username }}</label></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/admin">Administration</a></li>
+                </ul>
+            </div>
+            <a class="btn btn-danger text-nowrap" href="/my_login/delete">Log out</a>
+            {% else %}
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-login">
+                Login
+            </button>
+
+            <div class="modal fade" id="modal-login" tabindex="-1" aria-labelledby="modal-login-label" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modal-login-label">Login</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="/my_login/add" method="post">
+                        <div class="modal-body">
+                            <div id="login-sheet"></div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <input type="submit" class="btn btn-outline-success" value="Start" />
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <script>async_visit('/my_login/view', 'login-sheet');</script>
+            {% endif %}
         </div>
     </div>
 </nav>
+
 {% if request.GET.message and request.GET.color %}
-<div class="alert alert-{{ request.GET.color }} alert-dismissible fade show sticky-top" role="alert">
+<div class="alert alert-{{ request.GET.color }} alert-dismissible fade show mb-0" role="alert">
     <strong>Message:</strong> {{ request.GET.message }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>

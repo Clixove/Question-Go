@@ -1,4 +1,3 @@
-import django.db.utils
 from django import forms
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
@@ -6,6 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from ratelimit.decorators import ratelimit
+from django.db.utils import IntegrityError
+import json
+import smtplib
+import random
+import string
+from email.mime.text import MIMEText
+from email.utils import formataddr
 
 from .models import *
 from payment.models import Subscription, LockedGroup
@@ -29,8 +36,7 @@ class LoginSheet(forms.Form):
 
 
 def view_login(req):
-    context = {"LoginSheet": LoginSheet()}
-    return render(req, "my_login/login.html", context)
+    return render(req, "my_login/login_form.html", context={"LoginSheet": LoginSheet()})
 
 
 @require_POST
@@ -48,7 +54,7 @@ def add_login(req):
     for subscription in Subscription.objects.filter(user=user, expired_time__gt=now()):
         [user.groups.add(g) for g in subscription.plan.permitted_groups.all()]
     login(req, user)
-    return redirect("/task/retrieve")
+    return redirect("/main")
 
 
 @login_required(login_url='/main')
@@ -77,19 +83,8 @@ class RegisterSheet(forms.Form):
     email = forms.EmailField(
         widget=forms.EmailInput({"class": "form-control"}),
     )
-    bio = forms.CharField(
-        widget=forms.Textarea({"class": "form-control"}),
-        label="Biography", required=False,
-        help_text="Information that is showed to admission staffs of the group. "
-                  "Max lengthen 500 characters."
-    )
-    try:
-        group = forms.ModelChoiceField(
-            Group.objects, initial=Group.objects.first(),
-            widget=forms.Select({"class": "form-select"}),
-        )
-    except django.db.utils.OperationalError:
-        pass
+    group = forms.ModelChoiceField(RegisterGroup.objects.all(), initial=RegisterGroup.objects.first(),
+                                   widget=forms.Select({"class": "form-select"}))
 
 
 def view_register(req):
@@ -99,24 +94,75 @@ def view_register(req):
     return render(req, "my_login/register.html", context)
 
 
+with open('token/smtp.json', "r") as f:
+    config = json.load(f)
+
+
+def send_confirm_email(invitation_code: str, receiver: str, host: str):
+    msg = f"""
+    <p> I'm so glad you registered for Clixove software! </p>
+    <p> <strong> Here's your confirmation link: </strong> 
+    <a href="{host}/my_login/register/confirm/{invitation_code}">ACTIVE YOUR ACCOUNT</a> </p>
+    <p> If you doesn't register any software from our company, please ignore this email. If our emails disturb you, 
+    you can report the abuse to <a href="mailto:cloudy@clixove.com">cloudy@clixove.com</a>.
+    It may be caused by someone's batch operation by robots. </p>
+    <p>For more information about our organization: <a href="https://blog.clixove.com/"> Clixove </a></p>
+    <p>Best wishes! Science will make our life better.</p>
+    <p>Cloudy</p>
+    <p>Developer of Clixove software</p>
+    """
+    msg = MIMEText(msg, 'html', 'utf-8')
+    msg['From'] = formataddr(('Clixove', config['username']))
+    msg['To'] = formataddr((receiver, receiver))
+    msg['Subject'] = 'Clixove Registration'
+    server = smtplib.SMTP_SSL(config['host'], config['port'])
+    server.login(config['username'], config['password'])
+    server.sendmail(config['username'], [receiver], msg.as_string())
+    server.quit()
+
+
 @csrf_exempt
 @require_POST
+@ratelimit(key='header:x-real-ip', rate='70/10m', block=True)
+@ratelimit(key='post:username', rate='2/1m', block=True)
+@ratelimit(key='post:email', rate='1/1m', block=True)
 def add_register(req):
     register_sheet = RegisterSheet(req.POST)
     if not register_sheet.is_valid():
-        return redirect("/my_login/register?message=Submission is not valid.")
+        return redirect('/my_login/register?message=Submission is not valid.&color=danger')
     if not register_sheet.cleaned_data['password'] == register_sheet.cleaned_data['password_again']:
-        return redirect("/my_login/register?message=The twice password don't match.")
+        return redirect('/my_login/register?message=The twice password don\'t match.&color=danger')
+    invitation_code = ''.join(random.choices(
+        string.ascii_uppercase + string.ascii_lowercase + string.digits, k=64))
+    try:
+        send_confirm_email(invitation_code, register_sheet.cleaned_data['email'], req.META['HTTP_HOST'])
+    except Exception as e:
+        return redirect(f'/my_login/register?message={e}&color=warning')
+    if User.objects.filter(username=register_sheet.cleaned_data['username']).exists() or \
+            Register.objects.filter(username=register_sheet.cleaned_data['username']).exists():
+        return redirect('/my_login/register?message=This user has been registered.&color=danger')
     new_register = Register(
         username=register_sheet.cleaned_data['username'],
         password=register_sheet.cleaned_data['password'],
         email=register_sheet.cleaned_data['email'],
-        bio=register_sheet.cleaned_data['bio'],
-        group=register_sheet.cleaned_data['group']
+        invitation_code=invitation_code,
+        group=register_sheet.cleaned_data['group'].group,
     )
-    new_register.save()
-    return redirect("/my_login/register?message=Success.&success=1")
+    try:
+        new_register.save()
+    except IntegrityError:
+        return redirect('/my_login/register/add')
+    return redirect('/my_login/register?message=The email has been successfully sent.&color=success')
 
 
-def view_article(req, article_name):
-    return render(req, f"articles/{article_name}")
+def add_user(req, invitation_code):
+    try:
+        application = Register.objects.get(invitation_code=invitation_code)
+    except Register.DoesNotExist:
+        return redirect('/main?message=Invitation code incorrect.&color=warning')
+    new_user = User(username=application.username, email=application.email)
+    new_user.set_password(application.password)
+    new_user.save()
+    new_user.groups.add(application.group)
+    application.delete()
+    return redirect('/main?message=Register successfully.&color=success')

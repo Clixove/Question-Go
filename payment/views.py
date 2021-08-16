@@ -79,11 +79,7 @@ def view_transaction_paying_page(req, transaction_id):
     return HttpResponse(transaction.returned_page)
 
 
-@csrf_exempt
-@require_POST
-@permission_required("payment.add_transaction",
-                     login_url="/payment?message=No permission to add transactions.&color=danger")
-def add_transaction(req):
+def add_transaction_alipay(req):
     co = CreateOrder(req.POST)
     if not co.is_valid():
         return redirect("/payment?message=Submission is not valid.&color=danger")
@@ -123,6 +119,17 @@ def add_transaction(req):
     )
     new_transaction.save()
     return redirect(f"/payment/transactions")
+
+
+@csrf_exempt
+@require_POST
+@permission_required("payment.add_transaction",
+                     login_url="/payment?message=No permission to add transactions.&color=danger")
+def add_transaction(req):
+    if req.POST['method'] == 'Alipay':
+        return add_transaction_alipay(req)
+    else:
+        return redirect('/payment?message=Payment method does not exist.&color=warning')
 
 
 @permission_required("payment.change_transaction",

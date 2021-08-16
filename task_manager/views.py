@@ -11,8 +11,12 @@ class RenameTask(forms.Form):
     new_name = forms.CharField(max_length=64, widget=forms.TextInput({"class": "form-control"}))
 
 
+def view_main_page(req):
+    return render(req, "task_manager/main.html")
+
+
 @permission_required("task_manager.view_task",
-                     login_url=f"/main?message=Do not have permission to view tasks.&color=danger")
+                     login_url=f"/main?message=Do not have permission to view projects.&color=danger")
 def view_instances(req):
     try:
         default_task = OpenedTask.objects.get(user=req.user).task
@@ -24,7 +28,7 @@ def view_instances(req):
         "timezone": TIME_ZONE,
         "rename_task_form": RenameTask(),
     }
-    return render(req, "task_manager/instances.html", context)
+    return render(req, "task_manager/projects.html", context)
 
 
 @permission_required("task_manager.view_task",
@@ -38,7 +42,7 @@ def view_task(req, task_id):
         "task": this_task,
         "spinner_color_picker": ["primary", "warning", "success", "danger"],
     }
-    return render(req, "task_manager/dashboard.html", context)
+    return render(req, "task_manager/steps.html", context)
 
 
 @permission_required("task_manager.add_openedtask",
@@ -68,7 +72,7 @@ def close_task(req):
 
 
 @permission_required("task_manager.delete_task",
-                     login_url="/task/instances?message=You don't have permission to delete tasks.&color=danger")
+                     login_url="/task/instances?message=You don't have permission to delete projects.&color=danger")
 def delete_task(req, task_id):
     try:
         task = Task.objects.get(id=task_id, user=req.user)
@@ -86,20 +90,20 @@ class AddTask(forms.Form):
         max_length=64,
     )
     open_after_created = forms.BooleanField(
-        widget=forms.CheckboxInput({"class": "form-check-input"}),
-        required=False,
+        widget=forms.Select({"class": "form form-select"}, choices=[(True, "Yes"), (False, "No")]),
+        required=False, initial=True,
     )
 
 
 @permission_required("task_manager.view_task",
-                     login_url="/task/instances?message=You don't have permission to view tasks.&color=danger")
+                     login_url="/task/instances?message=You don't have permission to view projects.&color=danger")
 def view_add_task(req):
     context = {"add_task_form": AddTask()}
-    return render(req, "task_manager/new_task.html", context)
+    return render(req, "task_manager/new_project.html", context)
 
 
 @permission_required("task_manager.add_task",
-                     login_url="/task/instances?message=You don't have permission to add tasks.&color=danger")
+                     login_url="/task/instances?message=You don't have permission to add projects.&color=danger")
 @require_POST
 @csrf_exempt
 def add_task(req):
@@ -132,7 +136,7 @@ def retrieve_task(req):
 
 
 @permission_required("task_manager.change_task",
-                     login_url="/task/instances?message=You don't have permission to change tasks.&color=danger")
+                     login_url="/task/instances?message=You don't have permission to change projects.&color=danger")
 @require_POST
 @csrf_exempt
 def rename_task(req, task_id):
