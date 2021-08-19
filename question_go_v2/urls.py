@@ -47,11 +47,7 @@ urlpatterns = [
     path('task/retrieve', v2.retrieve_task),
     path('step/delete/<int:step_id>', v2.delete_step),
     # payment
-    path('payment', v3.view_subscriptions),
-    path('payment/transactions', v3.view_transactions),
-    path('payment/pay/<int:transaction_id>', v3.view_transaction_paying_page),
-    path('payment/add', v3.add_transaction),
-    path('payment/query/<int:transaction_id>', v3.change_transaction),
+    path('payment/plans', v3.view_plans),
     # library
     path('library', v4.view_library),
     path('library/paper/add', v4.add_paper),

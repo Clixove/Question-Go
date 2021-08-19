@@ -46,9 +46,9 @@ INSTALLED_APPS = [
     # basis
     'admin_site_controller.apps.AdminSiteControllerConfig',
     'my_login.apps.MyLoginConfig',
-    'payment.apps.PaymentConfig',
     'library.apps.LibraryConfig',
     'task_manager.apps.TaskManagerConfig',
+    'payment.apps.PaymentConfig',
     # pre-processing
     'pre_cross_sectional.apps.PreCrossSectionalConfig',
     'pre_time_series.apps.PreTimeSeriesConfig',

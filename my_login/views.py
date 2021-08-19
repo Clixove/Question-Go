@@ -1,3 +1,4 @@
+import django.db.utils
 from django import forms
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
@@ -15,8 +16,9 @@ from email.mime.text import MIMEText
 from email.utils import formataddr
 
 from .models import *
-from payment.models import Subscription, LockedGroup
-from django.utils.timezone import now
+
+# from payment.models import query_permitted_groups
+
 
 for password_validator in settings.AUTH_PASSWORD_VALIDATORS:
     if password_validator['NAME'] == 'django.contrib.auth.password_validation.MinimumLengthValidator' and \
@@ -50,10 +52,8 @@ def add_login(req):
                         password=sheet1.cleaned_data['password'])
     if not user:
         return redirect('/main?message=Username or password is not correct.&color=danger')
-    [user.groups.remove(p.group) for p in LockedGroup.objects.all()]
-    for subscription in Subscription.objects.filter(user=user, expired_time__gt=now()):
-        [user.groups.add(g) for g in subscription.plan.permitted_groups.all()]
     login(req, user)
+    # query_permitted_groups(user)
     return redirect("/main")
 
 
@@ -83,8 +83,11 @@ class RegisterSheet(forms.Form):
     email = forms.EmailField(
         widget=forms.EmailInput({"class": "form-control"}),
     )
-    group = forms.ModelChoiceField(RegisterGroup.objects.all(), initial=RegisterGroup.objects.first(),
-                                   widget=forms.Select({"class": "form-select"}))
+    try:
+        group = forms.ModelChoiceField(RegisterGroup.objects.all(), initial=RegisterGroup.objects.first(),
+                                       widget=forms.Select({"class": "form-select"}))
+    except django.db.utils.OperationalError:
+        pass
 
 
 def view_register(req):
