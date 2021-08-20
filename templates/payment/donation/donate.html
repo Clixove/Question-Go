@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+    <script src="/static/qrcode.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert justify-content-center">
+        <div class="col-md-8">
+            <p class="lead fw-normal text-center">Donate</p>
+            <form action="/payment/donation/add-1" method="post" target="_blank">
+                <p>1. Choose the paying method.</p>
+                {{ donation_method.as_p }}
+                <p>2. Write your donation token to 'remark' box of your transfer sheet. </p>
+                <ul class="helptext">
+                    <li>This token is the only way that website managers identify you.</li>
+                    <li>The 'remark' box of your transfer sheet can also be like memo / postscript / note.</li>
+                </ul>
+                <div class="alert alert-primary"><strong>{{ token }}</strong></div>
+                <p><a href="" role="button" data-bs-toggle="modal" data-bs-target="#qr-mobile">
+                    Copy to mobile phone</a></p>
+                <p>3. Click the button to pay. <b>Please come back after paying.</b> <br>
+                <i class="text-muted">If you don't come back and notify website managers (as step 4), we will receive
+                    the money, but cannot identify where it from, and cannot give you prestige coins.</i>
+                </p>
+                <div class="text-center">
+                    <input type="submit" class="btn btn-outline-success" value="Start">
+                </div>
+            </form>
+            <p>4. Notify website managers if you have <b>successfully</b> paid.<br>
+                <i class="text-muted">We will check your payment. Before checking, the donation amount in your
+                transaction is displayed as 0. After we confirm your donation, we will change the donation record.</i>
+            </p>
+            <form action="/payment/donation/add-2" method="post" class="text-center">
+                {{ donation_token.as_p }}
+                <input type="submit" class="btn btn-outline-primary" value="I have paid.">
+            </form>
+        </div>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
+</html>
+
+<!-- Modal -->
+<div class="modal fade" id="qr-mobile" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title fw-bold" id="exampleModalLabel">Copy to mobile phone</p>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <p>To copy the <b>donation token</b>, scan the QR code with mobile phone software.</p>
+          <ul class="helptext">
+              <li>Chinese users can scan it with `Alipay` or `WeChat` and copy text.</li>
+              <li>iOS user can scan it with `Camera` and long-press the popped-up badge to copy text.</li>
+          </ul>
+        <div class="d-flex justify-content-center"><div id="qr-token"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    new QRCode(document.getElementById("qr-token"), "{{ token }}");
+</script>

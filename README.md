@@ -9,8 +9,6 @@
 
 [Pandas Profiling](https://github.com/pandas-profiling/pandas-profiling)
 
-[Unofficial Alipay SDK](https://github.com/fzlee/alipay)
-
 ## Installation
 
 The `token/` folder is hidden, because it includes passwords and keys. These files should be in this folder:

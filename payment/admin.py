@@ -18,6 +18,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ['created_time', 'created_user', 'amount', 'paid', 'plan']
-    list_filter = ['created_time', 'paid', 'plan']
+    list_display = ['created_time', 'created_user', 'amount', 'paid', 'plan', 'method', 'token']
+    list_filter = ['created_time', 'paid', 'plan', 'method']
     autocomplete_fields = ['created_user', 'plan']
+    search_fields = ['token']

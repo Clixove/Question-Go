@@ -7,7 +7,11 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-                <a class="nav-link text-light" href="/task/0{{ request.user.openedtask.task.id }}">Home</a>
+                {% if request.user.openedtask %}
+                    <a class="nav-link text-light" href="/task/{{ request.user.openedtask.task.id }}">Home</a>
+                {% else %}
+                    <a class="nav-link text-light">Home</a>
+                {% endif %}
             </li>
             <li class="nav-item"><a class="nav-link text-light" href="/library">Data</a></li>
             <li class="nav-item dropdown">
@@ -16,7 +20,13 @@
                     Pricing
                 </div>
                 <ul class="dropdown-menu" aria-labelledby="navbar-pricing">
-                    <li><a class="dropdown-item" href="/payment/plans">Plans</a> </li>
+                    <li><a class="dropdown-item" href="/payment/donation/plans">Plans</a></li>
+                    <li><a class="dropdown-item" href="/payment/donation">
+                        Donate <span class="badge text-dark">Earn prestige</span>
+                    </a></li>
+                    <li><a class="dropdown-item" href="/payment/donation/prestige">My prestige</a></li>
+                    <li><a class="dropdown-item" href="/payment/donation/transaction">My transaction</a></li>
+                    <li><a class="dropdown-item" href="/payment/donation/subscription">My subscription</a></li>
                 </ul>
             </li>
             <li class="nav-item dropdown">

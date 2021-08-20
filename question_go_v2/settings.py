@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'library.apps.LibraryConfig',
     'task_manager.apps.TaskManagerConfig',
     'payment.apps.PaymentConfig',
+    'payment_donation.apps.PaymentDonationConfig',
     # pre-processing
     'pre_cross_sectional.apps.PreCrossSectionalConfig',
     'pre_time_series.apps.PreTimeSeriesConfig',
@@ -138,7 +139,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['templates/static/']
+STATICFILES_DIRS = ['templates/static/', 'token/payment_methods/']
 MEDIA_ROOT = 'storage'
 
 # Default primary key field type

@@ -17,7 +17,7 @@ from email.utils import formataddr
 
 from .models import *
 
-# from payment.models import query_permitted_groups
+from payment.models import query_permitted_groups
 
 
 for password_validator in settings.AUTH_PASSWORD_VALIDATORS:
@@ -53,7 +53,7 @@ def add_login(req):
     if not user:
         return redirect('/main?message=Username or password is not correct.&color=danger')
     login(req, user)
-    # query_permitted_groups(user)
+    query_permitted_groups(user)
     return redirect("/main")
 
 
@@ -84,8 +84,9 @@ class RegisterSheet(forms.Form):
         widget=forms.EmailInput({"class": "form-control"}),
     )
     try:
-        group = forms.ModelChoiceField(RegisterGroup.objects.all(), initial=RegisterGroup.objects.first(),
-                                       widget=forms.Select({"class": "form-select"}))
+        group = forms.ModelChoiceField(
+            RegisterGroup.objects.all(), initial=RegisterGroup.objects.first(),
+            widget=forms.Select({"class": "form-select"}), empty_label=None)
     except django.db.utils.OperationalError:
         pass
 
@@ -138,7 +139,7 @@ def add_register(req):
     invitation_code = ''.join(random.choices(
         string.ascii_uppercase + string.ascii_lowercase + string.digits, k=64))
     try:
-        send_confirm_email(invitation_code, register_sheet.cleaned_data['email'], req.META['HTTP_HOST'])
+        send_confirm_email(invitation_code, register_sheet.cleaned_data['email'], host=req.META['HTTP_HOST'])
     except Exception as e:
         return redirect(f'/my_login/register?message={e}&color=warning')
     if User.objects.filter(username=register_sheet.cleaned_data['username']).exists() or \

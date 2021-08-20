@@ -9,6 +9,7 @@ import question_go_v2.settings
 from .models import *
 from os.path import basename
 
+
 class PublicSelectMultiplePaper(forms.Form):
     def get_instances(self, user):
         self.fields['papers'] = forms.ModelMultipleChoiceField(Paper.objects.filter(user=user), required=False)
@@ -31,10 +32,11 @@ class RenamePaper(PublicSelectMultiplePaper):
 
 
 class SearchPaper(forms.Form):
-    search = forms.CharField(max_length=256, widget=forms.TextInput({"class": "form-control"}), required=False, label="")
+    search = forms.CharField(max_length=256, widget=forms.TextInput({"class": "form-control"}), required=False,
+                             label="")
 
 
-@permission_required("library.view_paper", login_url="/main.html?message=No permission to view papers.&color=danger")
+@permission_required("library.view_paper", login_url="/main?message=No permission to view papers.&color=danger")
 def view_library(req):
     sp = SearchPaper(req.GET)
     papers = Paper.objects.filter(user=req.user, name__contains=sp.cleaned_data['search']) \
