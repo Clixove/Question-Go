@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'library.apps.LibraryConfig',
     'task_manager.apps.TaskManagerConfig',
     'payment.apps.PaymentConfig',
-    'payment_donation.apps.PaymentDonationConfig',
     # pre-processing
     'pre_cross_sectional.apps.PreCrossSectionalConfig',
     'pre_time_series.apps.PreTimeSeriesConfig',

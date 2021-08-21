@@ -12,33 +12,26 @@
     <div class="row alert justify-content-center">
         <div class="col-md-8">
             <p class="lead fw-normal text-center">Donate</p>
-            <form action="/payment/donation/add-1" method="post" target="_blank">
-                <p>1. Choose the paying method.</p>
-                {{ donation_method.as_p }}
-                <p>2. Write your donation token to 'remark' box of your transfer sheet. </p>
-                <ul class="helptext">
-                    <li>This token is the only way that website managers identify you.</li>
-                    <li>The 'remark' box of your transfer sheet can also be like memo / postscript / note.</li>
-                </ul>
+                <p>Write your donation token to 'remark' box of your transfer sheet. </p>
+                <p class="helptext">
+                    The 'remark' box of your transfer sheet can also be like memo / postscript / note. The donation
+                    token is the only way that we identify you.
+                </p>
                 <div class="alert alert-primary"><strong>{{ token }}</strong></div>
                 <p><a href="" role="button" data-bs-toggle="modal" data-bs-target="#qr-mobile">
                     Copy to mobile phone</a></p>
-                <p>3. Click the button to pay. <b>Please come back after paying.</b> <br>
-                <i class="text-muted">If you don't come back and notify website managers (as step 4), we will receive
-                    the money, but cannot identify where it from, and cannot give you prestige coins.</i>
+                <p class="helptext">
+                    After paying, if you don't click 'I have paid.' button or don't attach donation token, we may
+                    receive the money, but cannot identify where it from. In this case, we cannot give you prestige
+                    points.
                 </p>
-                <div class="text-center">
-                    <input type="submit" class="btn btn-outline-success" value="Start">
-                </div>
-            </form>
-            <p>4. Notify website managers if you have <b>successfully</b> paid.<br>
-                <i class="text-muted">We will check your payment. Before checking, the donation amount in your
-                transaction is displayed as 0. After we confirm your donation, we will change the donation record.</i>
-            </p>
-            <form action="/payment/donation/add-2" method="post" class="text-center">
-                {{ donation_token.as_p }}
-                <input type="submit" class="btn btn-outline-primary" value="I have paid.">
-            </form>
+                <form action="/payment/add" method="post">
+                    {{ donation_method.as_p }}
+                    <div class="text-center">
+                        <a href="" target="_blank" id="donate-start" class="btn btn-outline-success">Start Paying</a>
+                        <input type="submit" class="btn btn-outline-primary" value="I have paid.">
+                    </div>
+                </form>
         </div>
     </div>
     <div class="row">{% include 'clixove.org/copyright.html' %}</div>
@@ -68,4 +61,13 @@
 
 <script>
     new QRCode(document.getElementById("qr-token"), "{{ token }}");
+
+    function query_donation_method(e) {
+        $.ajax({
+            type: 'GET', url: '/payment/method/' + e.value,
+            success: (response) => {
+                document.getElementById('donate-start').href = response;
+            },
+        });
+    }
 </script>

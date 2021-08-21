@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 import my_login.views as v1
 import task_manager.views as v2
-import payment_donation.views as v3
+import payment.views as v3
 import library.views as v4
 import algo_linear_regression.views as v5
 import pre_norm.views as v6
@@ -47,16 +47,16 @@ urlpatterns = [
     path('task/retrieve', v2.retrieve_task),
     path('step/delete/<int:step_id>', v2.delete_step),
     # payment - donation
-    path('payment/donation/plans', v3.view_plan),
-    path('payment/donation', v3.donate),
-    path('payment/donation/transaction', v3.view_transaction),
-    path('payment/donation/add-1', v3.add_transaction_1),
-    path('payment/donation/add-2', v3.add_transaction_2),
-    path('payment/donation/prestige', v3.view_prestige),
-    path('payment/donation/prestige/add/<str:token>', v3.view_add_prestige),
-    path('payment/donation/prestige/add', v3.add_prestige),
-    path('payment/donation/subscription', v3.view_subscription),
-    path('payment/donation/subscription/add/<int:plan_id>', v3.add_subscription),
+    path('payment/plans', v3.view_plan),
+    path('payment/donate', v3.donate),
+    path('payment/method/<int:idx>', v3.view_method),
+    path('payment/transaction', v3.view_transaction),
+    path('payment/add', v3.add_transaction),
+    path('payment/prestige', v3.view_prestige),
+    path('payment/prestige/add/<str:token>', v3.view_add_prestige),
+    path('payment/prestige/add', v3.add_prestige),
+    path('payment/subscription', v3.view_subscription),
+    path('payment/subscription/add/<int:plan_id>', v3.add_subscription),
     # library
     path('library', v4.view_library),
     path('library/paper/add', v4.add_paper),

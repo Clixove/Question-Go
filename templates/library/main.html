@@ -54,12 +54,12 @@
                         <tr>
                             <th>
                                 <label><input class="form-check-input" type="checkbox"
-                                              onchange="check_all_by_names(this, 'papers')" /></label>
+                                              onchange="check_all(this, 'papers')" /></label>
                             </th>
                             <th>Role</th><th>Name</th><th>Modified Time</th><th>Size</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="papers">
                         {% for paper in Papers %}
                         <tr>
                             <td>

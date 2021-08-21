@@ -16,50 +16,18 @@
     <div class="row">{% include 'clixove.org/navigator.html' %}</div>
     <div class="row alert">
         <div class="col-md-12">
-            <p>The currency in this page is USD.</p>
+            <p>The currency in this page is prestige point.</p>
         </div>
         {% for plan in plans %}
         <div class="col-md-4">
         <div class="alert shadow fade show">
             <strong>{{ plan.name }}</strong> <span class="badge bg-warning text-dark">{{ plan.promotion }}</span>
-            <p class="text-center">$ <span class="display-6">{{ plan.price }}</span> / {{ plan.duration }} days</p>
+            <p class="text-center"><span class="display-6">{{ plan.price }}</span> / {{ plan.duration }} days</p>
             {% if plan.features %}
-                <ul>
-                    {% for feature in plan.display_features %}
-                        <li>{{ feature }}</li>
-                        {% endfor %}
-                </ul>
+                <ul>{% for feature in plan.display_features %}<li>{{ feature }}</li>{% endfor %}</ul>
             {% endif %}
-    {#        Paypal button start #}
-            <div id="paypal-button-{{ plan.id }}"></div>
-            <script>
-                paypal.Buttons({
-                    createOrder: function(data, actions) {
-                        // This function sets up the details of the transaction, including the amount and line
-                        // item details.
-                        return actions.order.create({
-                            purchase_units: [{
-                                amount: {
-                                    value: '{{ plan.price | floatformat:2 }}'
-                                }
-                            }]
-                        });
-                    },
-                    onApprove: function(data, actions) {
-                        // This function captures the funds from the transaction.
-                        return actions.order.capture().then(function() {
-                            // This function shows a transaction success message to your buyer.
-                            actions.redirect('/payment/plan?message=Payment succeed.&color=success');
-                        });
-                    },
-                    onCancel: function (data, actions) {
-                        // Show a cancel page or return to cart
-                        actions.redirect('/payment/plan?message=Payment cancelled.&color=warning');
-                    }
-                }).render('#paypal-button-{{ plan.id }}');
-                //This function displays Smart Payment Buttons on your web page.
-            </script>
-    {#        Paypal button end #}
+            <a href="/payment/subscription/add/{{ plan.id }}" class="btn btn-outline-primary w-100">OBTAIN</a>
+
         </div>
         </div>
         {% endfor %}

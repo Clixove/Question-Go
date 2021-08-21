@@ -40,8 +40,36 @@ class Transaction(models.Model):
     token = models.CharField(max_length=16, blank=True)
 
 
+class PayingMethod(models.Model):
+    name = models.CharField(max_length=64)
+    payment_button_url = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
+class Prestige(models.Model):
+    created_time = models.DateTimeField(auto_now_add=True)
+    created_user = models.ForeignKey(User, models.DO_NOTHING, related_name='payment_donation_created_user')
+    amount = models.FloatField()
+    plan = models.ForeignKey(Plan, models.DO_NOTHING, blank=True, null=True)
+    transaction = models.ForeignKey(Transaction, models.DO_NOTHING, blank=True, null=True)
+
+
+class WebsiteManager(models.Model):
+    user = models.ForeignKey(User, models.CASCADE)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.user.username
+
+
 def query_permitted_groups(user: User) -> None:
     for plan in Plan.objects.all():
         [user.groups.remove(g.id) for g in plan.groups.all()]
     for subscription in user.subscription_set.filter(expired_time__gt=now()):
         [user.groups.add(g.id) for g in subscription.plan.groups.all()]
+
+
+def deposit(user: User) -> float:
+    return sum([x.amount for x in Prestige.objects.filter(created_user=user)])

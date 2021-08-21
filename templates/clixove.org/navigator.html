@@ -20,13 +20,13 @@
                     Pricing
                 </div>
                 <ul class="dropdown-menu" aria-labelledby="navbar-pricing">
-                    <li><a class="dropdown-item" href="/payment/donation/plans">Plans</a></li>
-                    <li><a class="dropdown-item" href="/payment/donation">
+                    <li><a class="dropdown-item" href="/payment/plans">Plans</a></li>
+                    <li><a class="dropdown-item" href="/payment/donate">
                         Donate <span class="badge text-dark">Earn prestige</span>
                     </a></li>
-                    <li><a class="dropdown-item" href="/payment/donation/prestige">My prestige</a></li>
-                    <li><a class="dropdown-item" href="/payment/donation/transaction">My transaction</a></li>
-                    <li><a class="dropdown-item" href="/payment/donation/subscription">My subscription</a></li>
+                    <li><a class="dropdown-item" href="/payment/prestige">My prestige</a></li>
+                    <li><a class="dropdown-item" href="/payment/transaction">My transaction</a></li>
+                    <li><a class="dropdown-item" href="/payment/subscription">My subscription</a></li>
                 </ul>
             </li>
             <li class="nav-item dropdown">
@@ -79,8 +79,13 @@
                     </div>
                 </div>
             </div>
+            <script>
+            $.ajax({
+                type: 'GET', url: '/my_login/view',
+                success: (response) => {document.getElementById('login-sheet').innerHTML = response},
+            });
+            </script>
 
-            <script>async_visit('/my_login/view', 'login-sheet');</script>
             {% endif %}
         </div>
     </div>

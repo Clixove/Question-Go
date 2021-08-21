@@ -6,14 +6,6 @@ function check_all(button, checkbox_list_id) {
         cbs.forEach((cb) => cb.checked = false);
     }
 }
-function check_all_by_names(button, name) {
-    const cbs = document.getElementsByName(name);
-    if (button.checked) {
-        cbs.forEach((cb) => cb.checked = true);
-    } else {
-        cbs.forEach((cb) => cb.checked = false);
-    }
-}
 function copy_selected_instances(selected_table, target_id) {
     const target_button = document.getElementById(target_id);
     while (target_button.firstChild) {
@@ -40,12 +32,6 @@ function async_submit_form(form_id, url, response_id) {
             data: $(this).serialize(),
             success: (response) => {document.getElementById(response_id).innerHTML = response},
         });
-    });
-}
-function async_visit(url, response_id) {
-    $.ajax({
-        type: 'GET', url: url,
-        success: (response) => {document.getElementById(response_id).innerHTML = response},
     });
 }
 function export_html(id, filename) {
