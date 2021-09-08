@@ -65,7 +65,7 @@ def add_csp(req):
     new_algorithm = PreProcessing()
     new_algorithm.save()
     new_step = Step(
-        task=opened_task, name="Pre-processing for Cross-sectional Data",
+        task=opened_task, name="Pre-processing Cross-sectional Data",
         view_link=f"/pre_cross_sectional/{new_algorithm.id}", model_id=new_algorithm.id
     )
     new_step.save()
@@ -511,5 +511,6 @@ def preprocessing_wrapper(req, form_name):
         return render(req, "task_manager/hint_widget.html", context)
     csp.step.status = 3
     csp.step.save()
-    context = {"color": "success", "content": "The dataset has been updated.", "refresh": f"/pre_cross_sectional/{csp.id}"}
+    context = {"color": "success", "content": "The dataset has been updated.",
+               "refresh": f"/pre_cross_sectional/{csp.id}"}
     return render(req, "task_manager/hint_widget.html", context)

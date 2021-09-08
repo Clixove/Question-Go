@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 from .models import *
 
@@ -34,3 +36,20 @@ class RegisterAdmin(admin.ModelAdmin):
 class RegisterGroupAdmin(admin.ModelAdmin):
     list_display = ['group']
     autocomplete_fields = ['group']
+
+
+# Register your models here.
+admin.site.site_url = "/main"
+admin.site.site_header = admin.site.site_title = "Question Go"
+admin.site.index_title = "Home"
+
+
+@admin.register(ContentType)
+class ContentTypeAdmin(admin.ModelAdmin):
+    list_filter = ['app_label']
+
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ['name', 'content_type', 'codename']
+    list_filter = ['content_type']

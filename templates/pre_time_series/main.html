@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert">
+        <div class="col-md-12">
+        <p class="lead fw-normal">Pre-processing Time Series #{{ pre_csp.id }}</p>
+        {# ---------- Asynchronous Error Monitor START ---------- #}
+        {% if pre_csp.error_message %}
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: x-large"></i>
+                {{ pre_csp.error_message }} &nbsp;
+                <a href="/pre_ts/confirm-error/{{ pre_csp.id }}">
+                    Confirm and try again
+                </a>
+            </div>
+        {% endif %}
+        {# ---------- Asynchronous Error Monitor EMD   ---------- #}
+
+        {% if pre_csp.cached_dataframe %}
+        {% include 'pre_time_series/locked_data.html' %}
+            {% else %}
+            {% include 'pre_time_series/import_data.html' %}
+        {% endif %}
+
+        {% if pre_csp.dataframe %}
+            {% include 'pre_time_series/locked_sheet.html' %}
+            {% else %}
+            {% include 'pre_time_series/select_sheet.html' %}
+        {% endif %}
+
+        {% if pre_csp.normalizers and pre_csp.matrix %}
+        {% include 'pre_time_series/locked_transform.html' %}
+        {% else %}
+        {% include 'pre_time_series/transform.html' %}
+        {% endif %}
+
+        {% include 'pre_time_series/note.html' %}
+        </div>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
+</html>

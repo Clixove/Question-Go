@@ -17,7 +17,7 @@ from email.utils import formataddr
 
 from .models import *
 
-from payment.models import query_permitted_groups
+from paypal.models import query_permitted_groups
 
 
 for password_validator in settings.AUTH_PASSWORD_VALIDATORS:

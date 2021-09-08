@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'my_login.apps.MyLoginConfig',
     'library.apps.LibraryConfig',
     'task_manager.apps.TaskManagerConfig',
-    'payment.apps.PaymentConfig',
+    'paypal.apps.PaypalConfig',
     # pre-processing
     'pre_cross_sectional.apps.PreCrossSectionalConfig',
     'pre_time_series.apps.PreTimeSeriesConfig',
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     # algorithm
     'algo_linear_regression.apps.AlgoLinearRegressionConfig',
     # application
+
 ]
 
 MIDDLEWARE = [

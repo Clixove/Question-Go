@@ -19,11 +19,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 import my_login.views as v1
 import task_manager.views as v2
-import payment.views as v3
+import paypal.views as v3
 import library.views as v4
 import algo_linear_regression.views as v5
 import pre_norm.views as v6
 import pre_cross_sectional.views as v7
+import pre_time_series.views as v8
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -46,17 +47,11 @@ urlpatterns = [
     path('task/add', v2.add_task),
     path('task/retrieve', v2.retrieve_task),
     path('step/delete/<int:step_id>', v2.delete_step),
-    # payment - donation
-    path('payment/plans', v3.view_plan),
-    path('payment/donate', v3.donate),
-    path('payment/method/<int:idx>', v3.view_method),
-    path('payment/transaction', v3.view_transaction),
-    path('payment/add', v3.add_transaction),
-    path('payment/prestige', v3.view_prestige),
-    path('payment/prestige/add/<str:token>', v3.view_add_prestige),
-    path('payment/prestige/add', v3.add_prestige),
-    path('payment/subscription', v3.view_subscription),
-    path('payment/subscription/add/<int:plan_id>', v3.add_subscription),
+    # paypal
+    path('paypal/plans', v3.view_plans),
+    path('paypal/transaction/add', v3.add_transaction),
+    path('paypal/transaction', v3.view_transaction),
+    path('paypal/subscription', v3.view_subscription),
     # library
     path('library', v4.view_library),
     path('library/paper/add', v4.add_paper),
@@ -101,6 +96,17 @@ urlpatterns = [
     path('pre_norm/clear-model/<int:algo_id>', v6.clear_model),
     path('pre_norm/predict', v6.predict),
     path('pre_norm/clear-predict/<int:algo_id>', v6.clear_predict),
+    # pre-processing: time series
+    path('pre_ts/add', v8.add_ts),
+    path('pre_ts/<int:algo_id>', v8.view_ts),
+    path('pre_ts/change-note', v8.change_note),
+    path('pre_ts/confirm-error/<int:algo_id>', v8.confirm_error),
+    path('pre_ts/search-data', v8.search_data),
+    path('pre_ts/use-data', v8.import_data),
+    path('pre_ts/clear-data/<int:algo_id>', v8.clear_data),
+    path('pre_ts/select-sheet', v8.select_sheet),
+    path('pre_ts/clear-sheet/<int:algo_id>', v8.clear_sheet),
+    path('pre_ts/transform', v8.transform),
+    path('pre_ts/clear-transform', v8.clear_transform),
 ]
-
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

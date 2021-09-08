@@ -25,8 +25,8 @@
                         <!-- min-width = the natural width of the two buttons -->
                         <a href="/task/{{ opened_task.id }}" class="btn btn-success">Enter</a>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                Action
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                    aria-expanded="false"> Action
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="/task/close">
@@ -52,8 +52,8 @@
                     </div>
                     <div class="col-md-4 text-end">
                         <div class="btn-group">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                Action
+                            <button type="button" class="btn btn-outline-primary dropdown-toggle"
+                                    data-bs-toggle="dropdown" aria-expanded="false"> Action
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="/task/open/{{ task.id }}">Open</a></li>
@@ -67,7 +67,7 @@
             </div>
 
             {% endfor %}
-            <p><small>* The timezone of software server is {{ timezone }}.</small></p>
+            <p class="helptext">The timezone of software server is {{ timezone }}.</p>
         </div>
     </div>
     <div class="row">{% include 'clixove.org/copyright.html' %}</div>

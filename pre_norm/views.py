@@ -146,8 +146,7 @@ def use_data(req):
         algorithm_.step.save()
         algorithm_.error_message = str(e)
         algorithm_.save()
-        context = {"color": "danger", "content": "Interrupted.",
-                   "refresh": f"/pre_norm/{algorithm_.id}"}
+        context = {"color": "danger", "content": "Interrupted.", "refresh": f"/pre_norm/{algorithm_.id}"}
         return render(req, "task_manager/hint_widget.html", context)
     algorithm_.save()
     algorithm_.step.status = 3

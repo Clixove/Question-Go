@@ -8,26 +8,52 @@
 <body>
 <div class="container-fluid">
     <div class="row">{% include 'clixove.org/navigator.html' %}</div>
-    <div class="row alert bg-light">
-        <div class="col-md-8 text-center d-flex flex-column justify-content-center">
+    <div class="row alert bg-light mb-0">
+        <div class="col-md-12 text-center">
             <p class="display-4">QuestionGo</p>
-            <p class="lead">Construct and reuse machine learning models</p>
-            <label><a class="btn btn-lg btn-primary" href="/task/retrieve">Quick start</a></label>
+            <p class="lead"><i>Construct and reuse machine learning models</i></p>
         </div>
-        <div class="col-md-4">
-            <p>Features:</p>
-            <p><span class="badge rounded-pill bg-secondary text-light">1</span>
-                Store and reuse datasets and models</p>
-            <p><span class="badge rounded-pill bg-secondary text-light">2</span>
-                Organize thinking to a analytical project</p>
-            <p><span class="badge rounded-pill bg-secondary text-light">3</span>
-                Compare and select the best model</p>
-            <p><span class="badge rounded-pill bg-secondary text-light">4</span>
-                Guide you to search hyper-parameters</p>
-            <p><span class="badge rounded-pill bg-secondary text-light">5</span>
-                Integrate visualization toolkits</p>
-            <p><span class="badge rounded-pill bg-secondary text-light">6</span>
-                Make contributions: <a href="https://github.com/Clixove/Question-Go/pulls">Pull request</a></p>
+    </div>
+    <div class="row alert bg-light mb-0">
+        <div class="col-md-4 d-flex justify-content-center mb-2">
+            <div class="card" style="width: 24rem;">
+                <img src="/static/features/Slide1.PNG" class="card-img-top" alt="..." style="height: 8rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Organize modeling steps</h5>
+                    <p class="card-text">
+                        With our project manager, you clearly know which steps are used and how they work together.
+                        Be free to create branches, try different ideas, and compare the results.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex justify-content-center mb-2">
+            <div class="card" style="width: 24rem;">
+                <img src="/static/features/Slide2.PNG" class="card-img-top" alt="..." style="height: 8rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Recommend best models</h5>
+                    <p class="card-text">
+                        We use searching methods to optimize some of hyper-parameters, guiding you to reach optimal
+                        results.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex justify-content-center mb-2">
+            <div class="card" style="width: 24rem;">
+                <img src="/static/features/Slide3.PNG" class="card-img-top" alt="..." style="height: 8rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Machine learning in cloud</h5>
+                    <p class="card-text">
+                        Start training your machine learning model with any device, and download results at any time.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row alert bg-light">
+        <div class="col-md-12 text-center">
+            <a class="btn btn-lg btn-outline-primary" href="/task/retrieve">Quick start</a>
         </div>
     </div>
     <div class="row alert">
@@ -37,7 +63,7 @@
         <div class="col-md-4">
             <div class="alert shadow fade show" role="alert">
                 <p><strong>Projects</strong></p>
-                <p>View, create, and switch between your projects.</p>
+                <p>View, create, delete, and switch between your projects.</p>
                 <div class="text-center m-2">
                     <a href="/task/instances" class="btn btn-outline-primary">Enter</a>
                 </div>
@@ -63,7 +89,7 @@
                 <p><strong>Time series</strong></p>
                 <p>Converting records from a table to a multi-dimension time series.</p>
                 <div class="text-center m-2">
-                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                    <a href="/pre_ts/add" class="btn btn-outline-success">Create</a>
                 </div>
             </div>
         </div>
@@ -117,6 +143,15 @@
             <div class="alert shadow fade show" role="alert">
                 <p><strong>Logistic regression</strong></p>
                 <p>Classify samples into dual classes based on the linear method.</p>
+                <div class="text-center m-2">
+                    <a href="#" class="btn btn-outline-success disabled">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert shadow fade show" role="alert">
+                <p><strong>LSTM</strong></p>
+                <p>Fit external classification of time series by LSTM-Dense neuron network.</p>
                 <div class="text-center m-2">
                     <a href="#" class="btn btn-outline-success disabled">Create</a>
                 </div>

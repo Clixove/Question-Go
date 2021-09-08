@@ -8,7 +8,6 @@ import statsmodels.api as linear_regression
 from django import forms
 from django.contrib.auth.decorators import permission_required
 from django.core.files.base import ContentFile
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -149,8 +148,8 @@ def view_lr(req, algo_id):
             reports = pickle.load(f)
         context['mode'] = reports['mode']
         for table in ['coefficients', 'coefficients_dev', 'significances', 'errors']:
-            context[table] = reports[table].to_html(
-            classes="table table-sm table-bordered", justify='left', bold_rows=False)
+            context[table] = reports[table].to_html(classes="table table-sm table-bordered", justify='left',
+                                                    bold_rows=False)
     # ---------- Load Model Evaluation END   ----------
     return render(req, "algo_linear_regression/main.html", context)
 
@@ -356,8 +355,6 @@ def train_model(req):
     algorithm_.step.save()
     try:
         # ---------- Asynchronous Algorithm START ----------
-        assert algorithm_.dataframe and Column.objects.filter(algorithm=algorithm_, x_column=True).count() > 0 \
-               and Column.objects.filter(algorithm=algorithm_, y_column=True).count() == 1
         with open(algorithm_.dataframe.file.path, "rb") as f:
             dataframe = pickle.load(f)
         x_col = [x.name for x in Column.objects.filter(algorithm=algorithm_, x_column=True)]
@@ -557,7 +554,7 @@ def regression_line(req):
         x, y = dataframe[x_col].values, dataframe[y_col].values
         slope = evaluation['coefficients'].loc[x_col, 'Coefficient']
         intercept = np.sum([dataframe[j].mean(axis=0) * other_slope[j] for j in other_slope]) + \
-            evaluation['coefficients'].loc['Constant', 'Coefficient']
+                    evaluation['coefficients'].loc['Constant', 'Coefficient']
         plt.plot([x.min(), x.max()], [x.min() * slope + intercept, x.max() * slope + intercept], "r")
         sampling = np.random.choice(x.shape[0], 100)
         plt.scatter(x[sampling], y[sampling])
@@ -629,7 +626,7 @@ def predict(req):
 
 
 @permission_required("algo_linear_regression.change_linearregression",
-                         login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
+                     login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 def clear_predict(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:

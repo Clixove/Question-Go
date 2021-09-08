@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p>My transactions</p>
+            <div style="overflow-x: auto;">
+                <table class="table table-borderless table-hover">
+                    <thead><tr>
+                        <th style="min-width: 20ch;">Created at</th>
+                        <th style="min-width: 20ch;">Plan</th>
+                        <th>Price</th>
+                        <th>Currency</th>
+                        <th style="min-width: 20ch;">Transaction ID</th>
+                        <th>Paid?</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                    <td>{{ transaction.created_time | date:'Y-m-d H:i:s' }}</td>
+                    <td>{{ transaction.plan }}</td>
+                    <td>{{ transaction.price }}</td>
+                    <td>{{ transaction.currency }}</td>
+                    <td>{{ transaction.token }}</td>
+                    <td>
+                        {% if transaction.paid %}
+                            <img src="/static/admin/img/icon-yes.svg" alt="True">
+                        {% else %}
+                            <img src="/static/admin/img/icon-no.svg" alt="False">
+                        {% endif %}
+                    </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="helptext">Timezone of transaction's created time is {{ timezone }}.</p>
+            <p class="helptext">
+                To get a refund, please contact our sales. If your subscription hasn't started to take effect, you can
+                get all your money back. Otherwise, you can get a proportional refund based on the remaining
+                subscription time and the price when purchase.
+            </p>
+        </div>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
+</html>

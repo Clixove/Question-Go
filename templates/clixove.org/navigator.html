@@ -20,13 +20,9 @@
                     Pricing
                 </div>
                 <ul class="dropdown-menu" aria-labelledby="navbar-pricing">
-                    <li><a class="dropdown-item" href="/payment/plans">Plans</a></li>
-                    <li><a class="dropdown-item" href="/payment/donate">
-                        Donate <span class="badge text-dark">Earn prestige</span>
-                    </a></li>
-                    <li><a class="dropdown-item" href="/payment/prestige">My prestige</a></li>
-                    <li><a class="dropdown-item" href="/payment/transaction">My transaction</a></li>
-                    <li><a class="dropdown-item" href="/payment/subscription">My subscription</a></li>
+                    <li><a class="dropdown-item" href="/paypal/plans">Plans</a></li>
+                    <li><a class="dropdown-item" href="/paypal/transaction">My transactions</a> </li>
+                    <li><a class="dropdown-item" href="/paypal/subscription">My subscriptions</a> </li>
                 </ul>
             </li>
             <li class="nav-item dropdown">
@@ -55,9 +51,9 @@
                     <li><a class="dropdown-item" href="/admin">Administration</a></li>
                 </ul>
             </div>
-            <a class="btn btn-danger text-nowrap" href="/my_login/delete">Log out</a>
+            <a class="btn btn-outline-light text-nowrap" href="/my_login/delete">Log out</a>
             {% else %}
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-login">
+            <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modal-login">
                 Login
             </button>
 

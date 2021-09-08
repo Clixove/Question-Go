@@ -1,0 +1,14 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Select sheet</strong></p>
+    <div id="return-select-sheet"></div>
+    <form id="select-sheet">
+        {{ select_sheet.as_p }}
+        <div class="text-center">
+            <input type="submit" class="btn btn-outline-success" value="Submit">
+        </div>
+    </form>
+</div>
+
+<script>
+    async_submit_form('select-sheet', '/pre_ts/select-sheet', 'return-select-sheet');
+</script>

@@ -1,0 +1,76 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Transform</strong></p>
+    <div id="return-select-columns"></div>
+    <form id="select-columns">
+        {{ assign_column.algorithm }}
+        <label>Analytical period</label>
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <label>From {{ assign_column.from_datetime }}</label>
+            </div>
+            <div class="col-md-4">
+                <label>To {{ assign_column.to_datetime }}</label>
+            </div>
+            <div class="col-md-4">
+                <label>Number of time points {{ assign_column.periods }}</label>
+            </div>
+        </div>
+        <p class="helptext">Datetime string should be like '2020-01-01 00:00:00'.</p>
+        <div style="overflow-x: auto;">
+            <table class="table table-hover">
+            <caption class="caption-top">Time series sheet</caption>
+                <thead>
+                <tr>
+                    <th>Name</th><th>Is date</th><th>Is index</th><th>Is attribute</th>
+                    <th>Logarithmic transform</th><th>Finite difference</th><th>Evaluative</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for column in time_series_columns %}
+                <tr>
+                    <td class="text-nowrap">{{ column.name }}</td>
+                    <td><label><input type="radio" name="date" value="{{ column.id }}" {% if column.is_date %}checked{% endif %}></label></td>
+                    <td><label><input type="radio" name="company_trans" value="{{ column.id }}" {% if column.is_index %}checked{% endif %}></label></td>
+                    <td><label><input type="checkbox" name="use" value="{{ column.id }}" {% if column.use %}checked{% endif %}></label></td>
+                    <td><label><input type="checkbox" name="log" value="{{ column.id }}" {% if column.log %}checked{% endif %}></label></td>
+                    <td><label><input type="checkbox" name="diff" value="{{ column.id }}" {% if column.diff %}checked{% endif %}></label></td>
+                    <td><label><input type="checkbox" name="fill_na_avg" value="{{ column.id }}" {% if column.fill_na_avg %}checked{% endif %}></label></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if pre_csp.label_sheet %}
+        <div style="overflow-x: auto;">
+            <table class="table table-hover">
+                <caption class="caption-top">Labels sheet</caption>
+                <thead>
+                <tr>
+                    <th>Name</th><th>Is index</th><th>Is label</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for column in label_columns %}
+                <tr>
+                <td class="text-nowrap">{{ column.name }}</td>
+                <td><label><input type="radio" name="company_score" value="{{ column.id }}" {% if column.is_index %}checked{% endif %}></label></td>
+                <td><label><input type="radio" name="score" value="{{ column.id }}" {% if column.is_label %}checked{% endif %}></label></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        <ul class="helptext">
+            <li>Logarithmic mapping is &nbsp;&nbsp; f: x -> ln(x + 1)</li>
+            <li>Missing values of evaluative attributes are filled by average, those of others are filled by zero.</li>
+        </ul>
+        <div class="text-center">
+            <input type="submit" class="btn btn-outline-success" value="Submit">
+        </div>
+    </form>
+</div>
+
+<script>
+    async_submit_form('select-columns', '/pre_ts/transform', 'return-select-columns');
+</script>
