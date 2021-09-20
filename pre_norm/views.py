@@ -1,3 +1,4 @@
+import io
 import pickle
 
 import pandas as pd
@@ -206,12 +207,14 @@ def transform(req):
             model = pickle.load(f)
         x_col = [x.name for x in Column.objects.filter(algorithm=algorithm_, x=True)]
         table[x_col] = model.transform(table[x_col])
+        table_bin = io.BytesIO()
+        with pd.ExcelWriter(table_bin) as f:
+            table.to_excel(f, index=False)
     except Exception as e:
         context = {"color": "warning", "content": f"Interrupted. {e}"}
         return render(req, "task_manager/hint_widget.html", context)
-    intermediate_pickle_handler = ContentFile(pickle.dumps(table))
     new_paper = Paper(user=req.user, role=4, name=f"Normalization #{algorithm_.id} Reusing Transformed")
-    new_paper.file.save(f"norm_{algorithm_.id}_predict.pkl", intermediate_pickle_handler)
+    new_paper.file.save(f"norm_{algorithm_.id}_predict.pkl", table_bin)
     new_paper.save()
     step.predicted_data = new_paper
     step.status = 3
@@ -241,12 +244,14 @@ def inverse_transform(req):
             model = pickle.load(f)
         x_col = [x.name for x in Column.objects.filter(algorithm=algorithm_, x=True)]
         table[x_col] = model.inverse_transform(table[x_col])
+        table_bin = io.BytesIO()
+        with pd.ExcelWriter(table_bin) as f:
+            table.to_excel(f, index=False)
     except Exception as e:
         context = {"color": "warning", "content": f"Interrupted. {e}"}
         return render(req, "task_manager/hint_widget.html", context)
-    intermediate_pickle_handler = ContentFile(pickle.dumps(table))
     new_paper = Paper(user=req.user, role=4, name=f"Normalization #{algorithm_.id} Inverse Transformed")
-    new_paper.file.save(f"norm_{algorithm_.id}_predict.pkl", intermediate_pickle_handler)
+    new_paper.file.save(f"norm_{algorithm_.id}_predict.pkl", table_bin)
     new_paper.save()
     step.predicted_data = new_paper
     step.status = 3
