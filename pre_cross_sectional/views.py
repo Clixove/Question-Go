@@ -106,7 +106,7 @@ def view_profile(req, algo_id):
 @require_POST
 def import_data(req):
     # ---------- Import Data Tool START ----------
-    flag, content = task_manager.views.use_data(req, train=False)
+    flag, content = task_manager.views.use_data(req)
     if flag:
         context = {'color': 'danger', 'content': 'Submission is not valid.'}
         return render(req, 'task_manager/hint_widget.html', context)
@@ -349,7 +349,7 @@ def view_csp(req, algo_id):
     context = {
         "algorithm": algorithm_, "note": task_manager.views.display_note(algorithm_.step),
         "search_data": task_manager.views.display_data_picker(algorithm_.step),
-        "import_data_target": '/pre_ts/import',
+        "import_data_target": '/pre_cross_sectional/import',
         "profile": profile_sheet,
     }
     for form_name, form_config in preprocessing_wrapper_menu.items():

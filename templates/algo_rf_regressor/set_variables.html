@@ -14,7 +14,7 @@
     <p>Independent Variables X: {% for x in x_var %} {{ x }}; {% endfor %}</p>
     <p>
         Dependent Variable Y: {{ y_var.first }} <label style="width: 2ch;"></label>
-        <a href="/algo_rf_classifier/clear-variables/{{ algorithm.id }}">Clear</a>
+        <a href="/algo_rf_regressor/clear-variables/{{ algorithm.id }}">Clear</a>
     </p>
     {% else %}
     <form id="variable-picker">
@@ -29,5 +29,5 @@
 
 <script>
     set_compact('id_Independent_Variables_X');
-    async_submit_form('variable-picker', '/algo_rf_classifier/variables', 'variable-picker-return');
+    async_submit_form('variable-picker', '/algo_rf_regressor/variables', 'variable-picker-return');
 </script>

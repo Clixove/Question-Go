@@ -1,0 +1,19 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Evaluate</strong></p>
+    <table class="table table-hover table-sm">
+        <caption class="caption-top">Table 1. Error measure of the random forest regressor.</caption>
+        <thead><tr>
+            {% if algorithm.mode == '5_fold' %}<th>fold</th>{% endif %}
+            <th>{{ error_measure.type }} of validation set</th>
+        </tr></thead>
+        <tbody>
+        {% if algorithm.mode == '5_fold' %}
+        {% for value_ in error_measure.value %}
+        <tr><td>{{ forloop.counter }}</td><td>{{ value_ | stringformat:'.4e' }}</td></tr>
+        {% endfor %}
+        {% else %}
+        <tr><td>{{ error_measure.value | stringformat:'.4e' }}</td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>

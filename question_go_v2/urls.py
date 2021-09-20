@@ -26,6 +26,7 @@ import pre_norm.views as v6
 import pre_cross_sectional.views as v7
 import pre_time_series.views as v8
 import algo_rf_classifier.views as v9
+import algo_rf_regressor.views as v10
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -106,5 +107,14 @@ urlpatterns = [
     path('algo_rf_classifier/train-model', v9.train_model),
     path('algo_rf_classifier/clear-model/<int:algo_id>', v9.clear_model),
     path('algo_rf_classifier/predict', v9.predict),
+    # algorithm: random forest regressor
+    path('algo_rf_regressor/add', v10.add_rf_regressor),
+    path('algo_rf_regressor/<int:algo_id>', v10.view_rf_regressor),
+    path('algo_rf_regressor/import', v10.import_data),
+    path('algo_rf_regressor/variables', v10.set_variables),
+    path('algo_rf_regressor/clear-variables/<int:algo_id>', v10.clear_variables),
+    path('algo_rf_regressor/train-model', v10.train_model),
+    path('algo_rf_regressor/clear-model/<int:algo_id>', v10.clear_model),
+    path('algo_rf_regressor/predict', v10.predict),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

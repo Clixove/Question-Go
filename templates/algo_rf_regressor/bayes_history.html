@@ -1,0 +1,130 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Bayes search history</strong></p>
+    {% if algorithm.mode == '5_fold' %}
+    <ul class="nav nav-tabs" role="tablist">
+        {% with ''|center:5 as range %} {% for _ in range %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if forloop.counter == 1 %}active{% endif %}" data-bs-toggle="tab"
+               href="#table-2-{{ forloop.counter }}" role="tab" aria-selected="true">
+                Fold {{ forloop.counter }}
+            </a>
+        </li>
+        {% endfor %} {% endwith %}
+    </ul>
+    <div class="tab-content">
+        {% for bayes_each_fold in bayes_history %}
+        <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
+             id="table-2-{{ forloop.counter }}" role="tabpanel" style="overflow-x: auto;">
+            <table class="table table-sm table-hover">
+                <caption class="caption-top">
+                    Table 2-{{ forloop.counter }}. Bayes searching history of hyper-parameters.
+                </caption>
+                <thead>
+                    <tr class="text-center">
+                        <th>Iteration</th>
+                        <th>AUC of training set</th>
+                        <th>Max depth</th>
+                        <th>Max leaf nodes</th>
+                        <th>Number of trees</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, wrapper_1 in bayes_each_fold.items %}
+                    <tr class="text-center">
+                        <td>{{ i }}</td>
+                        <td>{{ wrapper_1.target | floatformat:4 }}</td>
+                        <td>{{ wrapper_1.params.max_depth | floatformat:0 }}</td>
+                        <td>{{ wrapper_1.params.max_leaf_nodes | floatformat:0 }}</td>
+                        <td>{{ wrapper_1.params.n_estimators | floatformat:0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+    <ul class="nav nav-tabs" role="tablist">
+        {% with ''|center:5 as range %} {% for _ in range %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if forloop.counter == 1 %}active{% endif %}" data-bs-toggle="tab"
+               href="#table-3-{{ forloop.counter }}" role="tab" aria-selected="true">
+                Fold {{ forloop.counter }}
+            </a>
+        </li>
+        {% endfor %} {% endwith %}
+    </ul>
+    <div class="tab-content">
+        {% for h_para_fold in h_para %}
+        <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
+             id="table-3-{{ forloop.counter }}" role="tabpanel" style="overflow-x: auto;">
+            <table class="table table-hover">
+                <caption class="caption-top">
+                    Table 3-{{ forloop.counter }}. Hyper-parameters of the best model.
+                </caption>
+                <thead>
+                    <tr class="text-center">
+                        <th>Max depth</th>
+                        <th>Max leaf nodes</th>
+                        <th>Number of trees</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="text-center">
+                        <td>{{ h_para_fold.max_depth | floatformat:0 }}</td>
+                        <td>{{ h_para_fold.max_leaf_nodes | floatformat:0 }}</td>
+                        <td>{{ h_para_fold.n_estimators | floatformat:0 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="overflow-x: auto;">
+        <table class="table table-sm table-hover">
+            <caption class="caption-top">
+                Table 2. Bayes searching history of hyper-parameters.
+            </caption>
+            <thead>
+                <tr class="text-center">
+                    <th>Iteration</th>
+                    <th>AUC of training set</th>
+                    <th>Max depth</th>
+                    <th>Max leaf nodes</th>
+                    <th>Number of trees</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i, wrapper_1 in bayes_history.items %}
+                <tr class="text-center">
+                    <td>{{ i }}</td>
+                    <td>{{ wrapper_1.target | floatformat:4 }}</td>
+                    <td>{{ wrapper_1.params.max_depth | floatformat:0 }}</td>
+                    <td>{{ wrapper_1.params.max_leaf_nodes | floatformat:0 }}</td>
+                    <td>{{ wrapper_1.params.n_estimators | floatformat:0 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <table class="table table-hover">
+            <caption class="caption-top">
+                Table 3. Hyper-parameters of the best model.
+            </caption>
+            <thead>
+                <tr class="text-center">
+                    <th>Max depth</th>
+                    <th>Max leaf nodes</th>
+                    <th>Number of trees</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-center">
+                    <td>{{ h_para.max_depth | floatformat:0 }}</td>
+                    <td>{{ h_para.max_leaf_nodes | floatformat:0 }}</td>
+                    <td>{{ h_para.n_estimators | floatformat:0 }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>

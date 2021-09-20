@@ -46,7 +46,7 @@ def add_norm(req):
 @require_POST
 def import_data(req):
     # ---------- Import Data Tool START ----------
-    flag, content = task_manager.views.use_data(req, train=False)
+    flag, content = task_manager.views.use_data(req)
     if flag:
         context = {'color': 'danger', 'content': 'Submission is not valid.'}
         return render(req, 'task_manager/hint_widget.html', context)
