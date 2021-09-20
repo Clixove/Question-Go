@@ -1,8 +1,3 @@
-import pickle
-
-import numpy as np
-import pandas as pd
-from django.core.files.base import ContentFile
 from django.db import models
 
 from library.models import Paper
@@ -11,16 +6,8 @@ from task_manager.models import Step
 
 class TimeSeries(models.Model):
     step = models.ForeignKey(Step, models.CASCADE, blank=True, null=True)
-    cached_dataframe = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name='ts_cache')
     dataframe = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="ts_dataframe")
-    note = models.TextField(blank=True)
-    error_message = models.TextField(blank=True)
-
-    time_series_sheet = models.CharField(max_length=32, blank=True)
-    label_sheet = models.CharField(max_length=32, blank=True)
     normalizers = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="ts_normalizers")
-    matrix = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name='ts_matrix')
-
     from_datetime = models.DateTimeField(blank=True, null=True)
     to_datetime = models.DateTimeField(blank=True, null=True)
     periods = models.IntegerField(blank=True, null=True)
@@ -30,6 +17,16 @@ class TimeSeries(models.Model):
 
     class Meta:
         verbose_name_plural = 'Time Series'
+
+
+class Sheet(models.Model):
+    algorithm = models.ForeignKey(TimeSeries, models.CASCADE)
+    name = models.TextField()
+    is_time_series = models.BooleanField(default=False)
+    is_label = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
 
 class Column(models.Model):

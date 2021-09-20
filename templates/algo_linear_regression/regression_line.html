@@ -9,15 +9,26 @@
             </div>
         </div>
     </form>
-    <div id="regression-line-return" style="overflow-x: auto;" class="text-center"></div>
-    <p>
+    <div class="d-flex justify-content-center" id="regression-line-return"></div>
+    <p class="text-muted">
         Figure 1. Scatter plot and corresponding regression line for specific dimension.
         <label style="width: 2ch;"></label>
         <a role="button" class="text-primary"
-           onclick="export_html('regression-line-return', 'lr_{{ algo_lr.id }}_fig_1.svg')">Download</a>
+           onclick="export_html('regression-line-return', 'lr_{{ algorithm.id }}_fig_1.svg')">Download</a>
     </p>
 </div>
 
 <script>
-    async_submit_form('regression-line', '/algo_linear_regression/regression-line', 'regression-line-return');
+    $('#regression-line').submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/algo_linear_regression/regression-line',
+            data: $(this).serialize(),
+            success: (response) => {
+                document.getElementById('regression-line-return').innerHTML = response;
+                scale_svg('regression-line-return', 600, 0.8);
+            },
+        });
+    });
 </script>

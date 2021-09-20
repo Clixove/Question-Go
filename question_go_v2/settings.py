@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     # third-party packages
     'django_cleanup',
     # basis
-    'admin_site_controller.apps.AdminSiteControllerConfig',
     'my_login.apps.MyLoginConfig',
     'library.apps.LibraryConfig',
     'task_manager.apps.TaskManagerConfig',
@@ -55,8 +54,8 @@ INSTALLED_APPS = [
     'pre_norm.apps.PreNormConfig',
     # algorithm
     'algo_linear_regression.apps.AlgoLinearRegressionConfig',
+    'algo_rf_classifier.apps.AlgoRfClassifierConfig',
     # application
-
 ]
 
 MIDDLEWARE = [
@@ -139,7 +138,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['templates/static/', 'token/payment_methods/']
+STATICFILES_DIRS = ['templates/static/']
 MEDIA_ROOT = 'storage'
 
 # Default primary key field type

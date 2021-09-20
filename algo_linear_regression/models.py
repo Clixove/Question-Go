@@ -6,17 +6,13 @@ from library.models import Paper
 class LinearRegression(models.Model):
     step = models.ForeignKey(Step, models.CASCADE, blank=True, null=True)
     dataframe = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_dataframe")
-
-    matrix = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_matrix")
     model = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_model")
-    evaluate = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_evaluate")
-    predict = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lr_predict")
-
-    note = models.TextField(blank=True)
-    error_message = models.TextField(blank=True)
-
-    def open_permission(self, user):
-        return any([x.user == user for x in self.step.task.openedtask_set.all()])
+    mode = models.CharField(choices=[("5_fold", "5 fold cross validation"),
+                                     ("split", "Random split to 80% training set, 20% validation set"),
+                                     ("full_train", "Applying all samples for training")],
+                            blank=True, max_length=10)
+    coefficients = models.TextField(blank=True)
+    significances = models.TextField(blank=True)
 
 
 class Column(models.Model):

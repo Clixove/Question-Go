@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from pandas_profiling import ProfileReport
 from sklearn.preprocessing import OneHotEncoder
 
+import task_manager.views
 from task_manager.models import OpenedTask
 from .models import *
 from .safe_math import safe_eval
@@ -22,33 +23,6 @@ class PublicAlgorithm(forms.Form):
 
     def link_to_algorithm(self, algo_id):
         self.fields['algorithm'].initial = PreProcessing.objects.get(id=algo_id)
-
-
-class Note(PublicAlgorithm):
-    experiment_note = forms.CharField(widget=forms.Textarea({"class": "form-control"}), required=False, label="")
-
-    def load_note(self, content):
-        self.fields['experiment_note'].initial = content
-
-
-class SearchFile(PublicAlgorithm):
-    search_file = forms.CharField(max_length=64, widget=forms.TextInput({"class": "form-control"}), label="")
-
-
-class SelectFile(PublicAlgorithm):
-    paper = forms.ModelChoiceField(Paper.objects.none(), widget=forms.Select({"class": "form-select"}),
-                                   label="Searching Result", empty_label=None,
-                                   help_text="Choose one from searching results.")
-    data_format = forms.ChoiceField(choices=[(1, "Spreadsheet [*.xlsx]"), (2, "Binary [*.pkl]")],
-                                    widget=forms.Select({"class": "form-select"}))
-
-    def search_paper(self, user, search_query):
-        paper_queryset = Paper.objects.filter(name__contains=search_query, user=user)
-        self.fields['paper'].queryset = paper_queryset
-        self.fields['paper'].initial = paper_queryset.first()
-
-    def ownership_paper(self, user):
-        self.fields['paper'].queryset = Paper.objects.filter(user=user)
 
 
 class Profile(PublicAlgorithm):
@@ -83,31 +57,32 @@ def generate_profile(req):
     # ---------- Algorithm Ownership Validator v2 START ----------
     v1 = profile_sheet.is_valid()
     csp = profile_sheet.cleaned_data['algorithm']
-    v2 = csp.open_permission(req.user)
+    step = csp.step
+    v2 = step.open_permission(req.user)
     if not (v1 and v2):
         context = {"color": "danger", "content": "Submission is not valid."}
         return render(req, "task_manager/hint_widget.html", context)
     # ---------- Algorithm Ownership Validator v2 END   ----------
-    if csp.step.status == 2:
+    if step.status == 2:
         context = {"color": "warning", "content": "Cannot start because this algorithm is busy."}
         return render(req, "task_manager/hint_widget.html", context)
-    if not csp.dataframe:
-        context = {"color": "danger", "content": "This instance doesn't contain data and variables."}
+    if not step.predicted_data:
+        context = {"color": "danger", "content": "Please parse a dataset first."}
         return render(req, "task_manager/hint_widget.html", context)
-    csp.step.status = 2
-    csp.step.save()
+    step.status = 2
+    step.save()
     try:
-        dataframe = pd.read_pickle(csp.dataframe.file.path)
+        dataframe = pd.read_pickle(step.predicted_data.file.path)
         profile = ProfileReport(dataframe, title=f"Cross-sectional Data Pre-processing #{csp.id}",
                                 plot={"dpi": 200, "image_format": "png"})
         csp.report = profile.to_html()
+        csp.save()
     except Exception as e:
-        csp.step.status = 4
-        csp.step.save()
-        csp.error_message = str(e)
-    csp.save()
-    csp.step.status = 3
-    csp.step.save()
+        step.status = 4
+        step.error_message = str(e)
+        step.save()
+    step.status = 3
+    step.save()
     context = {"color": "success", "content": "Generate the profile successfully."}
     return render(req, "task_manager/hint_widget.html", context)
 
@@ -120,138 +95,51 @@ def view_profile(req, algo_id):
         algorithm_ = PreProcessing.objects.get(id=algo_id)
     except PreProcessing.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
-    if not algorithm_.open_permission(req.user):
+    if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
     # ---------- Algorithm Ownership Navigator END   ----------
     return HttpResponse(algorithm_.report)
 
 
-@permission_required("preprocessing.change_preprocessing")
-@csrf_exempt
-@require_POST
-def change_note(req):
-    note = Note(req.POST)
-    # ---------- Algorithm Ownership Validator v2 START ----------
-    v1 = note.is_valid()
-    algorithm_ = note.cleaned_data['algorithm']
-    v2 = algorithm_.open_permission(req.user)
-    if not (v1 and v2):
-        context = {"color": "danger", "content": "Submission is not valid."}
-        return render(req, "task_manager/hint_widget.html", context)
-    # ---------- Algorithm Ownership Validator v2 END   ----------
-    algorithm_.note = note.cleaned_data['experiment_note']
-    algorithm_.save()
-    context = {"color": "success", "content": "Note is changed successfully."}
-    return render(req, "task_manager/hint_widget.html", context)
-
-
-@permission_required("library.view_paper")
-@csrf_exempt
-@require_POST
-def search_data(req):
-    search_file = SearchFile(req.POST)
-    # ---------- Algorithm Ownership Validator v2 START ----------
-    v1 = search_file.is_valid()
-    algorithm_ = search_file.cleaned_data['algorithm']
-    v2 = algorithm_.open_permission(req.user)
-    if not (v1 and v2):
-        context = {"color": "danger", "content": "Submission is not valid."}
-        return render(req, "task_manager/hint_widget.html", context)
-    # ---------- Algorithm Ownership Validator v2 END   ----------
-    select_file = SelectFile()
-    select_file.search_paper(req.user, search_file.cleaned_data['search_file'])
-    select_file.link_to_algorithm(algorithm_.id)
-    return HttpResponse(select_file.as_p())
-
-
 @permission_required("pre_cross_sectional.change_preprocessing")
 @csrf_exempt
 @require_POST
-def use_data(req):
-    select_file = SelectFile(req.POST)
-    select_file.ownership_paper(req.user)
-    # ---------- Algorithm Ownership Validator v2 START ----------
-    v1 = select_file.is_valid()
-    algorithm_ = select_file.cleaned_data['algorithm']
-    v2 = algorithm_.open_permission(req.user)
-    if not (v1 and v2):
-        context = {"color": "danger", "content": "Submission is not valid."}
-        return render(req, "task_manager/hint_widget.html", context)
-    # ---------- Algorithm Ownership Validator v2 END   ----------
-    if algorithm_.step.status == 2:
-        context = {"color": "warning", "content": "Cannot start because this algorithm is busy."}
-        return render(req, "task_manager/hint_widget.html", context)
-    algorithm_.step.status = 2
-    algorithm_.step.save()
-    paper = select_file.cleaned_data['paper']
+def import_data(req):
+    # ---------- Import Data Tool START ----------
+    flag, content = task_manager.views.use_data(req, train=False)
+    if flag:
+        context = {'color': 'danger', 'content': 'Submission is not valid.'}
+        return render(req, 'task_manager/hint_widget.html', context)
+    step, table = content
+    # ---------- Import Data Tool End   ----------
+    algorithm_ = PreProcessing.objects.get(step=step)
     try:
-        # ---------- Asynchronous Algorithm START ----------
-        if select_file.cleaned_data['data_format'] == '1':
-            table = pd.read_excel(paper.file.path)
-        else:
-            table = pd.read_pickle(paper.file.path)
+        # ---------- Asynchronous Algorithm START   ----------
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
         new_paper = Paper(user=req.user, role=2, name=f"Cross-sectional Data Pre-processing #{algorithm_.id} Parsed Data")
         new_paper.file.save(f"csp_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
         new_paper.save()
-        algorithm_.dataframe = new_paper
+        step.predicted_data = new_paper
+        step.save()
         for column in Column.objects.filter(algorithm=algorithm_):
             column.delete()
         for col in table.columns:
             new_column = Column(algorithm=algorithm_, name=col)
             new_column.save()
-        # ---------- Asynchronous Algorithm END   ----------
     except Exception as e:
-        algorithm_.step.status = 4
-        algorithm_.step.save()
-        algorithm_.error_message = str(e)
-        algorithm_.save()
+        step.status = 4
+        step.error_message = str(e)
+        step.save()
         context = {"color": "danger", "content": "Interrupted.",
                    "refresh": f"/pre_cross_sectional/{algorithm_.id}"}
         return render(req, "task_manager/hint_widget.html", context)
+    # ---------- Asynchronous Algorithm START   ----------
     algorithm_.save()
     algorithm_.step.status = 3
     algorithm_.step.save()
     context = {"color": "success", "content": "The file is successfully parsed.",
                "refresh": f"/pre_cross_sectional/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context)
-
-
-@permission_required("pre_cross_sectional.change_preprocessing",
-                     login_url="/task/retrieve?message=You don't have access change algorithms.&color=danger")
-def confirm_error(req, algo_id):
-    # ---------- Algorithm Ownership Navigator START ----------
-    try:
-        algorithm_ = PreProcessing.objects.get(id=algo_id)
-    except PreProcessing.DoesNotExist:
-        return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
-    if not algorithm_.open_permission(req.user):
-        return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
-    # ---------- Algorithm Ownership Navigator END   ----------
-    algorithm_.error_message = ""
-    algorithm_.save()
-    algorithm_.step.status = 1
-    algorithm_.step.save()
-    return redirect(f"/pre_cross_sectional/{algorithm_.id}")
-
-
-@permission_required("pre_cross_sectional.change_preprocessing",
-                     login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
-def clear_data(req, algo_id):
-    # ---------- Algorithm Ownership Navigator START ----------
-    try:
-        algorithm_ = PreProcessing.objects.get(id=algo_id)
-    except PreProcessing.DoesNotExist:
-        return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
-    if not algorithm_.open_permission(req.user):
-        return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
-    # ---------- Algorithm Ownership Navigator END   ----------
-    if algorithm_.step.status == 2:
-        return redirect("/task/retrieve?message=Cannot start because this algorithm is busy.&color=warning")
-    algorithm_.dataframe.delete()
-    algorithm_.step.status = 1
-    algorithm_.step.save()
-    return redirect(f"/pre_cross_sectional/{algorithm_.id}")
 
 
 class PublicPreProcessing(forms.Form):
@@ -351,8 +239,9 @@ class Cast(PublicPreProcessing):
     datetime_format = forms.CharField(
         widget=forms.TextInput({"class": "form-control"}),
         required=False,
-        help_text="(eg. %Y-%m-%d) Reference: "
-                  "https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior",
+        help_text="(eg. %Y-%m-%d) <a "
+                  "href='https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior'>"
+                  "What is datetime format?</a>",
     )
     datetime_combined_from_multiple_columns = forms.BooleanField(
         required=False, initial=False,
@@ -452,18 +341,15 @@ def view_csp(req, algo_id):
         algorithm_ = PreProcessing.objects.get(id=algo_id)
     except PreProcessing.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
-    if not algorithm_.open_permission(req.user):
+    if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
     # ---------- Algorithm Ownership Navigator END   ----------
-    search_file = SearchFile()
-    search_file.link_to_algorithm(algo_id)
-    note = Note()
-    note.link_to_algorithm(algo_id)
-    note.load_note(algorithm_.note)
     profile_sheet = Profile()
     profile_sheet.link_to_algorithm(algo_id)
     context = {
-        "pre_csp": algorithm_, "notepad": note, "search_file": search_file, "search_result_empty": SelectFile(),
+        "algorithm": algorithm_, "note": task_manager.views.display_note(algorithm_.step),
+        "search_data": task_manager.views.display_data_picker(algorithm_.step),
+        "import_data_target": '/pre_ts/import',
         "profile": profile_sheet,
     }
     for form_name, form_config in preprocessing_wrapper_menu.items():
@@ -486,31 +372,32 @@ def preprocessing_wrapper(req, form_name):
     # ---------- Algorithm Ownership Validator v2 START ----------
     v1 = preprocessing_form.is_valid()
     csp = preprocessing_form.cleaned_data['algorithm']
-    v2 = csp.open_permission(req.user)
+    step = csp.step
+    v2 = step.open_permission(req.user)
     if not (v1 and v2):
         context = {"color": "danger", "content": "Submission is not valid."}
         return render(req, "task_manager/hint_widget.html", context)
     # ---------- Algorithm Ownership Validator v2 END   ----------
-    if not csp.dataframe:
+    step = csp.step
+    if not step.predicted_data:
         context = {"color": "danger", "content": "This instance doesn't contain data and variables."}
         return render(req, "task_manager/hint_widget.html", context)
-    csp.step.status = 2
-    csp.step.save()
+    step.status = 2
+    step.save()
     try:
         # ---------- Asynchronous Algorithm START ----------
-        dataframe = pd.read_pickle(csp.dataframe.file.path)
+        dataframe = pd.read_pickle(step.predicted_data.file.path)
         dataframe = preprocessing_wrapper_menu[form_name]['function'](preprocessing_form, dataframe)
-        dataframe.to_pickle(csp.dataframe.file.path)
+        dataframe.to_pickle(step.predicted_data.file.path)
         # ---------- Asynchronous Algorithm END   ----------
     except Exception as e:
-        csp.step.status = 4
-        csp.step.save()
-        csp.error_message = str(e)
-        csp.save()
+        step.status = 4
+        step.error_message = str(e)
+        step.save()
         context = {"color": "danger", "content": "Interrupted.", "refresh": f"/pre_cross_sectional/{csp.id}"}
         return render(req, "task_manager/hint_widget.html", context)
-    csp.step.status = 3
-    csp.step.save()
+    step.status = 3
+    step.save()
     context = {"color": "success", "content": "The dataset has been updated.",
                "refresh": f"/pre_cross_sectional/{csp.id}"}
     return render(req, "task_manager/hint_widget.html", context)

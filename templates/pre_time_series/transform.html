@@ -1,6 +1,5 @@
 <div class="alert shadow fade show" role="alert">
     <p><strong>Transform</strong></p>
-    <div id="return-select-columns"></div>
     <form id="select-columns">
         {{ assign_column.algorithm }}
         <label>Analytical period</label>
@@ -40,7 +39,6 @@
                 </tbody>
             </table>
         </div>
-        {% if pre_csp.label_sheet %}
         <div style="overflow-x: auto;">
             <table class="table table-hover">
                 <caption class="caption-top">Labels sheet</caption>
@@ -50,7 +48,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for column in label_columns %}
+                {% for column in labels_columns %}
                 <tr>
                 <td class="text-nowrap">{{ column.name }}</td>
                 <td><label><input type="radio" name="company_score" value="{{ column.id }}" {% if column.is_index %}checked{% endif %}></label></td>
@@ -60,7 +58,6 @@
                 </tbody>
             </table>
         </div>
-        {% endif %}
         <ul class="helptext">
             <li>Logarithmic mapping is &nbsp;&nbsp; f: x -> ln(x + 1)</li>
             <li>Missing values of evaluative attributes are filled by average, those of others are filled by zero.</li>
@@ -69,6 +66,7 @@
             <input type="submit" class="btn btn-outline-success" value="Submit">
         </div>
     </form>
+    <div id="return-select-columns"></div>
 </div>
 
 <script>

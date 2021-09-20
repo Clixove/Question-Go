@@ -1,0 +1,9 @@
+{% if algorithm.step.error_message %}
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: x-large"></i>
+        {{ algorithm.step.error_message }} &nbsp;
+        <a href="/step/confirm-error/{{ algorithm.step.id }}">
+            Confirm and try again
+        </a>
+    </div>
+{% endif %}

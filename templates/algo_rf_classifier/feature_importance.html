@@ -1,0 +1,60 @@
+<div class="alert shadow fade show" role="alert" id="feature-importance">
+    <p><strong>Feature importance</strong></p>
+    {% if algorithm.mode == '5_fold' %}
+    <ul class="nav nav-tabs" role="tablist">
+        {% with ''|center:5 as range %} {% for _ in range %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if forloop.counter == 1 %}active{% endif %}" data-bs-toggle="tab"
+               href="#fig-2-{{ forloop.counter }}" role="tab" aria-selected="true">
+                Fold {{ forloop.counter }}
+            </a>
+        </li>
+        {% endfor %} {% endwith %}
+    </ul>
+    <div class="tab-content">
+        {% for f_imp_fold in f_imp %}
+        <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}" id="fig-2-{{ forloop.counter }}"
+             role="tabpanel" style="overflow-x: auto;">
+            <table class="table table-borderless" style="width: 100%;">
+                <tbody>
+                    {% for feature, weight in f_imp_fold.items %}
+                    <tr>
+                        <td class="text-nowrap">{{ feature }}</td>
+                        <td style="width: 100%;">
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width: {% widthratio weight 1 100 %}%;"
+                                     aria-valuenow="{{ weight }}" aria-valuemin="0" aria-valuemax="1">
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ weight | floatformat:4 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="text-muted">Figure 2-{{ forloop.counter }}. Feature importance.</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <table class="table table-borderless" style="width: 100%;">
+        <tbody>
+            {% for feature, weight in f_imp.items %}
+            <tr>
+                <td class="text-nowrap">{{ feature }}</td>
+                <td style="width: 100%;">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {% widthratio weight 1 100 %}%;"
+                             aria-valuenow="{{ weight }}" aria-valuemin="0" aria-valuemax="1">
+                        </div>
+                    </div>
+                </td>
+                <td>{{ weight | floatformat:4 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="text-muted">Figure 2. Feature importance.</p>
+    {% endif %}
+</div>

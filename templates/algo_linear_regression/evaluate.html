@@ -1,18 +1,126 @@
 <div class="alert shadow fade show" role="alert">
     <p><strong>Evaluate model</strong></p>
-    <p>Table 1. Regression coefficients with statistical significance.</p>
-{% if mode == '5_fold' %}
-    <p><i>Parameters are the <b>average</b> value on folds.</i></p>
-{% endif %}
-    <div style="overflow-x: auto;">{{ coefficients | safe }}</div>
-{% if mode == '5_fold' %}
-    <p><i>The max derivation from average in the folds:</i></p>
-    <div style="overflow-x: auto;">{{ coefficients_dev | safe }}</div>
-{% endif %}
-    <p>Table 2. Model's statistical significance.</p>
-    <div style="overflow-x: auto;">{{ significances | safe }}</div>
-{% if mode != 'full_train' %}
-        <p>Table 3. Performance on validation set.</p>
-        <div style="overflow-x: auto">{{ errors | safe }}</div>
-{% endif %}
+    {% if algorithm.mode == '5_fold' %}
+    <ul class="nav nav-tabs" role="tablist">
+        {% with ''|center:5 as range %}
+        {% for _ in range %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if forloop.counter == 1 %}active{% endif %}" data-bs-toggle="tab"
+               href="#table-1-{{ forloop.counter }}" role="tab" aria-selected="true">
+                Fold {{ forloop.counter }}
+            </a>
+        </li>
+        {% endfor %}
+        {% endwith %}
+    </ul>
+    <div class="tab-content">
+    {% for coef_f in coefficients %}
+        <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
+             id="table-1-{{ forloop.counter }}" role="tabpanel" style="overflow-x: auto;">
+        <table class="table table-bordered table-sm">
+            <caption class="caption-top">Table 1-{{ forloop.counter }}. Regression coefficients for each variable.</caption>
+            <thead><tr>
+                <th>Variable</th><th>Coefficient</th><th>Std. Error</th><th>t-statistics</th><th>p-value</th>
+            </tr></thead>
+            <tbody>
+            {% for name, coef_pa in coef_f.items %}
+                <tr>
+                    <td class="text-nowrap">{{ name }}</td>
+                    <td class="text-nowrap">{{ coef_pa.coef | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ coef_pa.std_error | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ coef_pa.t | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ coef_pa.p | stringformat:'.4e' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% endfor %}
+    </div>
+    {% else %}
+        <div style="overflow-x: auto;">
+        <table class="table table-bordered table-sm">
+            <caption class="caption-top">Table 1. Regression coefficients.</caption>
+            <thead><tr>
+                <th>Variable</th><th>Coefficient</th><th>Std. Error</th><th>t-statistics</th><th>p-value</th>
+            </tr></thead>
+            <tbody>
+            {% for name, coef_pa in coefficients.items %}
+                <tr>
+                    <td class="text-nowrap">{{ name }}</td>
+                    <td class="text-nowrap">{{ coef_pa.coef | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ coef_pa.std_error | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ coef_pa.t | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ coef_pa.p | stringformat:'.4e' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% endif %}
+
+
+    <div style="overflow-x: auto;">
+    <table class="table table-bordered table-sm">
+        <caption class="caption-top">Table 2. Statistical significance of the regression model.</caption>
+        <thead><tr>
+            {% if algorithm.mode == '5_fold' %}<th>Fold</th>{% endif %}
+            <th>F-statistics</th><th>p-value of F-statistics</th><th>R<sup>2</sup></th>
+            <th>Adjusted R<sup>2</sup></th><th>SSR</th><th>SSE</th><th>Log-likelihood of F-statistics</th>
+        </tr></thead>
+        <tbody>
+            {% if algorithm.mode == '5_fold' %}
+                {% for sig in significances %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td class="text-nowrap">{{ sig.f | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ sig.p | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ sig.R2 | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ sig.R2_adj | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ sig.SSR | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ sig.SSE | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ sig.log_likelihood_f | stringformat:'.4e' }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td class="text-nowrap">{{ significances.f | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ significances.p | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ significances.R2 | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ significances.R2_adj | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ significances.SSR | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ significances.SSE | stringformat:'.4e' }}</td>
+                    <td class="text-nowrap">{{ significances.log_likelihood_f | stringformat:'.4e' }}</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    </div>
+
+    <div style="overflow-x: auto;">
+    <table class="table table-bordered table-sm">
+        <caption class="caption-top">Table 3. Evaluation on validation set.</caption>
+        <thead><tr>
+            {% if algorithm.mode == '5_fold' %}<th>Fold</th>{% endif %}
+            <th>MAE</th><th>MSE</th>
+        </tr></thead>
+        <tbody>
+        {% if algorithm.mode == '5_fold' %}
+            {% for sig in significances %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td class="text-nowrap">{{ sig.MAE | stringformat:'.4e' }}</td>
+                <td class="text-nowrap">{{ sig.MSE | stringformat:'.4e' }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td class="text-nowrap">{{ significances.MAE | stringformat:'.4e' }}</td>
+                <td class="text-nowrap">{{ significances.MSE | stringformat:'.4e' }}</td>
+            </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    </div>
+
 </div>

@@ -10,35 +10,12 @@
     <div class="row">{% include 'clixove.org/navigator.html' %}</div>
     <div class="row alert">
         <div class="col-md-12">
-        <p class="lead fw-normal">Normalization and Zipping #{{ pre_csp.id }}</p>
-{# ---------- Asynchronous Error Monitor START ---------- #}
-            {% if pre_csp.error_message %}
-                <div class="alert alert-danger d-flex align-items-center" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: x-large"></i>
-                    {{ pre_csp.error_message }} &nbsp;
-                    <a href="/pre_norm/confirm-error/{{ pre_csp.id }}">
-                        Confirm and try again
-                    </a>
-                </div>
-            {% endif %}
-            {# ---------- Asynchronous Error Monitor EMD   ---------- #}
-            {% if pre_csp.dataframe %}
-                {% include 'pre_norm/locked_data.html' %}
-            {% else %}
-                {% include 'pre_norm/import_data.html' %}
-            {% endif %}
-            {% if pre_csp.model %}
-                {% include 'pre_norm/locked_model.html' %}
-            {% else %}
-                {% include 'pre_norm/train.html' %}
-            {% endif %}
-            {% if pre_csp.predict %}
-                {% include 'pre_norm/locked_predict.html' %}
-            {% else %}
-                {% include 'pre_norm/predict.html' %}
-            {% endif %}
-
-            {% include 'pre_norm/note.html' %}
+        <p class="lead fw-normal">Normalization and Zipping #{{ algorithm.id }}</p>
+            {% include 'task_manager/runtime_error.html' %}
+            {% include 'task_manager/import_data.html' %}
+            {% include 'pre_norm/train.html' %}
+            {% include 'pre_norm/transform.html' %}
+            {% include 'task_manager/note.html' %}
         </div>
     </div>
     <div class="row">{% include 'clixove.org/copyright.html' %}</div>

@@ -1,0 +1,31 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Predict</strong></p>
+    {% if algorithm.step.predicted_data %}
+    <p>
+        Dataset for prediction:
+        <a href="/library/paper/{{ algorithm.step.predicted_data.id }}">{{ algorithm.step.predicted_data }}</a>
+        <label style="width: 2ch;"></label>
+        <a href="/step/predicted/delete/{{ algorithm.step.id }}">Clear</a>
+    </p>
+    {% else %}
+    <p>Find a dataset from you library.</p>
+    <p><i>Hello, you can search for files by filename. The query string is case sensitive. If you select the data format
+        "Spreadsheet", the file should be *.xlsx format, and its role should be "Data". Otherwise, if you select the
+    data format "Intermediate", the file should be *.pkl format, and its role should be "Intermediate".</i></p>
+    <form id="search-data-2">
+        {{ search_data.as_p }}
+    </form>
+    <form id="predict-data">
+        <div id="search-data-return-2"></div>
+        <div class="text-center">
+            <input type="submit" value="Use" class="btn btn-outline-success">
+        </div>
+    </form>
+    <div id="predict-data-return"></div>
+    {% endif %}
+</div>
+
+<script>
+    async_submit_form('predict-data', '{{ predict_data_target }}', 'predict-data-return');
+    async_submit_form('search-data-2', '/step/data/search', 'search-data-return-2');
+</script>

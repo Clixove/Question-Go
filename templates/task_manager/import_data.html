@@ -1,0 +1,31 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Import data</strong></p>
+    {% if algorithm.step.linked_data %}
+    <p>
+        Dataset <a href="/library/paper/{{ algorithm.dataframe.id }}">{{ algorithm.dataframe }}</a> parsed from
+        <a href="/library/paper/{{ algorithm.step.linked_data.id }}">{{ algorithm.step.linked_data }}</a>
+        <label style="width: 2ch;"></label>
+        <a href="/step/data/delete/{{ algorithm.step.id }}">Clear</a>
+    </p>
+    {% else %}
+    <p>Find a dataset from you library.</p>
+    <p><i>Hello, you can search for files by filename. The query string is case sensitive. If you select the data format
+        "Spreadsheet", the file should be *.xlsx format, and its role should be "Data". Otherwise, if you select the
+    data format "Intermediate", the file should be *.pkl format, and its role should be "Intermediate".</i></p>
+    <form id="search-data-1">
+        {{ search_data.as_p }}
+    </form>
+    <form id="import-data">
+        <div id="search-data-return-1"></div>
+        <div class="text-center">
+            <input type="submit" value="Use" class="btn btn-outline-success">
+        </div>
+    </form>
+    <div id="import-data-return"></div>
+    {% endif %}
+</div>
+
+<script>
+    async_submit_form('import-data', '{{ import_data_target }}', 'import-data-return');
+    async_submit_form('search-data-1', '/step/data/search', 'search-data-return-1')
+</script>

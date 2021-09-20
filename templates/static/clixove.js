@@ -30,7 +30,7 @@ function async_submit_form(form_id, url, response_id) {
             type: 'POST',
             url: url,
             data: $(this).serialize(),
-            success: (response) => {document.getElementById(response_id).innerHTML = response},
+            success: (response) => {document.getElementById(response_id).innerHTML = response;},
         });
     });
 }
@@ -57,4 +57,14 @@ function set_compact(id) {
 function set_expand(id) {
     const ul = document.getElementById(id);
     ul.removeAttribute("class");
+}
+function scale_svg(container_id, max_width=400, height_ratio=1) {
+    svg = document.getElementById(container_id).getElementsByTagName('svg');
+    for (let i=0; i < svg.length; i++) {
+        let this_svg = svg[i];
+        let proper_width_ = Math.min(this_svg.parentNode.offsetWidth, max_width);
+        const proper_height_ = proper_width_ * height_ratio;
+        this_svg.setAttribute('width', proper_width_.toString() + 'px');
+        this_svg.setAttribute('height', proper_height_.toString() + 'px')
+    }
 }

@@ -11,6 +11,7 @@
     <div class="row alert">
         <div class="col-md-2">
             <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link disabled">Actions</a></li>
                 <li class="nav-item">
                     <a role="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#addPaper">
                         New file
@@ -68,17 +69,14 @@
                                 </label>
                             </td>
                             <td>{{ paper.get_role_display }}</td>
-                            <td><a href="/library/paper/{{ paper.id }}" class="text-dark">{{ paper }}</a></td>
+                            <td><a href="/library/paper/{{ paper.id }}">{{ paper }}</a></td>
                             <td class="text-nowrap">{{ paper.modified_time | date:"Y-m-d H:i:s" }}</td>
                             <td>{{ paper.file.size | filesizeformat }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            <ul class="helptext">Hints:
-                <li>The timezone of software server is {{ timezone }}.</li>
-                <li>Clicking PDF or image triggers preview, and clicking file of other formats triggers download.</li>
-            </ul>
+                <p class="helptext">The timezone of modified time is {{ timezone }}.</p>
             </div>
 
         </div>

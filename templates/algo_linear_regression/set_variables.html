@@ -10,6 +10,13 @@
             <input class="form-check-input" type="checkbox" onchange="check_all(this, 'id_Independent_Variables_X')" />
         </label>
     </p>
+    {% if x_var and y_var %}
+    <p>Independent Variables X: {% for x in x_var %} {{ x }}; {% endfor %}</p>
+    <p>
+        Dependent Variable Y: {{ y_var.first }} <label style="width: 2ch;"></label>
+        <a href="/algo_linear_regression/clear-variables/{{ algorithm.id }}">Clear</a>
+    </p>
+    {% else %}
     <form id="variable-picker">
         {{ variable_picker.as_p }}
         <div class="text-center">
@@ -17,6 +24,7 @@
         </div>
     </form>
     <div id="variable-picker-return"></div>
+    {% endif %}
 </div>
 
 <script>

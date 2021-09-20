@@ -18,6 +18,6 @@ class DefaultTaskAdmin(admin.ModelAdmin):
 
 @admin.register(Step)
 class StepAdmin(admin.ModelAdmin):
-    list_display = ['task', 'view_link', 'status']
+    list_display = ['task', 'view_link', 'status', 'error_message']
     list_filter = ['status']
     autocomplete_fields = ['task']

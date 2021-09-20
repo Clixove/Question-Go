@@ -10,6 +10,12 @@
             <input class="form-check-input" type="checkbox" onchange="check_all(this, 'id_columns')" />
         </label>
     </p>
+    {% if algorithm.model %}
+
+    <p>Model: <a href="/library/paper/{{ algorithm.model.id }}">{{ algorithm.model }}</a></p>
+    <p>Transformed data: <a href="/library/paper/{{ algorithm.transformed.id }}">{{ algorithm.transformed }}</a> </p>
+    <p><a href="/pre_norm/clear-model/{{ algorithm.id }}">Clear</a> </p>
+    {% else %}
     <form id="add-model">
         {{ norm_sheet.as_p }}
         <div class="text-center">
@@ -17,6 +23,7 @@
         </div>
     </form>
     <div id="return-add-model"></div>
+    {% endif %}
 </div>
 
 <script>

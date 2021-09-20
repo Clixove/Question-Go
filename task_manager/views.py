@@ -1,8 +1,11 @@
+import pandas as pd
 from django import forms
 from django.contrib.auth.decorators import permission_required
+from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+
 from question_go_v2.settings import TIME_ZONE
 from .models import *
 
@@ -167,3 +170,134 @@ def delete_step(req, step_id):
         return redirect(f"/task/{opened_task_id}?message=This step is running so cannot be deleted.&color=danger")
     step.delete()
     return redirect(f"/task/{opened_task_id}?message=Delete successfully.&color=success")
+
+
+class Note(forms.Form):
+    step = forms.ModelChoiceField(Step.objects.all(), widget=forms.HiddenInput())
+    note = forms.CharField(widget=forms.Textarea({"class": "form-control"}), required=False, label="")
+
+
+def display_note(step): return Note(initial={'step': step, 'note': step.note})
+
+
+@csrf_exempt
+@require_POST
+@permission_required("task_manager.change_step")
+def change_note(req):
+    note = Note(req.POST)
+    if not note.is_valid():
+        context = {"color": "danger", "content": "Submission is not valid."}
+        return render(req, "task_manager/hint_widget.html", context)
+    step = note.cleaned_data['step']
+    if not step.task.user == req.user:
+        context = {"color": "danger", "content": "Do not have permission to change this step."}
+        return render(req, "task_manager/hint_widget.html", context)
+    step.note = note.cleaned_data['note']
+    step.save()
+    context = {"color": "success", "content": "Note is changed successfully."}
+    return render(req, "task_manager/hint_widget.html", context)
+
+
+@permission_required("task_manager.change_step",
+                     login_url="/task/retrieve?message=You don't have access change this step.&color=danger")
+def confirm_error(req, step_id):
+    try:
+        step = Step.objects.get(id=step_id, task__user=req.user)
+    except Step.DoesNotExist:
+        return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
+    step.error_message = str()
+    step.status = 1
+    step.save()
+    return redirect(step.view_link)
+
+
+class DataPicker(forms.Form):
+    step = forms.ModelChoiceField(Step.objects.all(), widget=forms.HiddenInput())
+    paper = forms.ModelChoiceField(Paper.objects.all(), widget=forms.Select({'class': 'form-select'}), empty_label=None)
+    data_format = forms.ChoiceField(choices=[(1, "Spreadsheet [*.xlsx]"), (2, "Binary [*.pkl]")],
+                                    widget=forms.Select({"class": "form-select"}))
+
+    def load_choices(self, user, search):
+        queryset = Paper.objects.filter(user=user, name__contains=search)
+        self.fields['step'].queryset = Step.objects.filter(task__user=user, status__in=[1, 3, 4])
+        self.fields['paper'].queryset = queryset
+
+
+class DataSearch(forms.Form):
+    step = forms.ModelChoiceField(Step.objects.all(), widget=forms.HiddenInput())
+    filename = forms.CharField(
+        widget=forms.TextInput({
+            'class': 'form-control',
+            'placeholder': 'Input and press `Enter` to search file.'
+        }),
+        required=False
+    )
+
+
+def display_data_picker(step):
+    return DataSearch(initial={'step': step})
+
+
+@permission_required("library.view_paper")
+@csrf_exempt
+@require_POST
+def search_data(req):
+    ds = DataSearch(req.POST)
+    if not ds.is_valid():
+        return HttpResponse(DataPicker(req.user, str()))
+    step = ds.cleaned_data['step']
+    data_picker = DataPicker()
+    data_picker.load_choices(req.user, ds.cleaned_data['filename'])
+    data_picker.fields['step'].initial = step
+    return HttpResponse(data_picker.as_p())
+
+
+@permission_required("task_manager.change_step",
+                     login_url="/task/retrieve?message=You don't have access change this step.&color=danger")
+@csrf_exempt
+@require_POST
+def use_data(req, train=True):
+    data_picker = DataPicker(req.POST)
+    data_picker.load_choices(req.user, str())
+    if not data_picker.is_valid():
+        return 1, data_picker.errors
+    step = data_picker.cleaned_data['step']
+    paper = data_picker.cleaned_data['paper']
+    if train:
+        step.linked_data = paper
+    step.status = 2
+    step.save()
+    try:
+        if data_picker.cleaned_data['data_format'] == '1':
+            table = pd.read_excel(paper.file.path)
+        else:
+            table = pd.read_pickle(paper.file.path)
+    except Exception as e:
+        return 1, e
+    return 0, (step, table)
+
+
+@permission_required("task_manager.change_step",
+                     login_url="/task/retrieve?message=You don't have access change this step.&color=danger")
+def delete_data(req, step_id):
+    try:
+        step = Step.objects.get(id=step_id, task__user=req.user)
+    except Step.DoesNotExist:
+        return redirect('/task/retrieve?message=You don\'t have access change this step.&color=danger')
+    step.status = 1
+    step.linked_data = None
+    step.save()
+    return redirect(step.view_link)
+
+
+@permission_required("task_manager.change_step",
+                     login_url="/task/retrieve?message=You don't have access change this step.&color=danger")
+def delete_predicted(req, step_id):
+    try:
+        step = Step.objects.get(id=step_id, task__user=req.user)
+    except Step.DoesNotExist:
+        return redirect('/task/retrieve?message=You don\'t have access change this step.&color=danger')
+    step.status = 1
+    step.predicted_data = None
+    step.save()
+    return redirect(step.view_link)

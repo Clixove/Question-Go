@@ -1,5 +1,16 @@
 <div class="alert shadow fade show" role="alert">
     <p><strong>Train model</strong></p>
+    {% if algorithm.model %}
+        <p><i>Click the model name to download. It's the *.pkl file, parsed by Python package "pickle".</i>
+            <a href="https://docs.python.org/3/library/pickle.html#examples" target="_blank">Reference</a></p>
+        {% if algorithm.mode == '5fold' %}
+            <p><i>This model is trained in 5-fold cross validation mode, so it's a Python list containing 5
+                model instances.</i></p>
+        {% endif %}
+        <p>This model is saved: <a href="/library/paper/{{ algorithm.model.id }}"> {{ algorithm.model }} </a>
+            <label style="width: 2ch;"></label>
+            <a href="/algo_linear_regression/clear-model/{{ algorithm.id }}">Clear</a></p>
+    {% else %}
     <form id="train-model">
         {{ train_config.as_p }}
         <p><i>It takes time to train the model. Do not submit this form repeatedly.</i></p>
@@ -8,6 +19,7 @@
         </div>
     </form>
     <div id="train-model-return"></div>
+    {% endif %}
 </div>
 
 <script>

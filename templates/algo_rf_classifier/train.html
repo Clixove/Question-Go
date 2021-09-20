@@ -1,0 +1,89 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Train model</strong></p>
+    {% if algorithm.model %}
+        <p><i>Click the model name to download. It's the *.pkl file, parsed by Python package "pickle".</i>
+            <a href="https://docs.python.org/3/library/pickle.html#examples" target="_blank">Reference</a></p>
+        {% if algorithm.mode == '5fold' %}
+            <p><i>This model is trained in 5-fold cross validation mode, so it's a Python list containing 5
+                model instances.</i></p>
+        {% endif %}
+        <p>This model is saved: <a href="/library/paper/{{ algorithm.model.id }}"> {{ algorithm.model }} </a>
+            <label style="width: 2ch;"></label>
+            <a href="/algo_rf_classifier/clear-model/{{ algorithm.id }}">Clear</a></p>
+    {% else %}
+    <form id="train-model">
+        {{ train_config.algorithm }}
+        <p>
+            <label>Running mode:</label>
+            {{ train_config.running_mode }}
+            <span class="helptext">{{ train_config.running_mode.help_text }}</span>
+        </p>
+        <p>
+            <label>Random seed:</label>
+            {{ train_config.random_seed }}
+            <span class="helptext">{{ train_config.random_seed.help_text }}</span>
+        </p>
+        <div class="row mb-3">
+            <label>Max depth:</label>
+            <div class="col-md-6">From {{ train_config.max_depth_min }}</div>
+            <div class="col-md-6">To {{ train_config.max_depth_max }}</div>
+            <span class="helptext">The maximum depth of the tree. (no less than 1)</span>
+            <span class="helptext">
+                If you don't want to search max depth, please simply input a small range.
+                E.g. The interval 4.9 ~ 5.1 is equivalent to fixed value 5.
+            </span>
+        </div>
+        <div class="row mb-3">
+            <label>Max leaf nodes:</label>
+            <div class="col-md-6">From {{ train_config.max_leaf_nodes_min }}</div>
+            <div class="col-md-6">To {{ train_config.max_leaf_nodes_max }}</div>
+            <span class="helptext">This algorithm grows trees with max_leaf_nodes in best-first fashion. (no less than 2)</span>
+            <span class="helptext">
+                If you don't want to search max leaf nodes, please simply input a small range.
+                E.g. The interval 4.9 ~ 5.1 is equivalent to fixed value 5.
+            </span>
+        </div>
+        <p>
+            <label>Criterion:</label>
+            {{ train_config.criterion }}
+            <span class="helptext">{{ train_config.criterion.help_text }}</span>
+        </p>
+        <div class="row mb-3">
+            <label>N estimators:</label>
+            <div class="col-md-6">From {{ train_config.n_estimators_min }}</div>
+            <div class="col-md-6">To {{ train_config.n_estimators_max }}</div>
+            <span class="helptext">The max number of trees in the forest. (no less than 2)</span>
+            <span class="helptext">
+                If you don't want to search number of trees, please simply input a small range.
+                E.g. The interval 4.9 ~ 5.1 is equivalent to fixed value 5.
+            </span>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p>
+                    <label>Bayes initial tries:</label>
+                    {{ train_config.bayes_init_try_times }}
+                    <span class="helptext">{{ train_config.bayes_init_try_times.help_text }}</span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p>
+                    <label>Bayes iteration times:</label>
+                    {{ train_config.bayes_iteration_times }}
+                    <span class="helptext">{{ train_config.bayes_iteration_times.help_text }}</span>
+                </p>
+            </div>
+        </div>
+
+        <p><i>It takes time to train the model. Do not submit this form repeatedly.</i></p>
+        <div class="text-center">
+            <input type="submit" class="btn btn-outline-success" value="Train">
+        </div>
+    </form>
+    <div id="train-model-return"></div>
+    {% endif %}
+</div>
+
+<script>
+    async_submit_form('train-model', '/algo_rf_classifier/train-model', 'train-model-return');
+</script>
