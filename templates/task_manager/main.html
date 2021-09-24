@@ -9,17 +9,75 @@
 <div class="container-fluid">
     <div class="row">{% include 'clixove.org/navigator.html' %}</div>
     <div class="row alert">
-        <div class="col-md-12 text-center">
-            <p class="display-4">QuestionGo</p>
-            <p class="lead"><i>Construct and reuse machine learning models</i></p>
-            <a class="btn btn-lg btn-outline-primary" href="/task/retrieve">Quick start</a>
+        <div class="col-md-12">
+            <div class="text-center">
+                <p class="display-4">QuestionGo</p>
+                <p><i class="lead">Construct and reuse machine learning models</i></p>
+                <p><a class="btn btn-lg btn-outline-primary rounded-pill" href="/task/retrieve">Quick start</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature & advantages -->
+    <div class="row alert">
+        <p class="lead">Features & advantages</p>
+        <div class="col-md-4">
+            <div class="alert bg-light">
+                <p><b>Organize modeling steps</b></p>
+                <span class="badge bg-dark">Difficulty</span>
+                <ul>
+                    <li>Operate different pre-processing for different models</li>
+                    <li>Search for normalizers and transformers previously generated</li>
+                    <li>Migrate some of steps to new tasks</li>
+                </ul>
+                <span class="badge bg-dark">Solution</span>
+                <ul>
+                    <li>Embed normalizers and transformers inside steps</li>
+                    <li>Manage files in a unified space</li>
+                    <li>Link steps head-to-tail (support branches)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert bg-light">
+                <p><b>Recommend best models</b></p>
+                <span class="badge bg-dark">Difficulty</span>
+                <ul>
+                    <li>Draw specialized statistics figures</li>
+                    <li>Search for best hyper-parameters and use best enhancing features</li>
+                    <li>Compare with different models</li>
+                </ul>
+                <span class="badge bg-dark">Solution</span>
+                <ul>
+                    <li>Demonstrate features with statistics meaning</li>
+                    <li>Automatically figure out evaluation metrics</li>
+                    <li>Best models recommended by our data scientist</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert bg-light">
+                <p><b>Internet-oriented applications</b></p>
+                <span class="badge bg-dark">Difficulty</span>
+                <ul>
+                    <li>Work on portable or mobile devices</li>
+                    <li>Get a high-performance computer for development</li>
+                    <li>Share the ideas with cooperators</li>
+                    <li>Repeatedly running models everyday</li>
+                </ul>
+                <span class="badge bg-dark">Solution</span>
+                <ul>
+                    <li>Build a website and run our software</li>
+                    <li>Distribute servers to users center of organizations and enterprises</li>
+                </ul>
+            </div>
         </div>
     </div>
 
     <!-- Algorithms tab -->
     <div class="row alert">
         <div class="col-md-12">
-            <p class="lead fw-normal">Analysis toolbox</p>
+            <p class="lead">Methods & applications</p>
             <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <a class="nav-link text-dark active" data-bs-toggle="tab" href="#project" role="tab"
@@ -66,7 +124,7 @@
             <li class="nav-item" role="presentation">
                 <a class="nav-link text-dark" data-bs-toggle="tab" href="#advanced-applications" role="tab"
                    aria-selected="true">
-                    Advanced applications
+                    Advanced
                 </a>
             </li>
             </ul>
@@ -74,13 +132,13 @@
     </div>
 
 <!-- Algorithms cards -->
-<div class="tab-content">
+<div class="tab-content alert">
 {#    <div class="tab-pane fade show" id="project" role="tabpanel">#}
-{#    <div class="row alert">#}
+{#    <div class="row">#}
 {#    </div>#}
 {#    </div>#}
     <div class="tab-pane fade show active" id="project" role="tabpanel">
-    <div class="row alert">
+    <div class="row">
         <div class="col-md-4">
             <div class="alert shadow fade show" role="alert">
                 <p><strong>Projects</strong></p>
@@ -94,7 +152,7 @@
     </div>
 
     <div class="tab-pane fade show" id="data-pre-processing" role="tabpanel">
-    <div class="row alert">
+    <div class="row">
         <div class="col-md-4">
             <div class="alert shadow fade show" role="alert">
                 <p><strong>Cross-sectional</strong></p>
@@ -126,13 +184,13 @@
     </div>
     </div>
 
-    <div class="tab-pane fade show row alert" id="hypothesis" role="tabpanel">
-    <div class="row alert">
+    <div class="tab-pane fade show" id="hypothesis" role="tabpanel">
+    <div class="row">
     </div>
     </div>
 
-    <div class="tab-pane fade show row alert" id="classification" role="tabpanel">
-    <div class="row alert">
+    <div class="tab-pane fade show" id="classification" role="tabpanel">
+    <div class="row">
         <div class="col-md-4">
             <div class="alert shadow fade show" role="alert">
                 <p><strong>Random Forest</strong></p>
@@ -181,9 +239,9 @@
     </div>
     </div>
 
-    <div class="tab-pane fade show row alert" id="regression" role="tabpanel">
-    <div class="row alert">
-                <div class="col-md-4">
+    <div class="tab-pane fade show" id="regression" role="tabpanel">
+    <div class="row">
+        <div class="col-md-4">
             <div class="alert shadow fade show" role="alert">
                 <p><strong>Linear regression</strong></p>
                 <p>The most classic method in computational economics.</p>
@@ -222,55 +280,21 @@
     </div>
     </div>
 
-    <div class="tab-pane fade show row alert" id="prediction" role="tabpanel">
-    <div class="row alert">
+    <div class="tab-pane fade show" id="prediction" role="tabpanel">
+    <div class="row">
     </div>
     </div>
 
-    <div class="tab-pane fade show row alert" id="clustering" role="tabpanel">
-    <div class="row alert">
+    <div class="tab-pane fade show" id="clustering" role="tabpanel">
+    <div class="row">
     </div>
     </div>
 
-    <div class="tab-pane fade show row alert" id="advanced-applications" role="tabpanel">
-    <div class="row alert">
+    <div class="tab-pane fade show" id="advanced-applications" role="tabpanel">
+    <div class="row">
     </div>
     </div>
 </div>
-
-    <!-- Feature & advantages -->
-    <div class="row alert">
-        <div class="col-md-12"><p class="lead fw-normal">Features & advantages</p></div>
-        <div class="col-md-4">
-            <img src="/static/features/Slide1.PNG" class="card-img-top" alt="..." style="height: auto;">
-            <div class="alert bg-light">
-                <p><b>Organize modeling steps</b></p>
-                <p>
-                    With our project manager, you clearly know which steps are used and how they work together.
-                    Be free to create branches, try different ideas, and compare the results.
-                </p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <img src="/static/features/Slide2.PNG" class="card-img-top" alt="..." style="height: auto;">
-            <div class="alert bg-light">
-                <p><b>Recommend best models</b></p>
-                <p>
-                    We use searching methods to optimize some of hyper-parameters, guiding you to reach optimal
-                    results.
-                </p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <img src="/static/features/Slide3.PNG" class="card-img-top" alt="..." style="height: auto;">
-            <div class="alert bg-light">
-                <p><b>Machine learning in cloud</b></p>
-                <p>
-                    Start training your machine learning model with any device, and download results at any time.
-                </p>
-            </div>
-        </div>
-    </div>
 
     <div class="row">{% include 'clixove.org/copyright.html' %}</div>
 </div>

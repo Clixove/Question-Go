@@ -1,10 +1,6 @@
 a {
     text-decoration: none;
 }
-body {
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
 .radio-inline li {
     display: inline-block;
 }
