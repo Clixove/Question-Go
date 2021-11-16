@@ -24,26 +24,24 @@
                 {% endfor %}
             </tbody>
         </table>
-    <!--
+
         <table class="table table-hover">
             <caption class="caption-top">
                 Table 3. Hyper-parameters of the best model.
             </caption>
             <thead>
                 <tr class="text-center">
-                    <th>Max depth</th>
-                    <th>Max leaf nodes</th>
-                    <th>Number of trees</th>
+                    <th>ln(C)</th>
+                    <th>Degree</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="text-center">
-                    <td>{{ h_para.max_depth | floatformat:0 }}</td>
-                    <td>{{ h_para.max_leaf_nodes | floatformat:0 }}</td>
-                    <td>{{ h_para.n_estimators | floatformat:0 }}</td>
+                    <td>{{ h_para.c | floatformat:4 }}</td>
+                    <td>{{ h_para.degree | floatformat:0 }}</td>
                 </tr>
             </tbody>
         </table>
-        -->
+
     </div>
 </div>
