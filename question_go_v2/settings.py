@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'algo_linear_regression.apps.AlgoLinearRegressionConfig',
     'algo_rf_classifier.apps.AlgoRfClassifierConfig',
     'algo_rf_regressor.apps.AlgoRfRegressorConfig',
+    'algo_svm_classifier.apps.AlgoSvmClassifierConfig',
     # application
 ]
 

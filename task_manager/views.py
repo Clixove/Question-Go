@@ -18,8 +18,7 @@ def view_main_page(req):
     return render(req, "task_manager/main.html")
 
 
-@permission_required("task_manager.view_task",
-                     login_url=f"/main?message=Do not have permission to view projects.&color=danger")
+@permission_required("task_manager.view_task", login_url=f"/main?message=No permission to view task.&color=danger")
 def view_instances(req):
     try:
         default_task = OpenedTask.objects.get(user=req.user).task
@@ -126,7 +125,7 @@ def add_task(req):
     return redirect("/task/instances?message=Task added successfully.&color=success")
 
 
-@permission_required("task_manager.view_task", login_url="/main?message=Login required.&color=danger")
+@permission_required("task_manager.view_task", login_url="/main?message=No permission to view tasks.&color=danger")
 def retrieve_task(req):
     try:
         opened_task_id = OpenedTask.objects.get(user=req.user).task_id
@@ -256,15 +255,14 @@ def search_data(req):
                      login_url="/task/retrieve?message=You don't have access change this step.&color=danger")
 @csrf_exempt
 @require_POST
-def use_data(req, train=True):
+def import_training_set_v2(req):
     data_picker = DataPicker(req.POST)
     data_picker.load_choices(req.user, str())
     if not data_picker.is_valid():
-        return 1, data_picker.errors
-    step = data_picker.cleaned_data['step']
+        return None, None, data_picker.errors
     paper = data_picker.cleaned_data['paper']
-    if train:
-        step.linked_data = paper
+    step = data_picker.cleaned_data['step']
+    step.linked_data = paper
     step.status = 2
     step.save()
     try:
@@ -273,8 +271,31 @@ def use_data(req, train=True):
         else:
             table = pd.read_pickle(paper.file.path)
     except Exception as e:
-        return 1, e
-    return 0, (step, table)
+        return None, step, e.__str__()
+    return table, step, None
+
+
+@permission_required("task_manager.change_step",
+                     login_url="/task/retrieve?message=You don't have access change this step.&color=danger")
+@csrf_exempt
+@require_POST
+def import_predicting_set_v2(req):
+    data_picker = DataPicker(req.POST)
+    data_picker.load_choices(req.user, str())
+    if not data_picker.is_valid():
+        return None, None, data_picker.errors
+    paper = data_picker.cleaned_data['paper']
+    step = data_picker.cleaned_data['step']
+    step.status = 2
+    step.save()
+    try:
+        if data_picker.cleaned_data['data_format'] == '1':
+            table = pd.read_excel(paper.file.path)
+        else:
+            table = pd.read_pickle(paper.file.path)
+    except Exception as e:
+        return None, step, e.__str__()
+    return table, step, None
 
 
 @permission_required("task_manager.change_step",

@@ -27,6 +27,7 @@ import pre_cross_sectional.views as v7
 import pre_time_series.views as v8
 import algo_rf_classifier.views as v9
 import algo_rf_regressor.views as v10
+import algo_svm_classifier.views as v11
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -116,5 +117,14 @@ urlpatterns = [
     path('algo_rf_regressor/train-model', v10.train_model),
     path('algo_rf_regressor/clear-model/<int:algo_id>', v10.clear_model),
     path('algo_rf_regressor/predict', v10.predict),
+    # algorithm: SVM classifier
+    path('algo_svm_classifier/add', v11.add_svm_classifier),
+    path('algo_svm_classifier/<int:algo_id>', v11.view_svm_classifier),
+    path('algo_svm_classifier/import', v11.import_data),
+    path('algo_svm_classifier/variables', v11.set_variables),
+    path('algo_svm_classifier/clear-variables/<int:algo_id>', v11.clear_variables),
+    path('algo_svm_classifier/train-model', v11.train_model),
+    path('algo_svm_classifier/clear-model/<int:algo_id>', v11.clear_model),
+    path('algo_svm_classifier/predict', v11.predict),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

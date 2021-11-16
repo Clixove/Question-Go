@@ -27,21 +27,13 @@
             <label>Max depth:</label>
             <div class="col-md-6">From {{ train_config.max_depth_min }}</div>
             <div class="col-md-6">To {{ train_config.max_depth_max }}</div>
-            <span class="helptext">The maximum depth of the tree. (no less than 1)</span>
-            <span class="helptext">
-                If you don't want to search max depth, please simply input a small range.
-                E.g. The interval 4.9 ~ 5.1 is equivalent to fixed value 5.
-            </span>
+            <span class="helptext">{{ train_config.max_depth_min.help_text }}</span>
         </div>
         <div class="row mb-3">
             <label>Max leaf nodes:</label>
             <div class="col-md-6">From {{ train_config.max_leaf_nodes_min }}</div>
             <div class="col-md-6">To {{ train_config.max_leaf_nodes_max }}</div>
-            <span class="helptext">This algorithm grows trees with max_leaf_nodes in best-first fashion. (no less than 2)</span>
-            <span class="helptext">
-                If you don't want to search max leaf nodes, please simply input a small range.
-                E.g. The interval 4.9 ~ 5.1 is equivalent to fixed value 5.
-            </span>
+            <span class="helptext">{{ train_config.max_leaf_nodes_min.help_text }}</span>
         </div>
         <p>
             <label>Criterion:</label>
@@ -52,11 +44,7 @@
             <label>N estimators:</label>
             <div class="col-md-6">From {{ train_config.n_estimators_min }}</div>
             <div class="col-md-6">To {{ train_config.n_estimators_max }}</div>
-            <span class="helptext">The max number of trees in the forest. (no less than 2)</span>
-            <span class="helptext">
-                If you don't want to search number of trees, please simply input a small range.
-                E.g. The interval 4.9 ~ 5.1 is equivalent to fixed value 5.
-            </span>
+            <span class="helptext">{{ train_config.n_estimators_min.help_text }}</span>
         </div>
         <div class="row mb-3">
             <div class="col-md-6">

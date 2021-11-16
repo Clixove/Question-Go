@@ -9,7 +9,7 @@
         {% endif %}
         <p>This model is saved: <a href="/library/paper/{{ algorithm.model.id }}"> {{ algorithm.model }} </a>
             <label style="width: 2ch;"></label>
-            <a href="/algo_rf_regressor/clear-model/{{ algorithm.id }}">Clear</a></p>
+            <a href="/algo_svm_classifier/clear-model/{{ algorithm.id }}">Clear</a></p>
     {% else %}
     <form id="train-model">
         {{ train_config.algorithm }}
@@ -24,27 +24,21 @@
             <span class="helptext">{{ train_config.random_seed.help_text }}</span>
         </p>
         <div class="row mb-3">
-            <label>Max depth:</label>
-            <div class="col-md-6">From {{ train_config.max_depth_min }}</div>
-            <div class="col-md-6">To {{ train_config.max_depth_max }}</div>
-            <span class="helptext">{{ train_config.max_depth_min.help_text }}</span>
-        </div>
-        <div class="row mb-3">
-            <label>Max leaf nodes:</label>
-            <div class="col-md-6">From {{ train_config.max_leaf_nodes_min }}</div>
-            <div class="col-md-6">To {{ train_config.max_leaf_nodes_max }}</div>
-            <span class="helptext">{{ train_config.max_leaf_nodes_min.help_text }}</span>
+            <label>ln(C):</label>
+            <div class="col-md-6">From {{ train_config.min_ln_c }}</div>
+            <div class="col-md-6">To {{ train_config.max_ln_c }}</div>
+            <span class="helptext">{{ train_config.min_ln_c.help_text }}</span>
         </div>
         <p>
-            <label>Criterion:</label>
-            {{ train_config.criterion }}
-            <span class="helptext">{{ train_config.criterion.help_text }}</span>
+            <label>Kernel function:</label>
+            {{ train_config.kernel }}
+            <span class="helptext">{{ train_config.kernel.help_text }}</span>
         </p>
         <div class="row mb-3">
-            <label>N estimators:</label>
-            <div class="col-md-6">From {{ train_config.n_estimators_min }}</div>
-            <div class="col-md-6">To {{ train_config.n_estimators_max }}</div>
-            <span class="helptext">{{ train_config.n_estimators_min.help_text }}</span>
+            <label>Degree (required only when kernel function is "polynomial"):</label>
+            <div class="col-md-6">From {{ train_config.min_degree }}</div>
+            <div class="col-md-6">To {{ train_config.max_degree }}</div>
+            <span class="helptext">{{ train_config.min_degree.help_text }}</span>
         </div>
         <div class="row mb-3">
             <div class="col-md-6">
@@ -73,5 +67,5 @@
 </div>
 
 <script>
-    async_submit_form('train-model', '/algo_rf_regressor/train-model', 'train-model-return');
+    async_submit_form('train-model', '/algo_svm_classifier/train-model', 'train-model-return');
 </script>

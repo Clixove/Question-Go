@@ -128,13 +128,13 @@ def view_lr(req, algo_id):
 @csrf_exempt
 @require_POST
 def import_data(req):
-    # ---------- Import Data Tool START ----------
-    flag, content = task_manager.views.use_data(req)
-    if flag:
-        context = {'color': 'danger', 'content': 'Submission is not valid.'}
+    # ---------- Import Data Tool V2 START ----------
+    table, step, error_message = task_manager.views.import_training_set_v2(req)
+    if table is None:
+        context = {'color': 'danger', 'content': error_message}
         return render(req, 'task_manager/hint_widget.html', context)
-    step, table = content
-    # ---------- Import Data Tool End   ----------
+    # "step.status" has been changed to 2.
+    # ---------- Import Data Tool V2 END   ----------
     algorithm_ = LinearRegression.objects.get(step=step)
     try:
         # ---------- Asynchronous Algorithm START   ----------
@@ -403,13 +403,13 @@ def regression_line(req):
 @csrf_exempt
 @require_POST
 def predict(req):
-    # ---------- Import Data Tool START ----------
-    flag, content = task_manager.views.use_data(req, train=False)
-    if flag:
-        context = {'color': 'danger', 'content': 'Submission is not valid.'}
+    # ---------- Import Data Tool V2 START ----------
+    table, step, error_message = task_manager.views.import_predicting_set_v2(req)
+    if table is None:
+        context = {'color': 'danger', 'content': error_message}
         return render(req, 'task_manager/hint_widget.html', context)
-    step, table = content
-    # ---------- Import Data Tool End   ----------
+    # "step.status" has been changed to 2.
+    # ---------- Import Data Tool V2 END   ----------
     algorithm_ = LinearRegression.objects.get(step=step)
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}

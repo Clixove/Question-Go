@@ -54,18 +54,36 @@ class Train(PublicAlgorithm):
         min_value=1, max_value=9999999, required=False, widget=forms.NumberInput({"class": "form-control"}),
         help_text="Not required. From 1 to 9999999, leave blank if not purpose to fix."
     )
-    max_depth_min = forms.IntegerField(min_value=1, widget=forms.NumberInput({'class': 'form-control'}))
-    max_depth_max = forms.IntegerField(min_value=1, widget=forms.NumberInput({'class': 'form-control'}))
-    max_leaf_nodes_min = forms.IntegerField(min_value=2, widget=forms.NumberInput({'class': 'form-control'}))
-    max_leaf_nodes_max = forms.IntegerField(min_value=2, widget=forms.NumberInput({'class': 'form-control'}))
+    max_depth_min = forms.IntegerField(
+        min_value=1, widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='The maximum depth of the tree. (no less than 1)'
+    )
+    max_depth_max = forms.IntegerField(
+        min_value=1, widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='The maximum depth of the tree. (no less than 1)'
+    )
+    max_leaf_nodes_min = forms.IntegerField(
+        min_value=2, widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='This algorithm grows trees with max_leaf_nodes in best-first fashion. (no less than 2)'
+    )
+    max_leaf_nodes_max = forms.IntegerField(
+        min_value=2, widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='This algorithm grows trees with max_leaf_nodes in best-first fashion. (no less than 2)'
+    )
     criterion = forms.ChoiceField(
         choices=[('mae', 'Mean Absolute Error'), ('mse', 'Mean Squared Error')],
         initial='mse',
         help_text='The function to measure the quality of a split.',
         widget=forms.Select({'class': 'form-select'})
     )
-    n_estimators_min = forms.IntegerField(min_value=2, widget=forms.NumberInput({'class': 'form-control'}))
-    n_estimators_max = forms.IntegerField(min_value=2, widget=forms.NumberInput({'class': 'form-control'}))
+    n_estimators_min = forms.IntegerField(
+        min_value=2, widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='The max number of trees in the forest. (no less than 2)'
+    )
+    n_estimators_max = forms.IntegerField(
+        min_value=2, widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='The max number of trees in the forest. (no less than 2)'
+    )
     bayes_init_try_times = forms.IntegerField(
         min_value=16, widget=forms.NumberInput({'class': 'form-control'}),
         help_text='At least 16. How many steps of random exploration you want to perform. '
@@ -137,13 +155,13 @@ def view_rf_regressor(req, algo_id):
 @csrf_exempt
 @require_POST
 def import_data(req):
-    # ---------- Import Data Tool START ----------
-    flag, content = task_manager.views.use_data(req)
-    if flag:
-        context = {'color': 'danger', 'content': 'Submission is not valid.'}
+    # ---------- Import Data Tool V2 START ----------
+    table, step, error_message = task_manager.views.import_training_set_v2(req)
+    if table is None:
+        context = {'color': 'danger', 'content': error_message}
         return render(req, 'task_manager/hint_widget.html', context)
-    step, table = content
-    # ---------- Import Data Tool End   ----------
+    # "step.status" has been changed to 2.
+    # ---------- Import Data Tool V2 END   ----------
     algorithm_ = BayesRfRegressor.objects.get(step=step)
     try:
         # ---------- Asynchronous Algorithm START   ----------
@@ -366,8 +384,8 @@ def train_model(req):
                     max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators)
                 )
                 rf.fit(x, y.ravel())
-                y_train_hat = rf.predict(x_train)
-                return func_error(y_train_hat, y_train)
+                y_hat = rf.predict(x)
+                return func_error(y_hat, y)
             optimizer = BayesianOptimization(f=bayes_rf_full_train, pbounds=hyper_parameters,
                                              random_state=train.cleaned_data['random_seed'])
             optimizer.maximize(init_points=train.cleaned_data['bayes_init_try_times'],
@@ -435,13 +453,13 @@ def clear_model(req, algo_id):
 @csrf_exempt
 @require_POST
 def predict(req):
-    # ---------- Import Data Tool START ----------
-    flag, content = task_manager.views.use_data(req, train=False)
-    if flag:
-        context = {'color': 'danger', 'content': 'Submission is not valid.'}
+    # ---------- Import Data Tool V2 START ----------
+    table, step, error_message = task_manager.views.import_predicting_set_v2(req)
+    if table is None:
+        context = {'color': 'danger', 'content': error_message}
         return render(req, 'task_manager/hint_widget.html', context)
-    step, table = content
-    # ---------- Import Data Tool End   ----------
+    # "step.status" has been changed to 2.
+    # ---------- Import Data Tool V2 END   ----------
     algorithm_ = BayesRfRegressor.objects.get(step=step)
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
