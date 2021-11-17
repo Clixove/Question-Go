@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'algo_rf_classifier.apps.AlgoRfClassifierConfig',
     'algo_rf_regressor.apps.AlgoRfRegressorConfig',
     'algo_svm_classifier.apps.AlgoSvmClassifierConfig',
+    'algo_svm_regressor.apps.AlgoSvmRegressorConfig',
     # application
 ]
 

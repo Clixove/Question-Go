@@ -15,7 +15,7 @@
         {% for bayes_each_fold in bayes_history %}
         <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
              id="table-2-{{ forloop.counter }}" role="tabpanel" style="overflow-x: auto;">
-            <div style="overflow-y: auto; max-height: 400px;">
+            <div style="overflow-y: auto; max-height: 1000px;">
             <table class="table table-sm table-hover">
                 <caption class="caption-top">
                     Table 2-{{ forloop.counter }}. Bayes searching history of hyper-parameters.

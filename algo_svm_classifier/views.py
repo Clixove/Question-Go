@@ -301,7 +301,7 @@ def train_model(req):
                 def bayes_svc_split(c, degree):
                     svc = SVC(
                         C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
-                        probability=True,
+                        probability=True, max_iter=5000,
                     )
                     svc.fit(x_train, y_train)
                     y_train_hat = svc.predict_proba(x_train)
@@ -310,9 +310,7 @@ def train_model(req):
                     return auc_in_bayes
             else:
                 def bayes_svc_split(c):
-                    svc = SVC(
-                        C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True,
-                    )
+                    svc = SVC(C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True, max_iter=5000,)
                     svc.fit(x_train, y_train)
                     y_train_hat = svc.predict_proba(x_train)
                     auc_in_bayes = np.mean([roc_auc_score(y_1h_train[:, i], y_train_hat[:, i])
@@ -326,18 +324,18 @@ def train_model(req):
             history = {i: res for i, res in enumerate(optimizer.res)}
             if train.cleaned_data['kernel'] == 'poly':
                 mdl = SVC(
-                    C=np.exp(optimizer.max['params']['c']),
+                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
                     kernel=train.cleaned_data['kernel'],
                     degree=round(optimizer.max['params']['degree']), probability=True,
                 )
             else:
                 mdl = SVC(
-                    C=np.exp(optimizer.max['params']['c']),
+                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
                     kernel=train.cleaned_data['kernel'], probability=True,
                 )
             mdl.fit(x_train, y_train)
             y_valid_hat = mdl.predict_proba(x_valid)
-            hyper_parameters = {'c': mdl.C, 'degree': mdl.degree}
+            hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}
             algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
             auc = {}
             f, fig = io.StringIO(), plt.figure()
@@ -369,7 +367,7 @@ def train_model(req):
                 def bayes_svc_full_train(c, degree):
                     svc = SVC(
                         C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
-                        probability=True,
+                        probability=True, max_iter=5000,
                     )
                     svc.fit(x, y)
                     y_hat = svc.predict_proba(x)
@@ -378,9 +376,7 @@ def train_model(req):
                     return auc_in_bayes
             else:
                 def bayes_svc_full_train(c):
-                    svc = SVC(
-                        C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True
-                    )
+                    svc = SVC(C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True, max_iter=5000,)
                     svc.fit(x, y)
                     y_hat = svc.predict_proba(x)
                     auc_in_bayes = np.mean([roc_auc_score(y_1h[:, i], y_hat[:, i])
@@ -393,17 +389,17 @@ def train_model(req):
             history = {i: res for i, res in enumerate(optimizer.res)}
             if train.cleaned_data['kernel'] == 'poly':
                 mdl = SVC(
-                    C=np.exp(optimizer.max['params']['c']),
+                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
                     kernel=train.cleaned_data['kernel'],
                     degree=round(optimizer.max['params']['degree']),
                 )
             else:
                 mdl = SVC(
-                    C=np.exp(optimizer.max['params']['c']),
+                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
                     kernel=train.cleaned_data['kernel'],
                 )
             mdl.fit(x, y)
-            hyper_parameters = {'c': mdl.C, 'degree': mdl.degree}
+            hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}
             algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
             intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
             new_paper = Paper(user=req.user, role=3, name=f'SVM Classifier #{algorithm_.id} Model')

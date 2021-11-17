@@ -15,7 +15,7 @@
         {% for bayes_each_fold in bayes_history %}
         <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
              id="table-2-{{ forloop.counter }}" role="tabpanel" style="overflow-x: auto;">
-            <div style="overflow-y: auto; max-height: 800px;">
+            <div style="overflow-y: auto; max-height: 400px;">
             <table class="table table-sm table-hover">
                 <caption class="caption-top">
                     Table 2-{{ forloop.counter }}. Bayes searching history of hyper-parameters.
@@ -24,9 +24,8 @@
                     <tr class="text-center">
                         <th>Iteration</th>
                         <th>AUC of training set</th>
-                        <th>Max depth</th>
-                        <th>Max leaf nodes</th>
-                        <th>Number of trees</th>
+                        <th>ln(C)</th>
+                        <th>Degree</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,9 +33,8 @@
                     <tr class="text-center">
                         <td>{{ i }}</td>
                         <td>{{ wrapper_1.target | floatformat:4 }}</td>
-                        <td>{{ wrapper_1.params.max_depth | floatformat:0 }}</td>
-                        <td>{{ wrapper_1.params.max_leaf_nodes | floatformat:0 }}</td>
-                        <td>{{ wrapper_1.params.n_estimators | floatformat:0 }}</td>
+                        <td>{{ wrapper_1.params.c | floatformat:4 }}</td>
+                        <td>{{ wrapper_1.params.degree | floatformat:0 }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -65,16 +63,16 @@
                 </caption>
                 <thead>
                     <tr class="text-center">
-                        <th>Max depth</th>
-                        <th>Max leaf nodes</th>
-                        <th>Number of trees</th>
+                        <th>C</th>
+                        <th>Kernel</th>
+                        <th>Degree</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr class="text-center">
-                        <td>{{ h_para_fold.max_depth | floatformat:0 }}</td>
-                        <td>{{ h_para_fold.max_leaf_nodes | floatformat:0 }}</td>
-                        <td>{{ h_para_fold.n_estimators | floatformat:0 }}</td>
+                        <td>{{ h_para_fold.c | stringformat:'.4e' }}</td>
+                        <td>{{ h_para_fold.kernel }}</td>
+                        <td>{{ h_para_fold.degree | floatformat:0 }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -92,9 +90,8 @@
                 <tr class="text-center">
                     <th>Iteration</th>
                     <th>AUC of training set</th>
-                    <th>Max depth</th>
-                    <th>Max leaf nodes</th>
-                    <th>Number of trees</th>
+                    <th>ln(C)</th>
+                    <th>Degree</th>
                 </tr>
             </thead>
             <tbody>
@@ -102,9 +99,8 @@
                 <tr class="text-center">
                     <td>{{ i }}</td>
                     <td>{{ wrapper_1.target | floatformat:4 }}</td>
-                    <td>{{ wrapper_1.params.max_depth | floatformat:0 }}</td>
-                    <td>{{ wrapper_1.params.max_leaf_nodes | floatformat:0 }}</td>
-                    <td>{{ wrapper_1.params.n_estimators | floatformat:0 }}</td>
+                    <td>{{ wrapper_1.params.c | floatformat:4 }}</td>
+                    <td>{{ wrapper_1.params.degree | floatformat:0 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -116,16 +112,16 @@
             </caption>
             <thead>
                 <tr class="text-center">
-                    <th>Max depth</th>
-                    <th>Max leaf nodes</th>
-                    <th>Number of trees</th>
+                    <th>C</th>
+                    <th>Kernel</th>
+                    <th>Degree</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="text-center">
-                    <td>{{ h_para.max_depth | floatformat:0 }}</td>
-                    <td>{{ h_para.max_leaf_nodes | floatformat:0 }}</td>
-                    <td>{{ h_para.n_estimators | floatformat:0 }}</td>
+                    <td>{{ h_para.c | stringformat:'.4e' }}</td>
+                    <td>{{ h_para.kernel }}</td>
+                    <td>{{ h_para.degree | floatformat:0 }}</td>
                 </tr>
             </tbody>
         </table>

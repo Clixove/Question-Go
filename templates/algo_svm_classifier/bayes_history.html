@@ -33,13 +33,15 @@
             </caption>
             <thead>
                 <tr class="text-center">
-                    <th>ln(C)</th>
+                    <th>C</th>
+                    <th>Kernel</th>
                     <th>Degree</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="text-center">
-                    <td>{{ h_para.c | floatformat:4 }}</td>
+                    <td>{{ h_para.c | stringformat:'.4e' }}</td>
+                    <td>{{ h_para.kernel }}</td>
                     <td>{{ h_para.degree | floatformat:0 }}</td>
                 </tr>
             </tbody>

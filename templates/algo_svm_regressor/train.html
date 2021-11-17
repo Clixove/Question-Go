@@ -5,7 +5,7 @@
             <a href="https://docs.python.org/3/library/pickle.html#examples" target="_blank">Reference</a></p>
         <p>This model is saved: <a href="/library/paper/{{ algorithm.model.id }}"> {{ algorithm.model }} </a>
             <label style="width: 2ch;"></label>
-            <a href="/algo_svm_classifier/clear-model/{{ algorithm.id }}">Clear</a></p>
+            <a href="/algo_svm_regressor/clear-model/{{ algorithm.id }}">Clear</a></p>
     {% else %}
     <form id="train-model">
         {{ train_config.algorithm }}
@@ -18,6 +18,11 @@
             <label>Random seed:</label>
             {{ train_config.random_seed }}
             <span class="helptext">{{ train_config.random_seed.help_text }}</span>
+        </p>
+        <p>
+            <label>Criterion:</label>
+            {{ train_config.criterion }}
+            <span class="helptext">{{ train_config.criterion.help_text }}</span>
         </p>
         <div class="row mb-3">
             <label>ln(C):</label>
@@ -63,5 +68,5 @@
 </div>
 
 <script>
-    async_submit_form('train-model', '/algo_svm_classifier/train-model', 'train-model-return');
+    async_submit_form('train-model', '/algo_svm_regressor/train-model', 'train-model-return');
 </script>

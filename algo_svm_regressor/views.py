@@ -10,7 +10,7 @@ from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import KFold, train_test_split
 
@@ -21,10 +21,10 @@ from .models import *
 
 
 class PublicAlgorithm(forms.Form):
-    algorithm = forms.ModelChoiceField(BayesRfRegressor.objects.all(), widget=forms.HiddenInput())
+    algorithm = forms.ModelChoiceField(BayesSvmRegressor.objects.all(), widget=forms.HiddenInput())
 
     def link_to_algorithm(self, algo_id):
-        self.fields['algorithm'].initial = BayesRfRegressor.objects.get(id=algo_id)
+        self.fields['algorithm'].initial = BayesSvmRegressor.objects.get(id=algo_id)
 
 
 class VariablePicker(PublicAlgorithm):
@@ -53,35 +53,40 @@ class Train(PublicAlgorithm):
         min_value=1, max_value=9999999, required=False, widget=forms.NumberInput({"class": "form-control"}),
         help_text="Not required. From 1 to 9999999, leave blank if not purpose to fix."
     )
-    max_depth_min = forms.IntegerField(
-        min_value=1, widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='The maximum depth of the tree. (no less than 1)'
-    )
-    max_depth_max = forms.IntegerField(
-        min_value=1, widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='The maximum depth of the tree. (no less than 1)'
-    )
-    max_leaf_nodes_min = forms.IntegerField(
-        min_value=2, widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='This algorithm grows trees with max_leaf_nodes in best-first fashion. (no less than 2)'
-    )
-    max_leaf_nodes_max = forms.IntegerField(
-        min_value=2, widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='This algorithm grows trees with max_leaf_nodes in best-first fashion. (no less than 2)'
-    )
     criterion = forms.ChoiceField(
         choices=[('mae', 'Mean Absolute Error'), ('mse', 'Mean Squared Error')],
         initial='mse',
         help_text='The function to measure the quality of a split.',
         widget=forms.Select({'class': 'form-select'})
     )
-    n_estimators_min = forms.IntegerField(
-        min_value=2, widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='The max number of trees in the forest. (no less than 2)'
+    min_ln_c = forms.FloatField(
+        widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='The logarithmic value of L2 regularization parameter, inversely proportional to the strength of '
+                  'the regularization.',
     )
-    n_estimators_max = forms.IntegerField(
-        min_value=2, widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='The max number of trees in the forest. (no less than 2)'
+    max_ln_c = forms.FloatField(
+        widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='The logarithmic value of L2 regularization parameter, inversely proportional to the strength of '
+                  'the regularization.',
+    )
+    kernel = forms.ChoiceField(
+        widget=forms.Select({'class': 'form-control'}),
+        help_text='The kernel function of SVM.',
+        choices=[('linear', 'Linear Function'), ('poly', 'Polynomial'), ('rbf', 'Radial Basis Function'),
+                 ('sigmoid', 'Sigmoid Function')],
+        initial='rbf',
+    )
+    min_degree = forms.IntegerField(
+        widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='Degree of the polynomial kernel function. Required only when the kernel function is polynomial.'
+                  '(Integer no smaller than 2)',
+        required=False, min_value=2,
+    )
+    max_degree = forms.IntegerField(
+        widget=forms.NumberInput({'class': 'form-control'}),
+        help_text='Degree of the polynomial kernel function. Required only when the kernel function is polynomial.'
+                  '(Integer no smaller than 2)',
+        required=False, min_value=2,
     )
     bayes_init_try_times = forms.IntegerField(
         min_value=16, widget=forms.NumberInput({'class': 'form-control'}),
@@ -95,17 +100,17 @@ class Train(PublicAlgorithm):
     )
 
 
-@permission_required("algo_rf_regressor.add_bayesrfregressor",
+@permission_required("algo_svm_regressor.add_BayesSvmRegressor",
                      login_url="/task/retrieve?message=You don't have access to this algorithm.&color=danger")
-def add_rf_regressor(req):
+def add_svm_regressor(req):
     try:
         opened_task = OpenedTask.objects.get(user=req.user).task
     except OpenedTask.DoesNotExist:
         return redirect("/task/instances?message=You should open a task first.&color=danger")
-    new_algorithm = BayesRfRegressor()
+    new_algorithm = BayesSvmRegressor()
     new_algorithm.save()
     new_step = Step(
-        task=opened_task, name="Random Forest Regressor", view_link=f"/algo_rf_regressor/{new_algorithm.id}",
+        task=opened_task, name="SVM Regressor", view_link=f"/algo_svm_regressor/{new_algorithm.id}",
         model_id=new_algorithm.id
     )
     new_step.save()
@@ -114,13 +119,13 @@ def add_rf_regressor(req):
     return redirect(new_step.view_link)
 
 
-@permission_required("algo_rf_regressor.view_bayesrfregressor",
+@permission_required("algo_svm_regressor.view_BayesSvmRegressor",
                      login_url="/task/retrieve?message=You don't have access to view algorithms.&color=danger")
-def view_rf_regressor(req, algo_id):
+def view_svm_regressor(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesRfRegressor.objects.get(id=algo_id)
-    except BayesRfRegressor.DoesNotExist:
+        algorithm_ = BayesSvmRegressor.objects.get(id=algo_id)
+    except BayesSvmRegressor.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -135,8 +140,8 @@ def view_rf_regressor(req, algo_id):
     context = {
         "algorithm": algorithm_, "note": task_manager.views.display_note(algorithm_.step),
         "search_data": task_manager.views.display_data_picker(algorithm_.step),
-        "import_data_target": '/algo_rf_regressor/import',
-        "predict_data_target": '/algo_rf_regressor/predict',
+        "import_data_target": '/algo_svm_regressor/import',
+        "predict_data_target": '/algo_svm_regressor/predict',
         "variable_picker": variable_picker, "x_var": x_var, "y_var": y_var,
         "train_config": train_config,
     }
@@ -144,13 +149,12 @@ def view_rf_regressor(req, algo_id):
         context['error_measure'] = json.loads(algorithm_.error_measure)
         context['bayes_history'] = json.loads(algorithm_.training_history)
         context['h_para'] = json.loads(algorithm_.hyper_parameters)
-        context['f_imp'] = json.loads(algorithm_.feature_importance)
     except json.JSONDecodeError:
         pass
-    return render(req, "algo_rf_regressor/main.html", context)
+    return render(req, "algo_svm_regressor/main.html", context)
 
 
-@permission_required("algo_rf_regressor.change_bayesrfregressor")
+@permission_required("algo_svm_regressor.change_BayesSvmRegressor")
 @csrf_exempt
 @require_POST
 def import_data(req):
@@ -161,13 +165,13 @@ def import_data(req):
         return render(req, 'task_manager/hint_widget.html', context)
     # "step.status" has been changed to 2.
     # ---------- Import Data Tool V2 END   ----------
-    algorithm_ = BayesRfRegressor.objects.get(step=step)
+    algorithm_ = BayesSvmRegressor.objects.get(step=step)
     try:
         # ---------- Asynchronous Algorithm START   ----------
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
         new_paper = Paper(user=req.user, role=2,
-                          name=f"Random Forest Regressor #{algorithm_.id} Parsed Data")
-        new_paper.file.save(f"rf_regressor_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
+                          name=f"SVM Regressor #{algorithm_.id} Parsed Data")
+        new_paper.file.save(f"svm_regressor_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
         new_paper.save()
         algorithm_.dataframe = new_paper
         algorithm_.save()
@@ -182,16 +186,16 @@ def import_data(req):
         step.error_message = str(e)
         step.save()
         context = {"color": "danger", "content": "Interrupted.",
-                   "refresh": f"/algo_rf_regressor/{algorithm_.id}"}
+                   "refresh": f"/algo_svm_regressor/{algorithm_.id}"}
         return render(req, "task_manager/hint_widget.html", context)
     step.status = 3
     step.save()
     context = {"color": "success", "content": "The file is successfully parsed.",
-               "refresh": f"/algo_rf_regressor/{algorithm_.id}"}
+               "refresh": f"/algo_svm_regressor/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_rf_regressor.change_bayesrfregressor")
+@permission_required("algo_svm_regressor.change_BayesSvmRegressor")
 @csrf_exempt
 @require_POST
 def set_variables(req):
@@ -213,17 +217,17 @@ def set_variables(req):
     column.y_column = True
     column.save()
     context = {"color": "success", "content": "Set variables successfully.",
-               "refresh": f"/algo_rf_regressor/{algorithm_.id}"}
+               "refresh": f"/algo_svm_regressor/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_rf_regressor.change_bayesrfregressor",
+@permission_required("algo_svm_regressor.change_BayesSvmRegressor",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 def clear_variables(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesRfRegressor.objects.get(id=algo_id)
-    except BayesRfRegressor.DoesNotExist:
+        algorithm_ = BayesSvmRegressor.objects.get(id=algo_id)
+    except BayesSvmRegressor.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -233,10 +237,10 @@ def clear_variables(req, algo_id):
     for column in Column.objects.filter(algorithm=algorithm_):
         column.x_column = column.y_column = False
         column.save()
-    return redirect(f"/algo_rf_regressor/{algorithm_.id}")
+    return redirect(f"/algo_svm_regressor/{algorithm_.id}")
 
 
-@permission_required("algo_rf_regressor.change_bayesrfregressor")
+@permission_required("algo_svm_regressor.change_BayesSvmRegressor")
 @csrf_exempt
 @require_POST
 def train_model(req):
@@ -253,14 +257,15 @@ def train_model(req):
     if step.status == 2:
         context = {"color": "warning", "content": "Cannot start because this algorithm is busy."}
         return render(req, "task_manager/hint_widget.html", context)
-    if train.cleaned_data['max_depth_min'] >= train.cleaned_data['max_depth_max']:
-        context = {"color": "warning", "content": "The interval of max depth is not valid."}
-        return render(req, "task_manager/hint_widget.html", context)
-    if train.cleaned_data['max_leaf_nodes_min'] >= train.cleaned_data['max_leaf_nodes_max']:
-        context = {"color": "warning", "content": "The interval of max leaf nodes is not valid."}
-        return render(req, "task_manager/hint_widget.html", context)
-    if train.cleaned_data['n_estimators_min'] >= train.cleaned_data['n_estimators_max']:
-        context = {"color": "warning", "content": "The interval of 'number of trees' is not valid."}
+    if train.cleaned_data['kernel'] == 'poly':
+        if not (train.cleaned_data['min_degree'] and train.cleaned_data['max_degree']):
+            context = {"color": "warning", "content": "Degree is required when kernel function is polynomial."}
+            return render(req, "task_manager/hint_widget.html", context)
+        if train.cleaned_data['min_degree'] >= train.cleaned_data['max_degree']:
+            context = {"color": "warning", "content": "The interval of degree is not valid."}
+            return render(req, "task_manager/hint_widget.html", context)
+    if train.cleaned_data['min_ln_c'] >= train.cleaned_data['max_ln_c']:
+        context = {"color": "warning", "content": "The interval of ln(C) is not valid."}
         return render(req, "task_manager/hint_widget.html", context)
     step.status = 2
     step.save()
@@ -273,11 +278,9 @@ def train_model(req):
         mode = train.cleaned_data['running_mode']
         x, y = dataframe[x_col].values, dataframe[y_col].values
 
-        hyper_parameters = {
-            'max_depth': (train.cleaned_data['max_depth_min'], train.cleaned_data['max_depth_max']),
-            'max_leaf_nodes': (train.cleaned_data['max_leaf_nodes_min'], train.cleaned_data['max_leaf_nodes_max']),
-            'n_estimators': (train.cleaned_data['n_estimators_min'], train.cleaned_data['n_estimators_max']),
-        }
+        hyper_parameters = {'c': (train.cleaned_data['min_ln_c'], train.cleaned_data['max_ln_c'])}
+        if train.cleaned_data['kernel'] == 'poly':
+            hyper_parameters['degree'] = (train.cleaned_data['min_degree'], train.cleaned_data['max_degree'])
         if train.cleaned_data['criterion'] == 'mae':
             func_error = mean_absolute_error
         else:  # train.cleaned_data['criterion'] == 'mse'
@@ -288,121 +291,142 @@ def train_model(req):
             models_, histories = [], []
             error_measure = {'type': train.cleaned_data['criterion'], 'value': []}
             hyper_parameters_list = []
-            feature_importance_list = []
 
             for (train_index, valid_index), k in zip(k_fold.split(x), range(5)):
                 x_train, x_valid, y_train, y_valid = x[train_index], x[valid_index], y[train_index], y[valid_index]
 
-                def bayes_rf_5_fold(max_depth, max_leaf_nodes, n_estimators):
-                    rf = RandomForestRegressor(
-                        criterion=train.cleaned_data['criterion'],
-                        max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators)
-                    )
-                    rf.fit(x_train, y_train.ravel())
-                    y_train_hat = rf.predict(x_train)
-                    return func_error(y_train_hat, y_train)
+                if train.cleaned_data['kernel'] == 'poly':
+                    def bayes_svr_5_fold(c, degree):
+                        svr = SVR(
+                            C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
+                            max_iter=5000,
+                        )
+                        svr.fit(x_train, y_train.ravel())
+                        y_train_hat = svr.predict(x_train)
+                        return func_error(y_train_hat, y_train)
+                else:
+                    def bayes_svr_5_fold(c):
+                        svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000)
+                        svr.fit(x_train, y_train.ravel())
+                        y_train_hat = svr.predict(x_train)
+                        return func_error(y_train_hat, y_train)
 
-                optimizer = BayesianOptimization(f=bayes_rf_5_fold, pbounds=hyper_parameters,
+                optimizer = BayesianOptimization(f=bayes_svr_5_fold, pbounds=hyper_parameters,
                                                  random_state=train.cleaned_data['random_seed'])
                 optimizer.maximize(init_points=train.cleaned_data['bayes_init_try_times'],
                                    n_iter=train.cleaned_data['bayes_iteration_times'])
                 history = {i: res for i, res in enumerate(optimizer.res)}
                 histories.append(history)
-                mdl = RandomForestRegressor(
-                    criterion=train.cleaned_data['criterion'],
-                    max_depth=int(optimizer.max['params']['max_depth']),
-                    max_leaf_nodes=int(optimizer.max['params']['max_leaf_nodes']),
-                    n_estimators=int(optimizer.max['params']['n_estimators'])
-                )
+                if train.cleaned_data['kernel'] == 'poly':
+                    mdl = SVR(
+                        C=np.exp(optimizer.max['params']['c']), max_iter=5000,
+                        kernel=train.cleaned_data['kernel'],
+                        degree=round(optimizer.max['params']['degree'])
+                    )
+                else:
+                    mdl = SVR(
+                        C=np.exp(optimizer.max['params']['c']), max_iter=5000,
+                        kernel=train.cleaned_data['kernel'],
+                    )
                 mdl.fit(x_train, y_train.ravel())
                 models_.append(mdl)
                 y_valid_hat = mdl.predict(x_valid)
-                hyper_parameters_list.append(
-                    {'max_depth': mdl.max_depth, 'max_leaf_nodes': mdl.max_leaf_nodes,
-                     'n_estimators': mdl.n_estimators}
-                )
-                feature_importance_list.append(
-                    {name: weight for name, weight in zip(x_col, mdl.feature_importances_)}
-                )
+                hyper_parameters_list.append({'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel})
                 error_measure['value'].append(func_error(y_valid, y_valid_hat))
             intermediate_paper_handle = ContentFile(pickle.dumps(models_))
-            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regressor #{algorithm_.id} Model')
-            new_paper.file.save(f'rf_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
+            new_paper = Paper(user=req.user, role=3, name=f'SVM Regressor #{algorithm_.id} Model')
+            new_paper.file.save(f'svm_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
             algorithm_.training_history = json.dumps(histories, ensure_ascii=False)
             algorithm_.error_measure = json.dumps(error_measure, ensure_ascii=False)
             algorithm_.hyper_parameters = json.dumps(hyper_parameters_list, ensure_ascii=False)
-            algorithm_.feature_importance = json.dumps(feature_importance_list, ensure_ascii=False)
         elif mode == 'split':
             x_train, x_valid, y_train, y_valid = train_test_split(
                 x, y, train_size=0.8, shuffle=True, random_state=train.cleaned_data['random_seed'])
 
-            def bayes_rf_split(max_depth, max_leaf_nodes, n_estimators):
-                rf = RandomForestRegressor(
-                    criterion=train.cleaned_data['criterion'],
-                    max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators)
-                )
-                rf.fit(x_train, y_train.ravel())
-                y_train_hat = rf.predict(x_train)
-                return func_error(y_train_hat, y_train)
+            if train.cleaned_data['kernel'] == 'poly':
+                def bayes_svm_split(c, degree):
+                    svr = SVR(
+                        C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
+                        max_iter=5000,
+                    )
+                    svr.fit(x_train, y_train.ravel())
+                    y_train_hat = svr.predict(x_train)
+                    return func_error(y_train_hat, y_train)
+            else:
+                def bayes_svm_split(c):
+                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000,)
+                    svr.fit(x_train, y_train.ravel())
+                    y_train_hat = svr.predict(x_train)
+                    return func_error(y_train_hat, y_train)
 
-            optimizer = BayesianOptimization(f=bayes_rf_split, pbounds=hyper_parameters,
+            optimizer = BayesianOptimization(f=bayes_svm_split, pbounds=hyper_parameters,
                                              random_state=train.cleaned_data['random_seed'])
             optimizer.maximize(init_points=train.cleaned_data['bayes_init_try_times'],
                                n_iter=train.cleaned_data['bayes_iteration_times'])
             history = {i: res for i, res in enumerate(optimizer.res)}
-            mdl = RandomForestRegressor(
-                criterion=train.cleaned_data['criterion'],
-                max_depth=int(optimizer.max['params']['max_depth']),
-                max_leaf_nodes=int(optimizer.max['params']['max_leaf_nodes']),
-                n_estimators=int(optimizer.max['params']['n_estimators'])
-            )
+            if train.cleaned_data['kernel'] == 'poly':
+                mdl = SVR(
+                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
+                    kernel=train.cleaned_data['kernel'],
+                    degree=round(optimizer.max['params']['degree'])
+                )
+            else:
+                mdl = SVR(
+                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
+                    kernel=train.cleaned_data['kernel'],
+                )
             mdl.fit(x_train, y_train.ravel())
             y_valid_hat = mdl.predict(x_valid)
-            hyper_parameters = {'max_depth': mdl.max_depth, 'max_leaf_nodes': mdl.max_leaf_nodes,
-                                'n_estimators': mdl.n_estimators}
-            feature_importance_ = {name: weight for name, weight in zip(x_col, mdl.feature_importances_)}
+            hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}
             algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
-            algorithm_.feature_importance = json.dumps(feature_importance_, ensure_ascii=False)
             algorithm_.error_measure = json.dumps(
                 {'type': train.cleaned_data['criterion'], 'value': func_error(y_valid, y_valid_hat)},
                 ensure_ascii=False
             )
             intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
-            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regressor #{algorithm_.id} Model')
-            new_paper.file.save(f'rf_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
+            new_paper = Paper(user=req.user, role=3, name=f'SVM Regressor #{algorithm_.id} Model')
+            new_paper.file.save(f'svm_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
             algorithm_.training_history = json.dumps(history, ensure_ascii=False)
 
         else:  # mode == "full_train"
-            def bayes_rf_full_train(max_depth, max_leaf_nodes, n_estimators):
-                rf = RandomForestRegressor(
-                    criterion=train.cleaned_data['criterion'],
-                    max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators)
-                )
-                rf.fit(x, y.ravel())
-                y_hat = rf.predict(x)
-                return func_error(y_hat, y)
-            optimizer = BayesianOptimization(f=bayes_rf_full_train, pbounds=hyper_parameters,
+            if train.cleaned_data['kernel'] == 'poly':
+                def bayes_svm_full_train(c, degree):
+                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree), max_iter=5000)
+                    svr.fit(x, y.ravel())
+                    y_hat = svr.predict(x)
+                    return func_error(y_hat, y)
+            else:
+                def bayes_svm_full_train(c):
+                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000)
+                    svr.fit(x, y.ravel())
+                    y_hat = svr.predict(x)
+                    return func_error(y_hat, y)
+            optimizer = BayesianOptimization(f=bayes_svm_full_train, pbounds=hyper_parameters,
                                              random_state=train.cleaned_data['random_seed'])
             optimizer.maximize(init_points=train.cleaned_data['bayes_init_try_times'],
                                n_iter=train.cleaned_data['bayes_iteration_times'])
             history = {i: res for i, res in enumerate(optimizer.res)}
-            mdl = RandomForestRegressor(
-                criterion=train.cleaned_data['criterion'],
-                max_depth=int(optimizer.max['params']['max_depth']),
-                max_leaf_nodes=int(optimizer.max['params']['max_leaf_nodes']),
-                n_estimators=int(optimizer.max['params']['n_estimators'])
-            )
+            if train.cleaned_data['kernel'] == 'poly':
+                mdl = SVR(
+                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
+                    kernel=train.cleaned_data['kernel'],
+                    degree=round(optimizer.max['params']['degree'])
+                )
+            else:
+                mdl = SVR(
+                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
+                    kernel=train.cleaned_data['kernel'],
+                )
             mdl.fit(x, y.ravel())
-            hyper_parameters = {'max_depth': mdl.max_depth, 'max_leaf_nodes': mdl.max_leaf_nodes,
-                                'n_estimators': mdl.n_estimators}
+            hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}
             algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
             intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
-            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regressor #{algorithm_.id} Model')
-            new_paper.file.save(f'rf_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
+            new_paper = Paper(user=req.user, role=3, name=f'SVM Regressor #{algorithm_.id} Model')
+            new_paper.file.save(f'svm_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
             algorithm_.training_history = json.dumps(history, ensure_ascii=False)
@@ -415,22 +439,22 @@ def train_model(req):
         step.error_message = str(e)
         step.save()
         context = {"color": "danger", "content": "Interrupted.",
-                   "refresh": f"/algo_rf_regressor/{algorithm_.id}"}
+                   "refresh": f"/algo_svm_regressor/{algorithm_.id}"}
         return render(req, "task_manager/hint_widget.html", context)
     step.status = 3
     step.save()
     context = {"color": "success", "content": "The model has been trained and evaluated.",
-               "refresh": f"/algo_rf_regressor/{algorithm_.id}"}
+               "refresh": f"/algo_svm_regressor/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_rf_regressor.change_bayesrfregressor",
+@permission_required("algo_svm_regressor.change_BayesSvmRegressor",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 def clear_model(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesRfRegressor.objects.get(id=algo_id)
-    except BayesRfRegressor.DoesNotExist:
+        algorithm_ = BayesSvmRegressor.objects.get(id=algo_id)
+    except BayesSvmRegressor.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -444,10 +468,10 @@ def clear_model(req, algo_id):
     algorithm_.hyper_parameters = str()
     algorithm_.feature_importance = str()
     algorithm_.save()
-    return redirect(f"/algo_rf_regressor/{algorithm_.id}")
+    return redirect(f"/algo_svm_regressor/{algorithm_.id}")
 
 
-@permission_required("algo_rf_regressor.change_bayesrfregressor",
+@permission_required("algo_svm_regressor.change_BayesSvmRegressor",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 @csrf_exempt
 @require_POST
@@ -459,7 +483,7 @@ def predict(req):
         return render(req, 'task_manager/hint_widget.html', context)
     # "step.status" has been changed to 2.
     # ---------- Import Data Tool V2 END   ----------
-    algorithm_ = BayesRfRegressor.objects.get(step=step)
+    algorithm_ = BayesSvmRegressor.objects.get(step=step)
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
@@ -482,12 +506,12 @@ def predict(req):
         step.save()
         context = {"color": "warning", "content": f"Interrupted. {e}"}
         return render(req, "task_manager/hint_widget.html", context)
-    new_paper = Paper(user=req.user, role=4, name=f"Random Forest Regressor #{algorithm_.id} Predict")
-    new_paper.file.save(f"rf_regressor_{algorithm_.id}_predict.xlsx", table_bin)
+    new_paper = Paper(user=req.user, role=4, name=f"SVM Regressor #{algorithm_.id} Predict")
+    new_paper.file.save(f"svm_regressor_{algorithm_.id}_predict.xlsx", table_bin)
     new_paper.save()
     step.predicted_data = new_paper
     step.status = 3
     step.save()
     context = {"color": "success", "content": "Prediction completed.",
-               "refresh": f"/algo_rf_regressor/{algorithm_.id}"}
+               "refresh": f"/algo_svm_regressor/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context=context)
