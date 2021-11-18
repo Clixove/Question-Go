@@ -296,7 +296,8 @@ def train_model(req):
                 def bayes_rf_5_fold(max_depth, max_leaf_nodes, n_estimators):
                     rf = RandomForestRegressor(
                         criterion=train.cleaned_data['criterion'],
-                        max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators)
+                        max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators),
+                        random_state=train.cleaned_data['random_seed']
                     )
                     rf.fit(x_train, y_train.ravel())
                     y_train_hat = rf.predict(x_train)
@@ -312,7 +313,8 @@ def train_model(req):
                     criterion=train.cleaned_data['criterion'],
                     max_depth=int(optimizer.max['params']['max_depth']),
                     max_leaf_nodes=int(optimizer.max['params']['max_leaf_nodes']),
-                    n_estimators=int(optimizer.max['params']['n_estimators'])
+                    n_estimators=int(optimizer.max['params']['n_estimators']),
+                    random_state=train.cleaned_data['random_seed']
                 )
                 mdl.fit(x_train, y_train.ravel())
                 models_.append(mdl)
@@ -341,7 +343,8 @@ def train_model(req):
             def bayes_rf_split(max_depth, max_leaf_nodes, n_estimators):
                 rf = RandomForestRegressor(
                     criterion=train.cleaned_data['criterion'],
-                    max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators)
+                    max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators),
+                    random_state=train.cleaned_data['random_seed']
                 )
                 rf.fit(x_train, y_train.ravel())
                 y_train_hat = rf.predict(x_train)
@@ -356,7 +359,8 @@ def train_model(req):
                 criterion=train.cleaned_data['criterion'],
                 max_depth=int(optimizer.max['params']['max_depth']),
                 max_leaf_nodes=int(optimizer.max['params']['max_leaf_nodes']),
-                n_estimators=int(optimizer.max['params']['n_estimators'])
+                n_estimators=int(optimizer.max['params']['n_estimators']),
+                random_state=train.cleaned_data['random_seed']
             )
             mdl.fit(x_train, y_train.ravel())
             y_valid_hat = mdl.predict(x_valid)
@@ -380,7 +384,8 @@ def train_model(req):
             def bayes_rf_full_train(max_depth, max_leaf_nodes, n_estimators):
                 rf = RandomForestRegressor(
                     criterion=train.cleaned_data['criterion'],
-                    max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators)
+                    max_depth=int(max_depth), max_leaf_nodes=int(max_leaf_nodes), n_estimators=int(n_estimators),
+                    random_state=train.cleaned_data['random_seed']
                 )
                 rf.fit(x, y.ravel())
                 y_hat = rf.predict(x)
@@ -394,7 +399,8 @@ def train_model(req):
                 criterion=train.cleaned_data['criterion'],
                 max_depth=int(optimizer.max['params']['max_depth']),
                 max_leaf_nodes=int(optimizer.max['params']['max_leaf_nodes']),
-                n_estimators=int(optimizer.max['params']['n_estimators'])
+                n_estimators=int(optimizer.max['params']['n_estimators']),
+                random_state=train.cleaned_data['random_seed']
             )
             mdl.fit(x, y.ravel())
             hyper_parameters = {'max_depth': mdl.max_depth, 'max_leaf_nodes': mdl.max_leaf_nodes,

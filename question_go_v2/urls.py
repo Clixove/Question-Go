@@ -30,6 +30,7 @@ import algo_rf_regressor.views as v10
 import algo_svm_classifier.views as v11
 import algo_svm_regressor.views as v12
 import algo_one_class_svm.views as v13
+import algo_logistic_regression.views as v14
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -146,5 +147,14 @@ urlpatterns = [
     path('algo_one_class_svm/train-model', v13.train_model),
     path('algo_one_class_svm/clear-model/<int:algo_id>', v13.clear_model),
     path('algo_one_class_svm/predict', v13.predict),
+    # algorithm: logistic regression
+    path('algo_logistic_regression/add', v14.add_logistic_regression),
+    path('algo_logistic_regression/<int:algo_id>', v14.view_logistic_regression),
+    path('algo_logistic_regression/import', v14.import_data),
+    path('algo_logistic_regression/variables', v14.set_variables),
+    path('algo_logistic_regression/clear-variables/<int:algo_id>', v14.clear_variables),
+    path('algo_logistic_regression/train-model', v14.train_model),
+    path('algo_logistic_regression/clear-model/<int:algo_id>', v14.clear_model),
+    path('algo_logistic_regression/predict', v14.predict),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

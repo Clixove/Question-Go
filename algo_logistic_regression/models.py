@@ -3,10 +3,10 @@ from library.models import Paper
 from task_manager.models import Step
 
 
-class BayesSvmClassifier(models.Model):
+class BayesLogisticRegression(models.Model):
     step = models.ForeignKey(Step, models.CASCADE, blank=True, null=True)
-    dataframe = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="svc_dataframe")
-    model = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="svc_model")
+    dataframe = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lgr_dataframe")
+    model = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name="lgr_model")
     mode = models.CharField(choices=[("5_fold", "5 fold cross validation"),
                                      ("split", "Random split to 80% training set, 20% validation set"),
                                      ("full_train", "Applying all samples for training")],
@@ -19,7 +19,7 @@ class BayesSvmClassifier(models.Model):
 
 
 class Column(models.Model):
-    algorithm = models.ForeignKey(BayesSvmClassifier, models.CASCADE)
+    algorithm = models.ForeignKey(BayesLogisticRegression, models.CASCADE)
     name = models.TextField()
     x_column = models.BooleanField(default=False)
     y_column = models.BooleanField(default=False)

@@ -20,10 +20,10 @@ from .models import *
 
 
 class PublicAlgorithm(forms.Form):
-    algorithm = forms.ModelChoiceField(BayesOneClassSVM.objects.all(), widget=forms.HiddenInput())
+    algorithm = forms.ModelChoiceField(MyOneClassSVM.objects.all(), widget=forms.HiddenInput())
 
     def link_to_algorithm(self, algo_id):
-        self.fields['algorithm'].initial = BayesOneClassSVM.objects.get(id=algo_id)
+        self.fields['algorithm'].initial = MyOneClassSVM.objects.get(id=algo_id)
 
 
 class VariablePicker(PublicAlgorithm):
@@ -86,7 +86,7 @@ def add_one_class_svm(req):
         opened_task = OpenedTask.objects.get(user=req.user).task
     except OpenedTask.DoesNotExist:
         return redirect("/task/instances?message=You should open a task first.&color=danger")
-    new_algorithm = BayesOneClassSVM()
+    new_algorithm = MyOneClassSVM()
     new_algorithm.save()
     new_step = Step(
         task=opened_task, name="One-class SVM", view_link=f"/algo_one_class_svm/{new_algorithm.id}",
@@ -103,8 +103,8 @@ def add_one_class_svm(req):
 def view_one_class_svm(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesOneClassSVM.objects.get(id=algo_id)
-    except BayesOneClassSVM.DoesNotExist:
+        algorithm_ = MyOneClassSVM.objects.get(id=algo_id)
+    except MyOneClassSVM.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -150,7 +150,7 @@ def import_data(req):
         return render(req, 'task_manager/hint_widget.html', context)
     # "step.status" has been changed to 2.
     # ---------- Import Data Tool V2 END   ----------
-    algorithm_ = BayesOneClassSVM.objects.get(step=step)
+    algorithm_ = MyOneClassSVM.objects.get(step=step)
     try:
         # ---------- Asynchronous Algorithm START   ----------
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
@@ -219,8 +219,8 @@ def set_variables(req):  # SPECIFIED
 def clear_variables(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesOneClassSVM.objects.get(id=algo_id)
-    except BayesOneClassSVM.DoesNotExist:
+        algorithm_ = MyOneClassSVM.objects.get(id=algo_id)
+    except MyOneClassSVM.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -240,8 +240,8 @@ def clear_variables(req, algo_id):
 @require_POST
 def train_model(req):
     try:
-        algorithm_ = BayesOneClassSVM.objects.get(id=req.POST['algorithm'])
-    except (BayesOneClassSVM.DoesNotExist, MultiValueDictKeyError):
+        algorithm_ = MyOneClassSVM.objects.get(id=req.POST['algorithm'])
+    except (MyOneClassSVM.DoesNotExist, MultiValueDictKeyError):
         context = {"color": "danger", "content": "The algorithm does not exist."}
         return render(req, "task_manager/hint_widget.html", context)
     train = Train(req.POST)
@@ -268,7 +268,7 @@ def train_model(req):
 
         if mode == "5_fold":
             k_fold = KFold(n_splits=5, random_state=train.cleaned_data['random_seed'], shuffle=True)
-            models_, histories, confusion_matrix_list, hyper_parameters_list, support_vectors_list = [], [], [], [], []
+            models_, confusion_matrix_list, hyper_parameters_list, support_vectors_list = [], [], [], []
 
             for (train_index, valid_index), k in zip(k_fold.split(x), range(5)):
                 x_train, x_valid, y_train, y_valid = x[train_index], x[valid_index], y[train_index], y[valid_index]
@@ -365,7 +365,6 @@ def train_model(req):
         step.status = 4
         step.error_message = str(e)
         step.save()
-        raise e
         context = {"color": "danger", "content": "Interrupted.",
                    "refresh": f"/algo_one_class_svm/{algorithm_.id}"}
         return render(req, "task_manager/hint_widget.html", context)
@@ -381,8 +380,8 @@ def train_model(req):
 def clear_model(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesOneClassSVM.objects.get(id=algo_id)
-    except BayesOneClassSVM.DoesNotExist:
+        algorithm_ = MyOneClassSVM.objects.get(id=algo_id)
+    except MyOneClassSVM.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -416,7 +415,7 @@ def predict(req):
         return render(req, 'task_manager/hint_widget.html', context)
     # "step.status" has been changed to 2.
     # ---------- Import Data Tool V2 END   ----------
-    algorithm_ = BayesOneClassSVM.objects.get(step=step)
+    algorithm_ = MyOneClassSVM.objects.get(step=step)
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)

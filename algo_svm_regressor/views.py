@@ -299,14 +299,15 @@ def train_model(req):
                     def bayes_svr_5_fold(c, degree):
                         svr = SVR(
                             C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
-                            max_iter=5000,
+                            max_iter=5000, random_state=train.cleaned_data['random_seed']
                         )
                         svr.fit(x_train, y_train.ravel())
                         y_train_hat = svr.predict(x_train)
                         return func_error(y_train_hat, y_train)
                 else:
                     def bayes_svr_5_fold(c):
-                        svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000)
+                        svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000,
+                                  random_state=train.cleaned_data['random_seed'])
                         svr.fit(x_train, y_train.ravel())
                         y_train_hat = svr.predict(x_train)
                         return func_error(y_train_hat, y_train)
@@ -320,13 +321,13 @@ def train_model(req):
                 if train.cleaned_data['kernel'] == 'poly':
                     mdl = SVR(
                         C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                        kernel=train.cleaned_data['kernel'],
+                        kernel=train.cleaned_data['kernel'], random_state=train.cleaned_data['random_seed'],
                         degree=round(optimizer.max['params']['degree'])
                     )
                 else:
                     mdl = SVR(
                         C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                        kernel=train.cleaned_data['kernel'],
+                        kernel=train.cleaned_data['kernel'], random_state=train.cleaned_data['random_seed']
                     )
                 mdl.fit(x_train, y_train.ravel())
                 models_.append(mdl)
@@ -349,14 +350,15 @@ def train_model(req):
                 def bayes_svm_split(c, degree):
                     svr = SVR(
                         C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
-                        max_iter=5000,
+                        max_iter=5000, random_state=train.cleaned_data['random_seed']
                     )
                     svr.fit(x_train, y_train.ravel())
                     y_train_hat = svr.predict(x_train)
                     return func_error(y_train_hat, y_train)
             else:
                 def bayes_svm_split(c):
-                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000,)
+                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000,
+                              random_state=train.cleaned_data['random_seed'])
                     svr.fit(x_train, y_train.ravel())
                     y_train_hat = svr.predict(x_train)
                     return func_error(y_train_hat, y_train)
@@ -369,13 +371,13 @@ def train_model(req):
             if train.cleaned_data['kernel'] == 'poly':
                 mdl = SVR(
                     C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'],
+                    kernel=train.cleaned_data['kernel'], random_state=train.cleaned_data['random_seed'],
                     degree=round(optimizer.max['params']['degree'])
                 )
             else:
                 mdl = SVR(
                     C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'],
+                    kernel=train.cleaned_data['kernel'], random_state=train.cleaned_data['random_seed']
                 )
             mdl.fit(x_train, y_train.ravel())
             y_valid_hat = mdl.predict(x_valid)
@@ -395,13 +397,15 @@ def train_model(req):
         else:  # mode == "full_train"
             if train.cleaned_data['kernel'] == 'poly':
                 def bayes_svm_full_train(c, degree):
-                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree), max_iter=5000)
+                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree), max_iter=5000,
+                              random_state=train.cleaned_data['random_seed'])
                     svr.fit(x, y.ravel())
                     y_hat = svr.predict(x)
                     return func_error(y_hat, y)
             else:
                 def bayes_svm_full_train(c):
-                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000)
+                    svr = SVR(C=np.exp(c), kernel=train.cleaned_data['kernel'], max_iter=5000,
+                              random_state=train.cleaned_data['random_seed'])
                     svr.fit(x, y.ravel())
                     y_hat = svr.predict(x)
                     return func_error(y_hat, y)
@@ -414,12 +418,12 @@ def train_model(req):
                 mdl = SVR(
                     C=np.exp(optimizer.max['params']['c']), max_iter=5000,
                     kernel=train.cleaned_data['kernel'],
-                    degree=round(optimizer.max['params']['degree'])
+                    degree=round(optimizer.max['params']['degree']), random_state=train.cleaned_data['random_seed']
                 )
             else:
                 mdl = SVR(
                     C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'],
+                    kernel=train.cleaned_data['kernel'], random_state=train.cleaned_data['random_seed']
                 )
             mdl.fit(x, y.ravel())
             hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}

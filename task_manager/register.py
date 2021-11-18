@@ -22,18 +22,26 @@ algorithm_registry = [
     {'name': 'Classification', 'applications': [
         {
             'name': 'Random forest classifier',
-            'description': 'Perform classification with random forest algorithm.',
+            'description': 'Perform classification with random forest algorithm. Bayes hyper-parameters search is '
+                           'applied.',
             'opened_link': '/algo_rf_classifier/add'
         },
         {
             'name': 'SVM classifier',
-            'description': 'Perform classification with support vector machine algorithm.',
+            'description': 'Perform classification with support vector machine algorithm. Bayes hyper-parameters '
+                           'search is applied.',
             'opened_link': '/algo_svm_classifier/add'
         },
         {
             'name': 'One-class SVM',
             'description': 'Train the model with all normal samples, to detect abnormal samples.',
             'opened_link': '/algo_one_class_svm/add'
+        },
+        {
+            'name': 'Logistic regression',
+            'description': 'Perform classification with L1, L2 regularized logistic model. Bayes hyper-parameters '
+                           'search is applied.',
+            'opened_link': '/algo_logistic_regression/add'
         },
     ]},
     {'name': 'Regression', 'applications': [
@@ -44,12 +52,13 @@ algorithm_registry = [
         },
         {
             'name': 'Random forest regression',
-            'description': 'Perform regression with random forest algorithm.',
+            'description': 'Perform regression with random forest algorithm. Bayes hyper-parameters search is applied.',
             'opened_link': '/algo_rf_regressor/add'
         },
         {
             'name': 'SVM regression',
-            'description': 'Perform regression with support vector machine algorithm.',
+            'description': 'Perform regression with support vector machine algorithm. Bayes hyper-parameters search is '
+                           'applied.',
             'opened_link': '/algo_svm_regressor/add'
         },
     ]},

@@ -301,7 +301,7 @@ def train_model(req):
                 def bayes_svc_split(c, degree):
                     svc = SVC(
                         C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
-                        probability=True, max_iter=5000,
+                        probability=True, max_iter=5000, random_state=train.cleaned_data['random_seed']
                     )
                     svc.fit(x_train, y_train)
                     y_train_hat = svc.predict_proba(x_train)
@@ -310,7 +310,8 @@ def train_model(req):
                     return auc_in_bayes
             else:
                 def bayes_svc_split(c):
-                    svc = SVC(C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True, max_iter=5000,)
+                    svc = SVC(C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True, max_iter=5000,
+                              random_state=train.cleaned_data['random_seed'])
                     svc.fit(x_train, y_train)
                     y_train_hat = svc.predict_proba(x_train)
                     auc_in_bayes = np.mean([roc_auc_score(y_1h_train[:, i], y_train_hat[:, i])
@@ -327,11 +328,13 @@ def train_model(req):
                     C=np.exp(optimizer.max['params']['c']), max_iter=5000,
                     kernel=train.cleaned_data['kernel'],
                     degree=round(optimizer.max['params']['degree']), probability=True,
+                    random_state=train.cleaned_data['random_seed']
                 )
             else:
                 mdl = SVC(
                     C=np.exp(optimizer.max['params']['c']), max_iter=5000,
                     kernel=train.cleaned_data['kernel'], probability=True,
+                    random_state=train.cleaned_data['random_seed']
                 )
             mdl.fit(x_train, y_train)
             y_valid_hat = mdl.predict_proba(x_valid)
@@ -367,7 +370,7 @@ def train_model(req):
                 def bayes_svc_full_train(c, degree):
                     svc = SVC(
                         C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
-                        probability=True, max_iter=5000,
+                        probability=True, max_iter=5000, random_state=train.cleaned_data['random_seed']
                     )
                     svc.fit(x, y)
                     y_hat = svc.predict_proba(x)
@@ -376,7 +379,8 @@ def train_model(req):
                     return auc_in_bayes
             else:
                 def bayes_svc_full_train(c):
-                    svc = SVC(C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True, max_iter=5000,)
+                    svc = SVC(C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True, max_iter=5000,
+                              random_state=train.cleaned_data['random_seed'])
                     svc.fit(x, y)
                     y_hat = svc.predict_proba(x)
                     auc_in_bayes = np.mean([roc_auc_score(y_1h[:, i], y_hat[:, i])
@@ -390,13 +394,13 @@ def train_model(req):
             if train.cleaned_data['kernel'] == 'poly':
                 mdl = SVC(
                     C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'],
+                    kernel=train.cleaned_data['kernel'], random_state=train.cleaned_data['random_seed'],
                     degree=round(optimizer.max['params']['degree']),
                 )
             else:
                 mdl = SVC(
                     C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'],
+                    kernel=train.cleaned_data['kernel'], random_state=train.cleaned_data['random_seed'],
                 )
             mdl.fit(x, y)
             hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}

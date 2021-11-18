@@ -16,7 +16,6 @@
             {% for c_mat, h_para in evaluate %}
              <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
                   id="table-2-{{ forloop.counter }}" role="tabpanel" style="overflow-x: auto;">
-             {{ c_mat }}
                  <table class="table table-condensed table-bordered"><tbody>
                  <tr><td></td><td>Predicted as abnormal</td><td>Predicted as normal</td></tr>
                  <tr><td>Known as abnormal</td><td>{{ c_mat.0.0 }}</td><td>{{ c_mat.0.1 }}</td></tr>
