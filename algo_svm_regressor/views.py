@@ -110,7 +110,7 @@ def add_svm_regressor(req):
     new_algorithm = BayesSvmRegressor()
     new_algorithm.save()
     new_step = Step(
-        task=opened_task, name="SVM Regressor", view_link=f"/algo_svm_regressor/{new_algorithm.id}",
+        task=opened_task, name="SVM Regression", view_link=f"/algo_svm_regressor/{new_algorithm.id}",
         model_id=new_algorithm.id
     )
     new_step.save()
@@ -170,7 +170,7 @@ def import_data(req):
         # ---------- Asynchronous Algorithm START   ----------
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
         new_paper = Paper(user=req.user, role=2,
-                          name=f"SVM Regressor #{algorithm_.id} Parsed Data")
+                          name=f"SVM Regression #{algorithm_.id} Parsed Data")
         new_paper.file.save(f"svm_regressor_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
         new_paper.save()
         algorithm_.dataframe = new_paper
@@ -334,7 +334,7 @@ def train_model(req):
                 hyper_parameters_list.append({'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel})
                 error_measure['value'].append(func_error(y_valid, y_valid_hat))
             intermediate_paper_handle = ContentFile(pickle.dumps(models_))
-            new_paper = Paper(user=req.user, role=3, name=f'SVM Regressor #{algorithm_.id} Model')
+            new_paper = Paper(user=req.user, role=3, name=f'SVM Regression #{algorithm_.id} Model')
             new_paper.file.save(f'svm_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
@@ -386,7 +386,7 @@ def train_model(req):
                 ensure_ascii=False
             )
             intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
-            new_paper = Paper(user=req.user, role=3, name=f'SVM Regressor #{algorithm_.id} Model')
+            new_paper = Paper(user=req.user, role=3, name=f'SVM Regression #{algorithm_.id} Model')
             new_paper.file.save(f'svm_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
@@ -425,7 +425,7 @@ def train_model(req):
             hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}
             algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
             intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
-            new_paper = Paper(user=req.user, role=3, name=f'SVM Regressor #{algorithm_.id} Model')
+            new_paper = Paper(user=req.user, role=3, name=f'SVM Regression #{algorithm_.id} Model')
             new_paper.file.save(f'svm_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
@@ -506,7 +506,7 @@ def predict(req):
         step.save()
         context = {"color": "warning", "content": f"Interrupted. {e}"}
         return render(req, "task_manager/hint_widget.html", context)
-    new_paper = Paper(user=req.user, role=4, name=f"SVM Regressor #{algorithm_.id} Predict")
+    new_paper = Paper(user=req.user, role=4, name=f"SVM Regression #{algorithm_.id} Predict")
     new_paper.file.save(f"svm_regressor_{algorithm_.id}_predict.xlsx", table_bin)
     new_paper.save()
     step.predicted_data = new_paper

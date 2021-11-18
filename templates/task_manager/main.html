@@ -8,14 +8,72 @@
 <body>
 <div class="container-fluid">
     <div class="row">{% include 'clixove.org/navigator.html' %}</div>
-    <div class="row alert">
+    <div class="row alert mb-0">
         <div class="col-md-12">
             <div class="text-center">
-                <p class="display-4">QuestionGo</p>
+                <p class="display-4">Question Go</p>
                 <p><i class="lead">Construct and reuse machine learning models</i></p>
                 <p><a class="btn btn-lg btn-outline-primary rounded-pill" href="/task/retrieve">Quick start</a></p>
             </div>
         </div>
+    </div>
+
+    <!-- Algorithms tab -->
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead">Methods & applications</p>
+            <ul class="nav nav-tabs" role="tablist">
+
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link text-dark active" data-bs-toggle="tab" href="#project" role="tab"
+                       aria-selected="true">
+                        Projects
+                    </a>
+                </li>
+                {% for class in registry %}
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link text-dark" data-bs-toggle="tab" href="#auto-card-{{ forloop.counter }}"
+                       role="tab" aria-selected="true">
+                        {{ class.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Algorithms cards -->
+    <div class="tab-content alert">
+        <div class="tab-pane fade show active" id="project" role="tabpanel">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="alert shadow fade show" role="alert">
+                    <p><strong>Projects</strong></p>
+                    <p>View, create, delete, and switch between your projects.</p>
+                    <div class="text-center m-2">
+                        <a href="/task/instances" class="btn btn-outline-primary">Enter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        {% for class in registry %}
+        <div class="tab-pane fade show" id="auto-card-{{ forloop.counter }}" role="tabpanel">
+        <div class="row">
+            {% for app in class.applications %}
+            <div class="col-md-4">
+                <div class="alert shadow fade show" role="alert">
+                    <p><strong>{{ app.name }}</strong></p>
+                    <p>{{ app.description }}</p>
+                    <div class="text-center m-2">
+                        <a href="{{ app.opened_link }}" class="btn btn-outline-success">Create</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+        {% endfor %}
     </div>
 
     <!-- Feature & advantages -->
@@ -73,228 +131,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Algorithms tab -->
-    <div class="row alert">
-        <div class="col-md-12">
-            <p class="lead">Methods & applications</p>
-            <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-dark active" data-bs-toggle="tab" href="#project" role="tab"
-                   aria-selected="true">
-                    Project
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-dark" data-bs-toggle="tab" href="#data-pre-processing" role="tab"
-                   aria-selected="true">
-                    Data pre-processing
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-dark" data-bs-toggle="tab" href="#hypothesis" role="tab"
-                   aria-selected="true">
-                    Hypothesis
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-dark" data-bs-toggle="tab" href="#classification" role="tab"
-                   aria-selected="true">
-                    Classification
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-dark" data-bs-toggle="tab" href="#regression" role="tab"
-                   aria-selected="true">
-                    Regression
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-dark" data-bs-toggle="tab" href="#prediction" role="tab"
-                   aria-selected="true">
-                    Prediction
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-dark" data-bs-toggle="tab" href="#clustering" role="tab"
-                   aria-selected="true">
-                    Clustering
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link text-dark" data-bs-toggle="tab" href="#application" role="tab"
-                   aria-selected="true">
-                    Application
-                </a>
-            </li>
-            </ul>
-        </div>
-    </div>
-
-<!-- Algorithms cards -->
-<div class="tab-content alert">
-{#    <div class="tab-pane fade show" id="project" role="tabpanel">#}
-{#    <div class="row">#}
-{#    </div>#}
-{#    </div>#}
-    <div class="tab-pane fade show active" id="project" role="tabpanel">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Projects</strong></p>
-                <p>View, create, delete, and switch between your projects.</p>
-                <div class="text-center m-2">
-                    <a href="/task/instances" class="btn btn-outline-primary">Enter</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <div class="tab-pane fade show" id="data-pre-processing" role="tabpanel">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Cross-sectional</strong></p>
-                <p>Process cross-sectional data: dropping, filling missing values, converting type, encoding, and
-                basic maths operations.</p>
-                <div class="text-center m-2">
-                    <a href="/pre_cross_sectional/add" class="btn btn-outline-success">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Time series</strong></p>
-                <p>Converting records from a table to a multi-dimension time series.</p>
-                <div class="text-center m-2">
-                    <a href="/pre_ts/add" class="btn btn-outline-success">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Normalization and zipping</strong></p>
-                <p>Perform normalization and zipping, prepared for inverse results back at any time.</p>
-                <div class="text-center m-2">
-                    <a href="/pre_norm/add" class="btn btn-outline-success">Create</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <div class="tab-pane fade show" id="hypothesis" role="tabpanel">
-    <div class="row">
-    </div>
-    </div>
-
-    <div class="tab-pane fade show" id="classification" role="tabpanel">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Random Forest</strong></p>
-                <p>Classify and calculate the importance of each feature.</p>
-                <div class="text-center m-2">
-                    <a href="/algo_rf_classifier/add" class="btn btn-outline-success">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Support Vector Machine</strong></p>
-                <p>Classify small number of samples, and draw classification boundary in non-linear space.</p>
-                <div class="text-center m-2">
-                    <a href="/algo_svm_classifier/add" class="btn btn-outline-success">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Abnormal Detection</strong></p>
-                <p>Use one-class SVM method to draw envelope of normal samples and detect abnormal samples.</p>
-                <div class="text-center m-2">
-                    <a href="#" class="btn btn-outline-success disabled">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Logistic Regression</strong></p>
-                <p>Classify samples into dual classes based on the linear method.</p>
-                <div class="text-center m-2">
-                    <a href="#" class="btn btn-outline-success disabled">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Long-short Term Memory</strong></p>
-                <p>Fit external classification of time series by LSTM-Dense neuron network.</p>
-                <div class="text-center m-2">
-                    <a href="#" class="btn btn-outline-success disabled">Create</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <div class="tab-pane fade show" id="regression" role="tabpanel">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Linear Regression</strong></p>
-                <p>The most classic method in computational economics.</p>
-                <div class="text-center m-2">
-                    <a href="/algo_linear_regression/add" class="btn btn-outline-success">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Elastic Net</strong></p>
-                <p>An improvement of linear regression with L1 and L2 regularization.</p>
-                <div class="text-center m-2">
-                    <a href="#" class="btn btn-outline-success disabled">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Random Forest</strong></p>
-                <p>Regress and calculate the importance of each feature.</p>
-                <div class="text-center m-2">
-                    <a href="/algo_rf_regressor/add" class="btn btn-outline-success">Create</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="alert shadow fade show" role="alert">
-                <p><strong>Support Vector Machine</strong></p>
-                <p>Regress small number of samples by calculating the distance between each sample and the boundary.</p>
-                <div class="text-center m-2">
-                    <a href="/algo_svm_regressor/add" class="btn btn-outline-success">Create</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <div class="tab-pane fade show" id="prediction" role="tabpanel">
-    <div class="row">
-    </div>
-    </div>
-
-    <div class="tab-pane fade show" id="clustering" role="tabpanel">
-    <div class="row">
-    </div>
-    </div>
-
-    <div class="tab-pane fade show" id="application" role="tabpanel">
-    <div class="row">
-    </div>
-    </div>
-</div>
 
     <div class="row">{% include 'clixove.org/copyright.html' %}</div>
 </div>

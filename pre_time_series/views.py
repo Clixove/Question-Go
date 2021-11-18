@@ -378,7 +378,9 @@ def transform(req):
                                                     neginf=feat_avg[i])
             else:
                 attributes[:, :, i] = np.nan_to_num(attributes[:, :, i], nan=0, posinf=0, neginf=0)
-
+            if columns.get(name=name).diff:
+                attributes[:, 1:, i] = np.diff(attributes[:, :, i], axis=1)
+                attributes[:, 0, i] = np.zeros(shape=attributes.shape[0])
         if algorithm_.sheet_set.filter(is_label=True).exists():
             score = np.full(n_code, 0, dtype=np.float32)
             for code, score_array in y.groupby(y_code):

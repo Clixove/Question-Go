@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 
 from question_go_v2.settings import TIME_ZONE
 from .models import *
+from .register import algorithm_registry
 
 
 class RenameTask(forms.Form):
@@ -15,7 +16,7 @@ class RenameTask(forms.Form):
 
 
 def view_main_page(req):
-    return render(req, "task_manager/main.html")
+    return render(req, "task_manager/main.html", {'registry': algorithm_registry})
 
 
 @permission_required("task_manager.view_task", login_url=f"/main?message=No permission to view task.&color=danger")
@@ -268,6 +269,7 @@ def import_training_set_v2(req):
     try:
         if data_picker.cleaned_data['data_format'] == '1':
             table = pd.read_excel(paper.file.path)
+            table.columns = [x.__str__() for x in table.columns]
         else:
             table = pd.read_pickle(paper.file.path)
     except Exception as e:
@@ -291,6 +293,7 @@ def import_predicting_set_v2(req):
     try:
         if data_picker.cleaned_data['data_format'] == '1':
             table = pd.read_excel(paper.file.path)
+            table.columns = [x.__str__() for x in table.columns]
         else:
             table = pd.read_pickle(paper.file.path)
     except Exception as e:

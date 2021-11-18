@@ -105,7 +105,7 @@ def add_rf_regressor(req):
     new_algorithm = BayesRfRegressor()
     new_algorithm.save()
     new_step = Step(
-        task=opened_task, name="Random Forest Regressor", view_link=f"/algo_rf_regressor/{new_algorithm.id}",
+        task=opened_task, name="Random Forest Regression", view_link=f"/algo_rf_regressor/{new_algorithm.id}",
         model_id=new_algorithm.id
     )
     new_step.save()
@@ -166,7 +166,7 @@ def import_data(req):
         # ---------- Asynchronous Algorithm START   ----------
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
         new_paper = Paper(user=req.user, role=2,
-                          name=f"Random Forest Regressor #{algorithm_.id} Parsed Data")
+                          name=f"Random Forest Regression #{algorithm_.id} Parsed Data")
         new_paper.file.save(f"rf_regressor_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
         new_paper.save()
         algorithm_.dataframe = new_paper
@@ -326,7 +326,7 @@ def train_model(req):
                 )
                 error_measure['value'].append(func_error(y_valid, y_valid_hat))
             intermediate_paper_handle = ContentFile(pickle.dumps(models_))
-            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regressor #{algorithm_.id} Model')
+            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regression #{algorithm_.id} Model')
             new_paper.file.save(f'rf_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
@@ -370,7 +370,7 @@ def train_model(req):
                 ensure_ascii=False
             )
             intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
-            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regressor #{algorithm_.id} Model')
+            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regression #{algorithm_.id} Model')
             new_paper.file.save(f'rf_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
@@ -401,12 +401,13 @@ def train_model(req):
                                 'n_estimators': mdl.n_estimators}
             algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
             intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
-            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regressor #{algorithm_.id} Model')
+            new_paper = Paper(user=req.user, role=3, name=f'Random Forest Regression #{algorithm_.id} Model')
             new_paper.file.save(f'rf_regressor_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
             algorithm_.training_history = json.dumps(history, ensure_ascii=False)
-
+            feature_importance_ = {name: weight for name, weight in zip(x_col, mdl.feature_importances_)}
+            algorithm_.feature_importance = json.dumps(feature_importance_, ensure_ascii=False)
         algorithm_.mode = mode
         algorithm_.save()
         # ---------- Asynchronous Algorithm END   ----------
@@ -482,7 +483,7 @@ def predict(req):
         step.save()
         context = {"color": "warning", "content": f"Interrupted. {e}"}
         return render(req, "task_manager/hint_widget.html", context)
-    new_paper = Paper(user=req.user, role=4, name=f"Random Forest Regressor #{algorithm_.id} Predict")
+    new_paper = Paper(user=req.user, role=4, name=f"Random Forest Regression #{algorithm_.id} Predict")
     new_paper.file.save(f"rf_regressor_{algorithm_.id}_predict.xlsx", table_bin)
     new_paper.save()
     step.predicted_data = new_paper

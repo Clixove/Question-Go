@@ -144,7 +144,7 @@ def view_rf_classifier(req, algo_id):
         "train_config": train_config,
     }
     try:
-        context['class_dict'] = json.loads(algorithm_.class_dict)
+        # context['class_dict'] = json.loads(algorithm_.class_dict)
         context['bayes_history'] = json.loads(algorithm_.training_history)
         context['h_para'] = json.loads(algorithm_.hyper_parameters)
         context['f_imp'] = json.loads(algorithm_.feature_importance)
@@ -458,6 +458,8 @@ def train_model(req):
             new_paper.save()
             algorithm_.model = new_paper
             algorithm_.training_history = json.dumps(history, ensure_ascii=False)
+            feature_importance_ = {name: weight for name, weight in zip(x_col, mdl.feature_importances_)}
+            algorithm_.feature_importance = json.dumps(feature_importance_, ensure_ascii=False)
 
         algorithm_.class_dict = json.dumps(class_dict, ensure_ascii=False)
         algorithm_.mode = mode

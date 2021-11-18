@@ -2,30 +2,28 @@ import io
 import json
 import pickle
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from django import forms
 from django.contrib.auth.decorators import permission_required
 from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
+from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from sklearn.svm import SVC
-from sklearn.metrics import roc_auc_score, roc_curve
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold, train_test_split
+from sklearn.svm import OneClassSVM
 
 import task_manager.views
-from bayes_opt import BayesianOptimization
 from task_manager.models import OpenedTask
 from .models import *
 
 
 class PublicAlgorithm(forms.Form):
-    algorithm = forms.ModelChoiceField(BayesSvmClassifier.objects.all(), widget=forms.HiddenInput())
+    algorithm = forms.ModelChoiceField(BayesOneClassSVM.objects.all(), widget=forms.HiddenInput())
 
     def link_to_algorithm(self, algo_id):
-        self.fields['algorithm'].initial = BayesSvmClassifier.objects.get(id=algo_id)
+        self.fields['algorithm'].initial = BayesOneClassSVM.objects.get(id=algo_id)
 
 
 class VariablePicker(PublicAlgorithm):
@@ -46,33 +44,23 @@ class VariablePicker(PublicAlgorithm):
 class Train(PublicAlgorithm):
     running_mode = forms.ChoiceField(
         widget=forms.Select({"class": "form-select"}),
-        choices=[("split", "Random split to 80% training set, 20% validation set. (built-in 5 fold cross validation "
-                           "inside training set)"),
+        choices=[("5_fold", "5 fold cross validation"),
+                 ("split", "Random split to 80% training set, 20% validation set"),
                  ("full_train", "Applying all samples for training")],
     )
     random_seed = forms.IntegerField(
         min_value=1, max_value=9999999, required=False, widget=forms.NumberInput({"class": "form-control"}),
         help_text="Not required. From 1 to 9999999, leave blank if not purpose to fix."
     )
-    bayes_init_try_times = forms.IntegerField(
-        min_value=16, widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='At least 16. How many steps of random exploration you want to perform. '
-                  'Random exploration can help by diversifying the exploration space.'
+    abnormal_class_name = forms.ChoiceField(
+        widget=forms.Select({'class': 'form-control'}),
+        help_text='Name of the class, samples belong to which is taken as abnormal. Normal classes is converted to '
+                  '1, and the abnormal class is converted to -1.'
     )
-    bayes_iteration_times = forms.IntegerField(
-        min_value=16, max_value=100, widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='From 16 to 100. How many steps of bayesian optimization you want to perform. The more steps the '
-                  'more likely to find a good maximum you are.'
-    )
-    min_ln_c = forms.FloatField(
-        widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='The logarithmic value of L2 regularization parameter, inversely proportional to the strength of '
-                  'the regularization.',
-    )
-    max_ln_c = forms.FloatField(
-        widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='The logarithmic value of L2 regularization parameter, inversely proportional to the strength of '
-                  'the regularization.',
+    nu = forms.FloatField(
+        min_value=0, max_value=1, widget=forms.NumberInput({'class': 'form-control'}), initial=0.5,
+        help_text='An upper bound on the fraction of training errors and a lower bound of the fraction of support '
+                  'vectors. It\'s in interval (0, 1].'
     )
     kernel = forms.ChoiceField(
         widget=forms.Select({'class': 'form-control'}),
@@ -81,13 +69,7 @@ class Train(PublicAlgorithm):
                  ('sigmoid', 'Sigmoid Function')],
         initial='rbf',
     )
-    min_degree = forms.IntegerField(
-        widget=forms.NumberInput({'class': 'form-control'}),
-        help_text='Degree of the polynomial kernel function. Required only when the kernel function is polynomial.'
-                  '(Integer no smaller than 2)',
-        required=False, min_value=2,
-    )
-    max_degree = forms.IntegerField(
+    degree = forms.IntegerField(
         widget=forms.NumberInput({'class': 'form-control'}),
         help_text='Degree of the polynomial kernel function. Required only when the kernel function is polynomial.'
                   '(Integer no smaller than 2)',
@@ -96,18 +78,18 @@ class Train(PublicAlgorithm):
 
 
 @permission_required(
-    'algo_svm_classifier.add_bayessvmclassifier',
+    'algo_one_class_svm.add_bayesoneclasssvm',
     login_url='/task/retrieve?message=You don\'t have access to this algorithm.&color=danger'
 )
-def add_svm_classifier(req):
+def add_one_class_svm(req):
     try:
         opened_task = OpenedTask.objects.get(user=req.user).task
     except OpenedTask.DoesNotExist:
         return redirect("/task/instances?message=You should open a task first.&color=danger")
-    new_algorithm = BayesSvmClassifier()
+    new_algorithm = BayesOneClassSVM()
     new_algorithm.save()
     new_step = Step(
-        task=opened_task, name="SVM Classifier", view_link=f"/algo_svm_classifier/{new_algorithm.id}",
+        task=opened_task, name="One-class SVM", view_link=f"/algo_one_class_svm/{new_algorithm.id}",
         model_id=new_algorithm.id
     )
     new_step.save()
@@ -116,13 +98,13 @@ def add_svm_classifier(req):
     return redirect(new_step.view_link)
 
 
-@permission_required("algo_svm_classifier.view_bayessvmclassifier",
+@permission_required("algo_one_class_svm.view_bayesoneclasssvm",
                      login_url="/task/retrieve?message=You don't have access to view algorithms.&color=danger")
-def view_svm_classifier(req, algo_id):
+def view_one_class_svm(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesSvmClassifier.objects.get(id=algo_id)
-    except BayesSvmClassifier.DoesNotExist:
+        algorithm_ = BayesOneClassSVM.objects.get(id=algo_id)
+    except BayesOneClassSVM.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -137,21 +119,27 @@ def view_svm_classifier(req, algo_id):
     context = {
         "algorithm": algorithm_, "note": task_manager.views.display_note(algorithm_.step),
         "search_data": task_manager.views.display_data_picker(algorithm_.step),
-        "import_data_target": '/algo_svm_classifier/import',
-        "predict_data_target": '/algo_svm_classifier/predict',
+        "import_data_target": '/algo_one_class_svm/import',
+        "predict_data_target": '/algo_one_class_svm/predict',
         "variable_picker": variable_picker, "x_var": x_var, "y_var": y_var,
-        "train_config": train_config,
     }
-    try:
-        # context['class_dict'] = json.loads(algorithm_.class_dict)
-        context['bayes_history'] = json.loads(algorithm_.training_history)
-        context['h_para'] = json.loads(algorithm_.hyper_parameters)
+    try:  # MUST NOT SHARE THE CASE WITH CLASSIFICATION EVALUATION
+        train_config.fields['abnormal_class_name'].choices = [(x, x) for x in json.loads(algorithm_.class_list)]
+        context['train_config'] = train_config
     except json.JSONDecodeError:
         pass
-    return render(req, "algo_svm_classifier/main.html", context)
+    try:  # TRADE-OFF BETWEEN TRY-EXCEPT AND IF-ELSE
+        if algorithm_.mode == '5_fold':
+            context['evaluate'] = zip(json.loads(algorithm_.confusion_matrix), json.loads(algorithm_.hyper_parameters))
+        else:
+            context['c_mat'] = json.loads(algorithm_.confusion_matrix)
+            context['h_para'] = json.loads(algorithm_.hyper_parameters)
+    except json.JSONDecodeError:
+        pass
+    return render(req, "algo_one_class_svm/main.html", context)
 
 
-@permission_required("algo_svm_classifier.change_bayessvmclassifier")
+@permission_required("algo_one_class_svm.change_bayesoneclasssvm")
 @csrf_exempt
 @require_POST
 def import_data(req):
@@ -162,7 +150,7 @@ def import_data(req):
         return render(req, 'task_manager/hint_widget.html', context)
     # "step.status" has been changed to 2.
     # ---------- Import Data Tool V2 END   ----------
-    algorithm_ = BayesSvmClassifier.objects.get(step=step)
+    algorithm_ = BayesOneClassSVM.objects.get(step=step)
     try:
         # ---------- Asynchronous Algorithm START   ----------
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
@@ -183,19 +171,19 @@ def import_data(req):
         step.error_message = str(e)
         step.save()
         context = {"color": "danger", "content": "Interrupted.",
-                   "refresh": f"/algo_svm_classifier/{algorithm_.id}"}
+                   "refresh": f"/algo_one_class_svm/{algorithm_.id}"}
         return render(req, "task_manager/hint_widget.html", context)
     step.status = 3
     step.save()
     context = {"color": "success", "content": "The file is successfully parsed.",
-               "refresh": f"/algo_svm_classifier/{algorithm_.id}"}
+               "refresh": f"/algo_one_class_svm/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_svm_classifier.change_bayessvmclassifier")
+@permission_required("algo_one_class_svm.change_bayesoneclasssvm")
 @csrf_exempt
 @require_POST
-def set_variables(req):
+def set_variables(req):  # SPECIFIED
     variable_picker = VariablePicker(req.POST)
     # ---------- Algorithm Ownership Validator v2 START ----------
     v1 = variable_picker.is_valid()
@@ -211,20 +199,28 @@ def set_variables(req):
         column.x_column = True
         column.save()
     column = variable_picker.cleaned_data['Dependent_Variable_Y']
+    try:
+        data = pd.read_pickle(algorithm_.dataframe.file.path)
+        data = data[column.name]
+        algorithm_.class_list = json.dumps(np.unique(data).tolist())
+        algorithm_.save()
+    except Exception as e:
+        context = {"color": "danger", "content": f"The dependent variable cannot be parsed. {e}"}
+        return render(req, "task_manager/hint_widget.html", context)
     column.y_column = True
     column.save()
     context = {"color": "success", "content": "Set variables successfully.",
-               "refresh": f"/algo_svm_classifier/{algorithm_.id}"}
+               "refresh": f"/algo_one_class_svm/{algorithm_.id}"}  # REQUIRED FOR REFRESHING
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_svm_classifier.change_bayessvmclassifier",
+@permission_required("algo_one_class_svm.change_bayesoneclasssvm",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 def clear_variables(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesSvmClassifier.objects.get(id=algo_id)
-    except BayesSvmClassifier.DoesNotExist:
+        algorithm_ = BayesOneClassSVM.objects.get(id=algo_id)
+    except BayesOneClassSVM.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -234,45 +230,29 @@ def clear_variables(req, algo_id):
     for column in Column.objects.filter(algorithm=algorithm_):
         column.x_column = column.y_column = False
         column.save()
-    return redirect(f"/algo_svm_classifier/{algorithm_.id}")
+    algorithm_.class_list = str()
+    algorithm_.save()
+    return redirect(f"/algo_one_class_svm/{algorithm_.id}")
 
 
-def one_hot(labels):
-    u, i = np.unique(labels, return_inverse=True)
-    labels_1h = np.eye(u.shape[0])[i]
-    class_dict_ = dict(zip(u, range(len(u))))
-    return class_dict_, labels_1h
-
-
-@permission_required("algo_svm_classifier.change_bayessvmclassifier")
+@permission_required("algo_one_class_svm.change_bayesoneclasssvm")
 @csrf_exempt
 @require_POST
 def train_model(req):
+    try:
+        algorithm_ = BayesOneClassSVM.objects.get(id=req.POST['algorithm'])
+    except (BayesOneClassSVM.DoesNotExist, MultiValueDictKeyError):
+        context = {"color": "danger", "content": "The algorithm does not exist."}
+        return render(req, "task_manager/hint_widget.html", context)
     train = Train(req.POST)
-    # ---------- Algorithm Ownership Validator v2 START ----------
-    v1 = train.is_valid()
-    algorithm_ = train.cleaned_data['algorithm']
+    train.fields['abnormal_class_name'].choices = [(x, x) for x in json.loads(algorithm_.class_list)]
     step = algorithm_.step
-    v2 = step.open_permission(req.user)
-    if not (v1 and v2):
+    if (not train.is_valid()) or (not step.open_permission(req.user)) or train.cleaned_data['nu'] == 0:
         context = {"color": "danger", "content": "Submission is not valid."}
         return render(req, "task_manager/hint_widget.html", context)
-    # ---------- Algorithm Ownership Validator v2 END   ----------
     if step.status == 2:
         context = {"color": "warning", "content": "Cannot start because this algorithm is busy."}
         return render(req, "task_manager/hint_widget.html", context)
-
-    if train.cleaned_data['kernel'] == 'poly':
-        if not (train.cleaned_data['min_degree'] and train.cleaned_data['max_degree']):
-            context = {"color": "warning", "content": "Degree is required when kernel function is polynomial."}
-            return render(req, "task_manager/hint_widget.html", context)
-        if train.cleaned_data['min_degree'] >= train.cleaned_data['max_degree']:
-            context = {"color": "warning", "content": "The interval of degree is not valid."}
-            return render(req, "task_manager/hint_widget.html", context)
-    if train.cleaned_data['min_ln_c'] >= train.cleaned_data['max_ln_c']:
-        context = {"color": "warning", "content": "The interval of ln(C) is not valid."}
-        return render(req, "task_manager/hint_widget.html", context)
-    
     step.status = 2
     step.save()
     try:
@@ -282,133 +262,102 @@ def train_model(req):
         x_col = [x.name for x in Column.objects.filter(algorithm=algorithm_, x_column=True)]
         y_col = Column.objects.filter(algorithm=algorithm_, y_column=True).first().name
         mode = train.cleaned_data['running_mode']
+        algorithm_.abnormal_class_name = train.cleaned_data['abnormal_class_name']
         x, y = dataframe[x_col].values, dataframe[y_col].values
+        y = np.where(y == y.dtype.type(train.cleaned_data['abnormal_class_name']), -1, 1)
 
-        class_dict, y_1h = one_hot(y)
-        hyper_parameters = {'c': (train.cleaned_data['min_ln_c'], train.cleaned_data['max_ln_c'])}
-        if train.cleaned_data['kernel'] == 'poly':
-            hyper_parameters['degree'] = (train.cleaned_data['min_degree'], train.cleaned_data['max_degree'])
-        fpr_poly_ = np.linspace(0, 1, 200)
+        if mode == "5_fold":
+            k_fold = KFold(n_splits=5, random_state=train.cleaned_data['random_seed'], shuffle=True)
+            models_, histories, confusion_matrix_list, hyper_parameters_list, support_vectors_list = [], [], [], [], []
 
-        # 5-fold cross validation is built in when "probability=True". And, "probability=True" is necessary
-        # if having a need to draw ROC curve.
-        # https://scikit-learn.org/stable/modules/svm.html#scores-and-probabilities
-        if mode == "split":
-            x_train, x_valid, y_train, y_valid, y_1h_train, y_1h_valid = train_test_split(
-                x, y, y_1h, train_size=0.8, shuffle=True, random_state=train.cleaned_data['random_seed'])
+            for (train_index, valid_index), k in zip(k_fold.split(x), range(5)):
+                x_train, x_valid, y_train, y_valid = x[train_index], x[valid_index], y[train_index], y[valid_index]
+                x_train = x_train[y_train]
+                if train.cleaned_data['degree']:
+                    mdl = OneClassSVM(kernel=train.cleaned_data['kernel'], nu=train.cleaned_data['nu'],
+                                      degree=train.cleaned_data['degree'], max_iter=5000)
+                else:
+                    mdl = OneClassSVM(kernel=train.cleaned_data['kernel'], nu=train.cleaned_data['nu'], max_iter=5000)
+                mdl.fit(x_train)
+                models_.append(mdl)
+                y_valid_hat = mdl.predict(x_valid)
+                c1, c2 = y_valid == 1, y_valid_hat == 1
+                c_mat = [[np.sum(~c1 & ~c2).__int__(), np.sum(~c1 & c2).__int__()],
+                         [np.sum(c1 & ~c2).__int__(), np.sum(c1 & c2).__int__()]]
+                confusion_matrix_list.append(c_mat)
+                hyper_parameters_list.append({'degree': mdl.degree, 'kernel': mdl.kernel, 'nu': mdl.nu})
+                support_vectors_list.append(mdl.support_vectors_)
 
-            if train.cleaned_data['kernel'] == 'poly':
-                def bayes_svc_split(c, degree):
-                    svc = SVC(
-                        C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
-                        probability=True, max_iter=5000,
-                    )
-                    svc.fit(x_train, y_train)
-                    y_train_hat = svc.predict_proba(x_train)
-                    auc_in_bayes = np.mean([roc_auc_score(y_1h_train[:, i], y_train_hat[:, i])
-                                            for i in range(y_1h.shape[1])])
-                    return auc_in_bayes
-            else:
-                def bayes_svc_split(c):
-                    svc = SVC(C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True, max_iter=5000,)
-                    svc.fit(x_train, y_train)
-                    y_train_hat = svc.predict_proba(x_train)
-                    auc_in_bayes = np.mean([roc_auc_score(y_1h_train[:, i], y_train_hat[:, i])
-                                            for i in range(y_1h.shape[1])])
-                    return auc_in_bayes
+            algorithm_.confusion_matrix = json.dumps(confusion_matrix_list)
+            algorithm_.hyper_parameters = json.dumps(hyper_parameters_list, ensure_ascii=False)
 
-            optimizer = BayesianOptimization(f=bayes_svc_split, pbounds=hyper_parameters,
-                                             random_state=train.cleaned_data['random_seed'])
-            optimizer.maximize(init_points=train.cleaned_data['bayes_init_try_times'],
-                               n_iter=train.cleaned_data['bayes_iteration_times'])
-            history = {i: res for i, res in enumerate(optimizer.res)}
-            if train.cleaned_data['kernel'] == 'poly':
-                mdl = SVC(
-                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'],
-                    degree=round(optimizer.max['params']['degree']), probability=True,
-                )
-            else:
-                mdl = SVC(
-                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'], probability=True,
-                )
-            mdl.fit(x_train, y_train)
-            y_valid_hat = mdl.predict_proba(x_valid)
-            hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}
-            algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
-            auc = {}
-            f, fig = io.StringIO(), plt.figure()
-
-            for name, i in class_dict.items():
-                auc[name] = roc_auc_score(y_1h_valid[:, i], y_valid_hat[:, i])
-                fpr, tpr, _ = roc_curve(y_1h_valid[:, i], y_valid_hat[:, i])
-                tpr_poly_ = np.interp(fpr_poly_, fpr, tpr)
-                plt.plot(fpr_poly_, tpr_poly_, label=f'{name} (AUC = {auc[name].__round__(3)})')
-
-            intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
-            new_paper = Paper(user=req.user, role=3, name=f'SVM Classifier #{algorithm_.id} Model')
-            new_paper.file.save(f'svm_classifier_{algorithm_.id}_model.pkl', intermediate_paper_handle)
+            intermediate_paper_handle = ContentFile(pickle.dumps(models_))
+            new_paper = Paper(user=req.user, role=3, name=f'One-class SVM #{algorithm_.id} Model')
+            new_paper.file.save(f'one_class_svm_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
-            algorithm_.training_history = json.dumps(history, ensure_ascii=False)
-            algorithm_.auc = json.dumps(auc, ensure_ascii=False)
 
-            plt.plot([0, 1], [0, 1], linestyle='--', lw=1.25, color='b', label='Chance')
-            plt.ylabel("True Positive Rate")
-            plt.xlabel("False Positive Rate")
-            plt.legend(loc=4)
-            fig.savefig(f, format='svg')
-            plt.close(fig)
-            algorithm_.roc_curve = f.getvalue()
+            intermediate_paper_handle = ContentFile(pickle.dumps(support_vectors_list))
+            new_paper = Paper(user=req.user, role=2, name=f'One-class SVM #{algorithm_.id} Support Vector')
+            new_paper.file.save(f'one_class_svm_{algorithm_.id}_support_vector.pkl', intermediate_paper_handle)
+            new_paper.save()
+            algorithm_.support_vectors = new_paper
+
+        elif mode == "split":
+            x_train, x_valid, y_train, y_valid = train_test_split(x, y, train_size=0.8, shuffle=True,
+                                                                  random_state=train.cleaned_data['random_seed'])
+            x_train = x_train[y_train]
+            if train.cleaned_data['degree']:
+                mdl = OneClassSVM(kernel=train.cleaned_data['kernel'], nu=train.cleaned_data['nu'],
+                                  degree=train.cleaned_data['degree'], max_iter=5000)
+            else:
+                mdl = OneClassSVM(kernel=train.cleaned_data['kernel'], nu=train.cleaned_data['nu'], max_iter=5000)
+            mdl.fit(x_train)
+            y_valid_hat = mdl.predict(x_valid)
+            c1, c2 = y_valid == 1, y_valid_hat == 1
+            c_mat = [[np.sum(~c1 & ~c2).__int__(), np.sum(~c1 & c2).__int__()],
+                     [np.sum(c1 & ~c2).__int__(), np.sum(c1 & c2).__int__()]]
+            hyper_parameters = {'degree': mdl.degree, 'kernel': mdl.kernel, 'nu': mdl.nu}
+
+            algorithm_.confusion_matrix = json.dumps(c_mat)
+            algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
+
+            intermediate_paper_handle = ContentFile(pickle.dumps(mdl.support_vectors_))
+            new_paper = Paper(user=req.user, role=2, name=f'One-class SVM #{algorithm_.id} Support Vector')
+            new_paper.file.save(f'one_class_svm_{algorithm_.id}_support_vector.pkl', intermediate_paper_handle)
+            new_paper.save()
+            algorithm_.support_vectors = new_paper
+
+            intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
+            new_paper = Paper(user=req.user, role=3, name=f'One-class SVM #{algorithm_.id} Model')
+            new_paper.file.save(f'one_class_svm_{algorithm_.id}_model.pkl', intermediate_paper_handle)
+            new_paper.save()
+            algorithm_.model = new_paper
 
         else:  # mode == "full_train"
-            if train.cleaned_data['kernel'] == 'poly':
-                def bayes_svc_full_train(c, degree):
-                    svc = SVC(
-                        C=np.exp(c), kernel=train.cleaned_data['kernel'], degree=round(degree),
-                        probability=True, max_iter=5000,
-                    )
-                    svc.fit(x, y)
-                    y_hat = svc.predict_proba(x)
-                    auc_in_bayes = np.mean([roc_auc_score(y_1h[:, i], y_hat[:, i])
-                                            for i in range(y_1h.shape[1])])
-                    return auc_in_bayes
+            if train.cleaned_data['degree']:
+                mdl = OneClassSVM(kernel=train.cleaned_data['kernel'], nu=train.cleaned_data['nu'],
+                                  degree=train.cleaned_data['degree'], max_iter=5000)
             else:
-                def bayes_svc_full_train(c):
-                    svc = SVC(C=np.exp(c), kernel=train.cleaned_data['kernel'], probability=True, max_iter=5000,)
-                    svc.fit(x, y)
-                    y_hat = svc.predict_proba(x)
-                    auc_in_bayes = np.mean([roc_auc_score(y_1h[:, i], y_hat[:, i])
-                                            for i in range(y_1h.shape[1])])
-                    return auc_in_bayes
-            optimizer = BayesianOptimization(f=bayes_svc_full_train, pbounds=hyper_parameters,
-                                             random_state=train.cleaned_data['random_seed'])
-            optimizer.maximize(init_points=train.cleaned_data['bayes_init_try_times'],
-                               n_iter=train.cleaned_data['bayes_iteration_times'])
-            history = {i: res for i, res in enumerate(optimizer.res)}
-            if train.cleaned_data['kernel'] == 'poly':
-                mdl = SVC(
-                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'],
-                    degree=round(optimizer.max['params']['degree']),
-                )
-            else:
-                mdl = SVC(
-                    C=np.exp(optimizer.max['params']['c']), max_iter=5000,
-                    kernel=train.cleaned_data['kernel'],
-                )
-            mdl.fit(x, y)
-            hyper_parameters = {'c': mdl.C, 'degree': mdl.degree, 'kernel': mdl.kernel}
+                mdl = OneClassSVM(kernel=train.cleaned_data['kernel'], nu=train.cleaned_data['nu'], max_iter=5000)
+            x_train = x[y]
+            mdl.fit(x_train)
+            hyper_parameters = {'degree': mdl.degree, 'kernel': mdl.kernel, 'nu': mdl.nu}
+
             algorithm_.hyper_parameters = json.dumps(hyper_parameters, ensure_ascii=False)
+
+            intermediate_paper_handle = ContentFile(pickle.dumps(mdl.support_vectors_))
+            new_paper = Paper(user=req.user, role=2, name=f'One-class SVM #{algorithm_.id} Support Vector')
+            new_paper.file.save(f'one_class_svm_{algorithm_.id}_support_vector.pkl', intermediate_paper_handle)
+            new_paper.save()
+            algorithm_.support_vectors = new_paper
+
             intermediate_paper_handle = ContentFile(pickle.dumps(mdl))
-            new_paper = Paper(user=req.user, role=3, name=f'SVM Classifier #{algorithm_.id} Model')
-            new_paper.file.save(f'svm_classifier_{algorithm_.id}_model.pkl', intermediate_paper_handle)
+            new_paper = Paper(user=req.user, role=3, name=f'One-class SVM #{algorithm_.id} Model')
+            new_paper.file.save(f'one_class_svm_{algorithm_.id}_model.pkl', intermediate_paper_handle)
             new_paper.save()
             algorithm_.model = new_paper
-            algorithm_.training_history = json.dumps(history, ensure_ascii=False)
 
-        algorithm_.class_dict = json.dumps(class_dict, ensure_ascii=False)
         algorithm_.mode = mode
         algorithm_.save()
         # ---------- Asynchronous Algorithm END   ----------
@@ -416,23 +365,24 @@ def train_model(req):
         step.status = 4
         step.error_message = str(e)
         step.save()
+        raise e
         context = {"color": "danger", "content": "Interrupted.",
-                   "refresh": f"/algo_svm_classifier/{algorithm_.id}"}
+                   "refresh": f"/algo_one_class_svm/{algorithm_.id}"}
         return render(req, "task_manager/hint_widget.html", context)
     step.status = 3
     step.save()
     context = {"color": "success", "content": "The model has been trained and evaluated.",
-               "refresh": f"/algo_svm_classifier/{algorithm_.id}"}
+               "refresh": f"/algo_one_class_svm/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_svm_classifier.change_bayessvmclassifier",
+@permission_required("algo_one_class_svm.change_bayesoneclasssvm",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 def clear_model(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
     try:
-        algorithm_ = BayesSvmClassifier.objects.get(id=algo_id)
-    except BayesSvmClassifier.DoesNotExist:
+        algorithm_ = BayesOneClassSVM.objects.get(id=algo_id)
+    except BayesOneClassSVM.DoesNotExist:
         return redirect("/task/retrieve?message=This instance doesn't exist.&color=danger")
     if not algorithm_.step.open_permission(req.user):
         return redirect("/task/retrieve?message=You don't have access to this algorithm.&color=danger")
@@ -440,15 +390,13 @@ def clear_model(req, algo_id):
     if algorithm_.step.status == 2:
         return redirect("/task/retrieve?message=Cannot start because this algorithm is busy.&color=warning")
     algorithm_.model = None
-    algorithm_.class_dict = str()
-    algorithm_.training_history = str()
     algorithm_.mode = str()
-    algorithm_.auc = str()
     algorithm_.hyper_parameters = str()
-    algorithm_.feature_importance = str()
-    algorithm_.roc_curve = str()
+    algorithm_.abnormal_class_name = str()
+    algorithm_.confusion_matrix = str()
+    algorithm_.support_vectors = None
     algorithm_.save()
-    return redirect(f"/algo_svm_classifier/{algorithm_.id}")
+    return redirect(f"/algo_one_class_svm/{algorithm_.id}")
 
 
 def most_frequent_item(a: np.array):
@@ -456,7 +404,7 @@ def most_frequent_item(a: np.array):
     return max(set(a), key=a.count)
 
 
-@permission_required("algo_svm_classifier.change_bayessvmclassifier",
+@permission_required("algo_one_class_svm.change_bayesoneclasssvm",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 @csrf_exempt
 @require_POST
@@ -468,7 +416,7 @@ def predict(req):
         return render(req, 'task_manager/hint_widget.html', context)
     # "step.status" has been changed to 2.
     # ---------- Import Data Tool V2 END   ----------
-    algorithm_ = BayesSvmClassifier.objects.get(step=step)
+    algorithm_ = BayesOneClassSVM.objects.get(step=step)
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
@@ -499,5 +447,5 @@ def predict(req):
     step.status = 3
     step.save()
     context = {"color": "success", "content": "Prediction completed.",
-               "refresh": f"/algo_svm_classifier/{algorithm_.id}"}
+               "refresh": f"/algo_one_class_svm/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context=context)

@@ -1,0 +1,40 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Evaluate</strong></p>
+    <div class="d-flex justify-content-center" id="chart-1">{{ algorithm.roc_curve | safe }}</div>
+    {% if algorithm.mode == '5_fold' %}
+        <ul class="nav nav-tabs" role="tablist">
+            {% with ''|center:5 as range %} {% for _ in range %}
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% if forloop.counter == 1 %}active{% endif %}" data-bs-toggle="tab"
+                   href="#table-2-{{ forloop.counter }}" role="tab" aria-selected="true">
+                    Fold {{ forloop.counter }}
+                </a>
+            </li>
+            {% endfor %} {% endwith %}
+        </ul>
+        <div class="tab-content">
+            {% for c_mat, h_para in evaluate %}
+             <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
+                  id="table-2-{{ forloop.counter }}" role="tabpanel" style="overflow-x: auto;">
+             {{ c_mat }}
+                 <table class="table table-condensed table-bordered"><tbody>
+                 <tr><td></td><td>Predicted as abnormal</td><td>Predicted as normal</td></tr>
+                 <tr><td>Known as abnormal</td><td>{{ c_mat.0.0 }}</td><td>{{ c_mat.0.1 }}</td></tr>
+                 <tr><td>Known as normal</td><td>{{ c_mat.1.0 }}</td><td>{{ c_mat.1.1 }}</td></tr>
+                 </tbody></table>
+                <p>Hyper-parameters: Nu = {{ h_para.nu }}, Kernel = {{ h_para.kernel }},
+                    Degree = {{ h_para.degree }}</p>
+             </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        {{ c_mat }}
+             <table class="table table-condensed table-bordered"><tbody>
+                 <tr><td></td><td>Predicted as abnormal</td><td>Predicted as normal</td></tr>
+                 <tr><td>Known as abnormal</td><td>{{ c_mat.0.0 }}</td><td>{{ c_mat.0.1 }}</td></tr>
+                 <tr><td>Known as normal</td><td>{{ c_mat.1.0 }}</td><td>{{ c_mat.1.1 }}</td></tr>
+                 </tbody></table>
+            <p>Hyper-parameters: Nu = {{ h_para.nu }}, Kernel = {{ h_para.kernel }},
+                    Degree = {{ h_para.degree }}</p>
+    {% endif %}
+</div>

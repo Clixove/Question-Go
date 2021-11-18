@@ -119,6 +119,7 @@ def import_data(req):
         new_paper = Paper(user=req.user, role=2, name=f"Cross-sectional Data Pre-processing #{algorithm_.id} Parsed Data")
         new_paper.file.save(f"csp_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
         new_paper.save()
+        step.linked_data = new_paper
         step.predicted_data = new_paper
         step.save()
         for column in Column.objects.filter(algorithm=algorithm_):

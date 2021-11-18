@@ -10,18 +10,12 @@
     <div class="row">{% include 'clixove.org/navigator.html' %}</div>
     <div class="row alert">
         <div class="col-md-12">
-            <p class="lead fw-normal">Random Forest Regression #{{ algorithm.id }}</p>
+            <p class="lead fw-normal">One-class SVM #{{ algorithm.id }}</p>
             {% include 'task_manager/runtime_error.html' %}
             {% include 'task_manager/import_data.html' %}
-            {% include 'algo_rf_regressor/set_variables.html' %}
-            {% include 'algo_rf_regressor/train.html' %}
-            <div class="row">
-                <div class="col-md-6">
-                    {% include 'algo_rf_regressor/evaluate.html' %}
-                    {% include 'algo_rf_regressor/feature_importance.html' %}
-                </div>
-                <div class="col-md-6">{% include 'algo_rf_regressor/bayes_history.html' %}</div>
-            </div>
+            {% include 'algo_one_class_svm/set_variables.html' %}
+            {% include 'algo_one_class_svm/train.html' %}
+            {% include 'algo_one_class_svm/evaluate.html' %}
             {% include 'task_manager/get_predict_data.html' %}
             {% include 'task_manager/note.html' %}
         </div>
