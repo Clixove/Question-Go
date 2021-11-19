@@ -1,0 +1,78 @@
+<div class="row alert shadow fade show" role="alert">
+    <p><strong>Evaluate model</strong></p>
+
+        {% if algorithm.mode == '5_fold' %}
+    <ul class="nav nav-tabs" role="tablist">
+        {% with ''|center:5 as range %}
+        {% for _ in range %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link {% if forloop.counter == 1 %}active{% endif %}" data-bs-toggle="tab"
+               href="#table-1-{{ forloop.counter }}" role="tab" aria-selected="true">
+                Fold {{ forloop.counter }}
+            </a>
+        </li>
+        {% endfor %}
+        {% endwith %}
+    </ul>
+    <div class="col-md-6 tab-content">
+    {% for coef_f in coefficients %}
+        <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
+             id="table-1-{{ forloop.counter }}" role="tabpanel" style="overflow-x: auto;">
+        <table class="table table-hover">
+            <caption class="caption-top">Table 1-{{ forloop.counter }}. Regression coefficients for each variable.</caption>
+            <thead><tr>
+                <th>Variable</th><th>Coefficient</th>
+            </tr></thead>
+            <tbody>
+            {% for name, coef_pa in coef_f.items %}
+                <tr>
+                    <td class="text-nowrap">{{ name }}</td>
+                    <td class="text-nowrap">{{ coef_pa | stringformat:'.4e' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% endfor %}
+    </div>
+    {% else %}
+
+        <div class="col-md-6">
+        <table class="table table-hover">
+            <caption class="caption-top">Table 1. Regression coefficients.</caption>
+            <thead><tr>
+                <th>Variable</th><th>Coefficient</th>
+            </tr></thead>
+            <tbody>
+            {% for name, coef_pa in coefficients.items %}
+                <tr>
+                    <td class="text-nowrap">{{ name }}</td>
+                    <td class="text-nowrap">{{ coef_pa | stringformat:'.4e' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+    {% endif %}
+
+    <div class="col-md-6">
+    <table class="table table-hover">
+        <caption class="caption-top">Table 2. Error measure of SVM regressor.</caption>
+        <thead><tr>
+            {% if algorithm.mode == '5_fold' %}<th>Fold</th>{% endif %}
+            <th>{{ error_measure.type | upper }} of validation set</th>
+        </tr></thead>
+        <tbody>
+        {% if algorithm.mode == '5_fold' %}
+        {% for value_ in error_measure.value %}
+        <tr><td>{{ forloop.counter }}</td><td>{{ value_ | floatformat:4 }}</td></tr>
+        {% endfor %}
+        {% else %}
+        <tr><td>{{ error_measure.value | floatformat:4 }}</td></tr>
+        {% endif %}
+        </tbody>
+    </table>
+    </div>
+
+</div>

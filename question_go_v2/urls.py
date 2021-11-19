@@ -31,6 +31,7 @@ import algo_svm_classifier.views as v11
 import algo_svm_regressor.views as v12
 import algo_one_class_svm.views as v13
 import algo_logistic_regression.views as v14
+import algo_elastic_net.views as v15
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -156,5 +157,14 @@ urlpatterns = [
     path('algo_logistic_regression/train-model', v14.train_model),
     path('algo_logistic_regression/clear-model/<int:algo_id>', v14.clear_model),
     path('algo_logistic_regression/predict', v14.predict),
+    # algorithm: elastic net
+    path('algo_elastic_net/add', v15.add_elastic_net),
+    path('algo_elastic_net/<int:algo_id>', v15.view_elastic_net),
+    path('algo_elastic_net/import', v15.import_data),
+    path('algo_elastic_net/variables', v15.set_variables),
+    path('algo_elastic_net/clear-variables/<int:algo_id>', v15.clear_variables),
+    path('algo_elastic_net/train-model', v15.train_model),
+    path('algo_elastic_net/clear-model/<int:algo_id>', v15.clear_model),
+    path('algo_elastic_net/predict', v15.predict),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -47,8 +47,13 @@ algorithm_registry = [
     {'name': 'Regression', 'applications': [
         {
             'name': 'Linear regression',
-            'description': 'Perform regression with OLS estimated linear model.',
+            'description': 'Perform regression with linear model.',
             'opened_link': '/algo_linear_regression/add'
+        },
+        {
+            'name': 'Elastic net',
+            'description': 'Perform regressin with L1, L2 regularized linear model.',
+            'opened_link': '/algo_elastic_net/add'
         },
         {
             'name': 'Random forest regression',

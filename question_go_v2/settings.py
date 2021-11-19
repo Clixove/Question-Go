@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'algo_svm_regressor.apps.AlgoSvmRegressorConfig',
     'algo_one_class_svm.apps.AlgoOneClassSvmConfig',
     'algo_logistic_regression.apps.AlgoLogisticRegressionConfig',
+    'algo_elastic_net.apps.AlgoElasticNetConfig',
     # application
 ]
 

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+    });
+    </script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">Elastic Net #{{ algorithm.id }}</p>
+            {% include 'task_manager/runtime_error.html' %}
+            {% include 'task_manager/import_data.html' %}
+            {% include 'algo_elastic_net/set_variables.html' %}
+            {% include 'algo_elastic_net/train.html' %}
+            {% include 'algo_elastic_net/evaluate.html' %}
+            {% include 'task_manager/get_predict_data.html' %}
+            {% include 'task_manager/note.html' %}
+        </div>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
+</html>

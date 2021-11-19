@@ -97,9 +97,6 @@ class ScreenLogger(_Tracker):
                 line = self._step(instance, colour=colour) + "\n"
         elif event == Events.OPTIMIZATION_END:
             line = "=" * self._header_length + "\n"
-
-        if self._verbose:
-            print(line, end="")
         self._update_tracker(event, instance)
 
 
