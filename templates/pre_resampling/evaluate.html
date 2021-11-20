@@ -1,0 +1,16 @@
+<div class="row justify-content-center alert shadow" role="alert">
+    <p><strong>Counts</strong></p>
+    <div class="col-md-4">
+        <table class="table table-hover text-center">
+            <caption class="caption-top">Table 1. Count of samples in each class.</caption>
+            <thead><tr>
+                <th>Class ID</th><th>Count</th>
+            </tr></thead>
+            <tbody>
+            {% for name, count in class_dict.items %}
+                <tr><td>{{ name }}</td><td>{{ count }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Transform</strong></p>
+    <form id="train-model">
+        {{ train_config.as_p }}
+        <p><i>It takes time to transform. Do not submit this form repeatedly.</i></p>
+        <div class="text-center">
+            <input type="submit" class="btn btn-outline-success" value="Train">
+        </div>
+    </form>
+    <div id="train-model-return"></div>
+
+</div>
+
+<script>
+    async_submit_form('train-model', '/pre_resampling/train-model', 'train-model-return');
+</script>

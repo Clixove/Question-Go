@@ -1,0 +1,11 @@
+{% if algorithm.step.predicted_data %}
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Predict</strong></p>
+    <p>
+        Dataset for prediction:
+        <a href="/library/paper/{{ algorithm.step.predicted_data.id }}">{{ algorithm.step.predicted_data }}</a>
+        <label style="width: 2ch;"></label>
+        <a href="/step/predicted/delete/{{ algorithm.step.id }}">Clear</a>
+    </p>
+</div>
+{% endif %}

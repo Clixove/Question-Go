@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'pre_cross_sectional.apps.PreCrossSectionalConfig',
     'pre_time_series.apps.PreTimeSeriesConfig',
     'pre_norm.apps.PreNormConfig',
+    'pre_resampling.apps.PreResamplingConfig',
     # algorithm
     'algo_linear_regression.apps.AlgoLinearRegressionConfig',
     'algo_rf_classifier.apps.AlgoRfClassifierConfig',

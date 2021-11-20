@@ -25,6 +25,7 @@ import algo_linear_regression.views as v5
 import pre_norm.views as v6
 import pre_cross_sectional.views as v7
 import pre_time_series.views as v8
+import pre_resampling.views as v19
 import algo_rf_classifier.views as v9
 import algo_rf_regressor.views as v10
 import algo_svm_classifier.views as v11
@@ -106,6 +107,13 @@ urlpatterns = [
     path('pre_ts/clear-sheet/<int:algo_id>', v8.clear_sheet),
     path('pre_ts/transform', v8.transform),
     path('pre_ts/clear-transform/<int:algo_id>', v8.clear_transform),
+    # pre-processing: re-sampling
+    path('pre_resampling/add', v19.add_resampling),
+    path('pre_resampling/<int:algo_id>', v19.view_resampling),
+    path('pre_resampling/import', v19.import_data),
+    path('pre_resampling/variables', v19.set_variables),
+    path('pre_resampling/clear-variables/<int:algo_id>', v19.clear_variables),
+    path('pre_resampling/train-model', v19.train_model),
     # algorithm: random forest classifier (template for classification)
     path('algo_rf_classifier/add', v9.add_rf_classifier),
     path('algo_rf_classifier/<int:algo_id>', v9.view_rf_classifier),
