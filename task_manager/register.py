@@ -16,6 +16,11 @@ algorithm_registry = [
             'description': 'Perform standardization and 0~1 zipping.',
             'opened_link': '/pre_norm/add',
         },
+        {
+            'name': 'PCA',
+            'description': 'Principal component analysis, also a decomposition method.',
+            'opened_link': '/algo_pca/add',
+        },
     ]},
     {'name': 'Hypothesis', 'applications': [
     ]},
@@ -70,6 +75,16 @@ algorithm_registry = [
     {'name': 'Prediction', 'applications': [
     ]},
     {'name': 'Clustering', 'applications': [
+        {
+            'name': 'DBSCAN',
+            'description': 'Clustering by density when the number of clusters isn\'t available.',
+            'opened_link': '/algo_dbscan/add'
+        },
+        {
+            'name': 'K Means',
+            'description': 'Clustering by distance when the number of clusters is given.',
+            'opened_link': '/algo_kmeans/add'
+        },
     ]},
     {'name': 'Advanced Applications', 'applications': [
         {

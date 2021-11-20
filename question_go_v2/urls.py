@@ -32,6 +32,9 @@ import algo_svm_regressor.views as v12
 import algo_one_class_svm.views as v13
 import algo_logistic_regression.views as v14
 import algo_elastic_net.views as v15
+import algo_dbscan.views as v16
+import algo_kmeans.views as v17
+import algo_pca.views as v18
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -103,7 +106,7 @@ urlpatterns = [
     path('pre_ts/clear-sheet/<int:algo_id>', v8.clear_sheet),
     path('pre_ts/transform', v8.transform),
     path('pre_ts/clear-transform/<int:algo_id>', v8.clear_transform),
-    # algorithm: random forest classifier
+    # algorithm: random forest classifier (template for classification)
     path('algo_rf_classifier/add', v9.add_rf_classifier),
     path('algo_rf_classifier/<int:algo_id>', v9.view_rf_classifier),
     path('algo_rf_classifier/import', v9.import_data),
@@ -112,7 +115,7 @@ urlpatterns = [
     path('algo_rf_classifier/train-model', v9.train_model),
     path('algo_rf_classifier/clear-model/<int:algo_id>', v9.clear_model),
     path('algo_rf_classifier/predict', v9.predict),
-    # algorithm: random forest regressor
+    # algorithm: random forest regressor (template for regression)
     path('algo_rf_regressor/add', v10.add_rf_regressor),
     path('algo_rf_regressor/<int:algo_id>', v10.view_rf_regressor),
     path('algo_rf_regressor/import', v10.import_data),
@@ -166,5 +169,31 @@ urlpatterns = [
     path('algo_elastic_net/train-model', v15.train_model),
     path('algo_elastic_net/clear-model/<int:algo_id>', v15.clear_model),
     path('algo_elastic_net/predict', v15.predict),
+    # algorithm: DBSCAN cluster
+    path('algo_dbscan/add', v16.add_dbscan),
+    path('algo_dbscan/<int:algo_id>', v16.view_dbscan),
+    path('algo_dbscan/import', v16.import_data),
+    path('algo_dbscan/variables', v16.set_variables),
+    path('algo_dbscan/clear-variables/<int:algo_id>', v16.clear_variables),
+    path('algo_dbscan/train-model', v16.train_model),
+    path('algo_dbscan/clear-model/<int:algo_id>', v16.clear_model),
+    # algorithm: K-means cluster (template for unsupervised learning)
+    path('algo_kmeans/add', v17.add_k_means),
+    path('algo_kmeans/<int:algo_id>', v17.view_k_means),
+    path('algo_kmeans/import', v17.import_data),
+    path('algo_kmeans/variables', v17.set_variables),
+    path('algo_kmeans/clear-variables/<int:algo_id>', v17.clear_variables),
+    path('algo_kmeans/train-model', v17.train_model),
+    path('algo_kmeans/clear-model/<int:algo_id>', v17.clear_model),
+    path('algo_kmeans/predict', v17.predict),
+    # algorithm: PCA
+    path('algo_pca/add', v18.add_pca),
+    path('algo_pca/<int:algo_id>', v18.view_pca),
+    path('algo_pca/import', v18.import_data),
+    path('algo_pca/variables', v18.set_variables),
+    path('algo_pca/clear-variables/<int:algo_id>', v18.clear_variables),
+    path('algo_pca/train-model', v18.train_model),
+    path('algo_pca/clear-model/<int:algo_id>', v18.clear_model),
+    path('algo_pca/predict', v18.predict),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,0 +1,16 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>K Nearest Neighbour</strong></p>
+    <p>According to the reference, the best "minimum samples" argument is 2*dimension.</p>
+    <p class="helptext">Sander, Jörg, et al. "Density-based clustering in spatial databases: The algorithm gdbscan and
+        its applications." Data mining and knowledge discovery 2.2 (1998): 169-194.</p>
+    <div class="d-flex justify-content-center" id="knn-figure">
+        {{ algorithm.knn_figure | safe }}
+    </div>
+    <p class="helptext">
+        Figure 1. K Nearest Neighbour. <label style="width: 2ch;"></label>
+        <a role="button" class="text-primary"
+           onclick="export_html('knn-figure', 'dbscan_{{ algorithm.id }}_fig_1.svg')">Download</a>
+    </p>
+</div>
+
+<script>scale_svg('knn-figure', 600, 0.8);</script>

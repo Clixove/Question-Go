@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">K Means #{{ algorithm.id }}</p>
+            {% include 'task_manager/runtime_error.html' %}
+            {% include 'task_manager/import_data.html' %}
+            {% include 'algo_kmeans/set_variables.html' %}
+            {% include 'algo_kmeans/train.html' %}
+            {% include 'algo_kmeans/evaluate.html' %}
+            {% include 'task_manager/get_predict_data.html' %}
+            {% include 'task_manager/note.html' %}
+        </div>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
+</html>

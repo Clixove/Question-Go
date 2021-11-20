@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    <div class="row alert">
+        <div class="col-md-12">
+            <p class="lead fw-normal">DBSCAN #{{ algorithm.id }}</p>
+            {% include 'task_manager/runtime_error.html' %}
+            {% include 'task_manager/import_data.html' %}
+            {% include 'algo_dbscan/set_variables.html' %}
+            {% include 'algo_dbscan/knn_figure.html' %}
+            {% include 'algo_dbscan/train.html' %}
+            {% include 'algo_dbscan/evaluate.html' %}
+            {% include 'algo_dbscan/predict.html' %}
+            {% include 'task_manager/note.html' %}
+        </div>
+    </div>
+    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<div class="alert shadow fade show" role="alert">
+    <p><strong>Train model</strong></p>
+    {% if algorithm.model %}
+        <p><i>Click the model name to download. It's the *.pkl file, parsed by Python package "pickle".</i>
+            <a href="https://docs.python.org/3/library/pickle.html#examples" target="_blank">Reference</a></p>
+        <p>This model is saved: <a href="/library/paper/{{ algorithm.model.id }}"> {{ algorithm.model }} </a>
+            <label style="width: 2ch;"></label>
+            <a href="/algo_pca/clear-model/{{ algorithm.id }}">Clear</a></p>
+    {% else %}
+        <form id="train-model">
+            {{ train_config.as_p }}
+            <p><i>It takes time to train the model. Do not submit this form repeatedly.</i></p>
+            <div class="text-center">
+                <input type="submit" class="btn btn-outline-success" value="Train">
+            </div>
+        </form>
+        <div id="train-model-return"></div>
+    {% endif %}
+</div>
+
+<script>
+    async_submit_form('train-model', '/algo_pca/train-model', 'train-model-return');
+</script>

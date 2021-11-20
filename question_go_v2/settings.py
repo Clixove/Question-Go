@@ -61,6 +61,9 @@ INSTALLED_APPS = [
     'algo_one_class_svm.apps.AlgoOneClassSvmConfig',
     'algo_logistic_regression.apps.AlgoLogisticRegressionConfig',
     'algo_elastic_net.apps.AlgoElasticNetConfig',
+    'algo_dbscan.apps.AlgoDbscanConfig',
+    'algo_kmeans.apps.AlgoKmeansConfig',
+    'algo_pca.apps.AlgoPcaConfig',
     # application
 ]
 
