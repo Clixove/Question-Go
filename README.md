@@ -5,27 +5,19 @@
 ![](https://img.shields.io/badge/dependencies-Django%203.2-green)
 ![](https://img.shields.io/badge/tests-Chrome%2089--92%20%E2%9C%94-brightgreen)
 
-## 1. Background
+Download the [documentation](https://github.com/Clixove/Question-Go/releases/download/v0.4.10/default.pdf).
 
-## 2. Functions
-
-## 3. Acknowledge
+## Acknowledge
 
 The programming language is Python 3.9, dependent packages are listed in `requirements.txt`. Besides:
 
 Pandas profiling: https://github.com/pandas-profiling/pandas-profiling
 
-## 4. Design
-
-### 4.1. Actions
-
-### 4.2. Structure
-
-## 5. Installation
+## Usage
 
 The current folder of command line is the software's project root.
 
-### 5.1. Build token files
+### Build token files
 
 Create `token` folder at project root. There should be several files in this folder:
 - In `token/django_secret_key`, there should be a string about 52 characters, being a secret key for communication between client and web server. 
@@ -48,7 +40,7 @@ Create `token` folder at project root. There should be several files in this fol
 
 If you don't use a registration confirming service by email, `smtp.json` is not necessary. However, you should delete `add_register`, `send_confirm_email` functions and `RegisterSheet` class, and modify `add_user` function to link the result of `LoginForm` directly.
 
-### 5.2.	Build Python environment
+### Build Python environment
 
 Install required Python packages:
 
@@ -67,7 +59,7 @@ python manage.py createsuperuser
 
 Follow the instructions in the command line. This user has the highest permission in this software.
 
-### 5.3. Build static files
+### Build static files
 
 Replace `STATICFILES_DIRS = ['templates/static']` with `STATIC_ROOT = 'templates/static'` in `question_go/settings.py`.
 
@@ -80,9 +72,7 @@ Replace `STATIC_ROOT = 'templates/static'` with `STATICFILES_DIRS = ['templates/
 
 Replace `DEBUG = True` with `DEBUG = False` in `question_go/settings.py`.
 
-### 5.4. Download pre-trained models
-
-### 5.5. Administrator's settings
+### Administrator's settings
 
 Run the command: 
 ```
