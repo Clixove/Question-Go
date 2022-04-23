@@ -7,7 +7,7 @@ certifi==2021.10.8
 charset-normalizer==2.0.7
 clang==5.0
 cycler==0.11.0
-Django==3.2.9
+Django==3.2.13
 django-cleanup==5.2.0
 django-ratelimit==3.0.1
 et-xmlfile==1.1.0

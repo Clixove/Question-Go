@@ -1,13 +1,13 @@
-# QuestionGo
+# Question
+
  Construct and reuse machine learning models
 
-![](https://img.shields.io/badge/dependencies-Python%203.8--3.9-blue)
-![](https://img.shields.io/badge/dependencies-Django%203.2-green)
-![](https://img.shields.io/badge/tests-Chrome%2089--92%20%E2%9C%94-brightgreen)
+![](https://img.shields.io/badge/dependencies-Python%203.8--3.9-blue.svg)
+![](https://img.shields.io/badge/dependencies-Django%203.2-green.svg)
 
 Download the [documentation](https://github.com/Clixove/Question-Go/releases/download/v0.4.10/default.pdf).
 
-## Acknowledge
+## Citation
 
 The programming language is Python 3.9, dependent packages are listed in `requirements.txt`. Besides:
 
@@ -17,38 +17,47 @@ Pandas profiling: https://github.com/pandas-profiling/pandas-profiling
 
 The current folder of command line is the software's project root.
 
-### Build token files
+**Build token files.**
 
-Create `token` folder at project root. There should be several files in this folder:
-- In `token/django_secret_key`, there should be a string about 52 characters, being a secret key for communication between client and web server. 
-- In `token/smtp.json`, there should be the config of web maintainer's email sender. The format is: 
+1. Create `token` folder at project root.
+
+2. Create `token/django_secret_key` and input 52 random characters.
+
+3. Create `token/smtp.json` and configure the web maintainer's email sender as the following format.
+
 ```json
 {
-  "host": "example.com",
-  "port": 465,
-  "username": "registration@example.com",
-  "password": "anypassword"
-}
-```
-- In `token/paypal.json`, there should be paypal sandbox's clinet ID and secret. In formal release, please replace `SandboxEnvironment` in `__init__` function in `paypal/models.py > PaypalClient` class with `LiveEnvironment`, and use live's clinet ID and secret in `token/paypal.json`. The format is:
-```json
-{
-  "client_id": "anypassword",
-  "secret": "anypassword"
+"host": "example.com",
+"port": 465,
+"username": "registration@example.com",
+"password": "anypassword"
 }
 ```
 
-If you don't use a registration confirming service by email, `smtp.json` is not necessary. However, you should delete `add_register`, `send_confirm_email` functions and `RegisterSheet` class, and modify `add_user` function to link the result of `LoginForm` directly.
+**Payment with PayPal.**
 
-### Build Python environment
+*Applicable only when the module `paypal`, `paypalhttp`, and `paypalcheckoutsdk` exist.*
 
-Install required Python packages:
+1. Create `token/paypal.json` and configure the password as the following format.
+
+```json
+{
+"client_id": "anypassword",
+"secret": "anypassword"
+}
+```
+
+2. If used in real business, replace `paypal/models.py -> PaypalClient class -> SandboxEnvironment` to `LiveEnvironment`. Also, use live environment's client ID and secret in `token/paypal.json`.
+
+**Build the environment.**
 
 ```
 pip install -r requirements.txt
 ```
 
-It is a maximum required package. With the environment, all functions can be used, but not all functions are necessary.
+*It is a complete environment. With the environment, all functions can be used, but not all functions are necessary.*
+
+**Create the database.**
 
 Navigate to the project folder, and create the database and super user:
 
@@ -59,28 +68,16 @@ python manage.py createsuperuser
 
 Follow the instructions in the command line. This user has the highest permission in this software.
 
-### Build static files
-
-Replace `STATICFILES_DIRS = ['templates/static']` with `STATIC_ROOT = 'templates/static'` in `question_go/settings.py`.
-
-Run the command: 
-```
-python manage.py collectstatic
-```
-
-Replace `STATIC_ROOT = 'templates/static'` with `STATICFILES_DIRS = ['templates/static']` in `question_go/settings.py`.
-
-Replace `DEBUG = True` with `DEBUG = False` in `question_go/settings.py`.
-
 ### Administrator's settings
 
-Run the command: 
 ```
 python manage.py 0.0.0.0:$port --insecure
 ```
+
 The IP address can only be 127.0.0.1 (for local use only) or 0.0.0.0 (for web server), and `port` can be customized.
 
 Visit https://example.com:$port/admin. Create at least one group. Add the groups, which users can freely add into, to "Register groups" table. These groups each must include the following permissions:
+
 - Library: add, delete, change, view papers
 - My login: add, change, view register
 - Paypal: view plans; add, delete, change, view subscription; add, change, view transaction
@@ -88,6 +85,6 @@ Visit https://example.com:$port/admin. Create at least one group. Add the groups
 
 Add charged functions to some new groups, and bound them to plans. Add all groups that contains charged functions to "Locked groups" table. Everytime when users login, the software will remove them from all locked groups, and then add them back according to effective subscriptions.
 
-** question-go functional settings **
+**Question-go functional settings**
 
 Set group storages for each group, which represents the storage each user in this group can use. 
