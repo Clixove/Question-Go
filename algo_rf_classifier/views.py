@@ -90,7 +90,7 @@ class Train(PublicAlgorithm):
                   'Random exploration can help by diversifying the exploration space.'
     )
     bayes_iteration_times = forms.IntegerField(
-        min_value=16, max_value=100, widget=forms.NumberInput({'class': 'form-control'}),
+        min_value=16, widget=forms.NumberInput({'class': 'form-control'}),
         help_text='From 16 to 100. How many steps of bayesian optimization you want to perform. The more steps the '
                   'more likely to find a good maximum you are.'
     )
@@ -333,6 +333,7 @@ def train_model(req):
                 y_valid_hat = mdl.predict_proba(x_valid)
                 for name, i in class_dict.items():
                     auc[name][k] = roc_auc_score(y_1h_valid[:, i], y_valid_hat[:, i])
+                    auc[name][k] = round(float(auc[name][k]), 3)
                     fpr, tpr, _ = roc_curve(y_1h_valid[:, i], y_valid_hat[:, i])
                     tpr_poly_[i, k, :] = np.interp(fpr_poly_, fpr, tpr)
                 hyper_parameters_list.append(
@@ -408,6 +409,7 @@ def train_model(req):
 
             for name, i in class_dict.items():
                 auc[name] = roc_auc_score(y_1h_valid[:, i], y_valid_hat[:, i])
+                auc[name] = round(float(auc[name]), 3)
                 fpr, tpr, _ = roc_curve(y_1h_valid[:, i], y_valid_hat[:, i])
                 tpr_poly_ = np.interp(fpr_poly_, fpr, tpr)
                 plt.plot(fpr_poly_, tpr_poly_, label=f'{name} (AUC = {auc[name].__round__(3)})')
@@ -530,6 +532,8 @@ def predict(req):
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
+    step.status = 2
+    step.save()
     try:
         with open(algorithm_.model.file.path, "rb") as f:
             model = pickle.load(f)

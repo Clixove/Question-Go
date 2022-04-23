@@ -21,8 +21,11 @@ algorithm_registry = [
             'description': 'Principal component analysis, also a decomposition method.',
             'opened_link': '/algo_pca/add',
         },
-    ]},
-    {'name': 'Hypothesis', 'applications': [
+        {
+            'name': 'Resampling',
+            'description': 'Resample for the imbalanced classification dataset.',
+            'opened_link': '/pre_resampling/add',
+        },
     ]},
     {'name': 'Classification', 'applications': [
         {
@@ -84,13 +87,6 @@ algorithm_registry = [
             'name': 'K Means',
             'description': 'Clustering by distance when the number of clusters is given.',
             'opened_link': '/algo_kmeans/add'
-        },
-    ]},
-    {'name': 'Advanced Applications', 'applications': [
-        {
-            'name': '',
-            'description': '',
-            'opened_link': ''
         },
     ]},
 ]

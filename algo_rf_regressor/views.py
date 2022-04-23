@@ -89,7 +89,7 @@ class Train(PublicAlgorithm):
                   'Random exploration can help by diversifying the exploration space.'
     )
     bayes_iteration_times = forms.IntegerField(
-        min_value=16, max_value=100, widget=forms.NumberInput({'class': 'form-control'}),
+        min_value=16, widget=forms.NumberInput({'class': 'form-control'}),
         help_text='From 16 to 100. How many steps of bayesian optimization you want to perform. The more steps the '
                   'more likely to find a good maximum you are.'
     )
@@ -470,6 +470,8 @@ def predict(req):
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
+    step.status = 2
+    step.save()
     try:
         with open(algorithm_.model.file.path, "rb") as f:
             model = pickle.load(f)

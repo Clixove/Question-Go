@@ -19,7 +19,7 @@ class Plan(models.Model):
     permitted_groups = models.ManyToManyField(Group, blank=True)
     duration = models.IntegerField(help_text='Unit: days')
     price = models.FloatField(validators=[MinValueValidator(0)])
-    currency = models.CharField(max_length=4)
+    currency = models.CharField(max_length=4, help_text='ISO 4217 currency code.')
     description = models.TextField(blank=True)
     on_sale = models.BooleanField(default=True)
 
@@ -135,6 +135,6 @@ class GetOrder(PayPalClient):
 
 
 def query_permitted_groups(user: User) -> None:
-    [user.groups.remove(g.group.id) for g in LockedGroup.objects.all()]
+    [user.groups.remove(g.entry.id) for g in LockedGroup.objects.all()]
     for subscription in user.subscription_set.filter(expired_time__gt=now()):
         [user.groups.add(g.id) for g in subscription.plan.permitted_groups.all()]

@@ -53,7 +53,7 @@ class Train(PublicAlgorithm):
         help_text="Not required. From 1 to 9999999, leave blank if not purpose to fix."
     )
     abnormal_class_name = forms.ChoiceField(
-        widget=forms.Select({'class': 'form-control'}),
+        widget=forms.Select({'class': 'form-control form-select'}),
         help_text='Name of the class, samples belong to which is taken as abnormal. Normal classes is converted to '
                   '1, and the abnormal class is converted to -1.'
     )
@@ -78,7 +78,7 @@ class Train(PublicAlgorithm):
 
 
 @permission_required(
-    'algo_one_class_svm.add_bayesoneclasssvm',
+    'algo_one_class_svm.add_myoneclasssvm',
     login_url='/task/retrieve?message=You don\'t have access to this algorithm.&color=danger'
 )
 def add_one_class_svm(req):
@@ -98,7 +98,7 @@ def add_one_class_svm(req):
     return redirect(new_step.view_link)
 
 
-@permission_required("algo_one_class_svm.view_bayesoneclasssvm",
+@permission_required("algo_one_class_svm.view_myoneclasssvm",
                      login_url="/task/retrieve?message=You don't have access to view algorithms.&color=danger")
 def view_one_class_svm(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
@@ -139,7 +139,7 @@ def view_one_class_svm(req, algo_id):
     return render(req, "algo_one_class_svm/main.html", context)
 
 
-@permission_required("algo_one_class_svm.change_bayesoneclasssvm")
+@permission_required("algo_one_class_svm.change_myoneclasssvm")
 @csrf_exempt
 @require_POST
 def import_data(req):
@@ -155,8 +155,8 @@ def import_data(req):
         # ---------- Asynchronous Algorithm START   ----------
         intermediate_paper_handle = ContentFile(pickle.dumps(table))
         new_paper = Paper(user=req.user, role=2,
-                          name=f"SVM Classifier #{algorithm_.id} Parsed Data")
-        new_paper.file.save(f"svm_classifier_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
+                          name=f"One-class SVM #{algorithm_.id} Parsed Data")
+        new_paper.file.save(f"one_class_svm_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
         new_paper.save()
         algorithm_.dataframe = new_paper
         algorithm_.save()
@@ -180,7 +180,7 @@ def import_data(req):
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_one_class_svm.change_bayesoneclasssvm")
+@permission_required("algo_one_class_svm.change_myoneclasssvm")
 @csrf_exempt
 @require_POST
 def set_variables(req):  # SPECIFIED
@@ -214,7 +214,7 @@ def set_variables(req):  # SPECIFIED
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_one_class_svm.change_bayesoneclasssvm",
+@permission_required("algo_one_class_svm.change_myoneclasssvm",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 def clear_variables(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
@@ -235,7 +235,7 @@ def clear_variables(req, algo_id):
     return redirect(f"/algo_one_class_svm/{algorithm_.id}")
 
 
-@permission_required("algo_one_class_svm.change_bayesoneclasssvm")
+@permission_required("algo_one_class_svm.change_myoneclasssvm")
 @csrf_exempt
 @require_POST
 def train_model(req):
@@ -375,7 +375,7 @@ def train_model(req):
     return render(req, "task_manager/hint_widget.html", context)
 
 
-@permission_required("algo_one_class_svm.change_bayesoneclasssvm",
+@permission_required("algo_one_class_svm.change_myoneclasssvm",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 def clear_model(req, algo_id):
     # ---------- Algorithm Ownership Navigator START ----------
@@ -403,7 +403,7 @@ def most_frequent_item(a: np.array):
     return max(set(a), key=a.count)
 
 
-@permission_required("algo_one_class_svm.change_bayesoneclasssvm",
+@permission_required("algo_one_class_svm.change_myoneclasssvm",
                      login_url="/task/retrieve?message=You don't have access to change algorithms.&color=danger")
 @csrf_exempt
 @require_POST
@@ -419,6 +419,8 @@ def predict(req):
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
+    step.status = 2
+    step.save()
     try:
         with open(algorithm_.model.file.path, "rb") as f:
             model = pickle.load(f)
@@ -439,8 +441,8 @@ def predict(req):
         step.save()
         context = {"color": "warning", "content": f"Interrupted. {e}"}
         return render(req, "task_manager/hint_widget.html", context)
-    new_paper = Paper(user=req.user, role=4, name=f"Random Forest Classifier #{algorithm_.id} Predict")
-    new_paper.file.save(f"rf_classifier_{algorithm_.id}_predict.xlsx", table_bin)
+    new_paper = Paper(user=req.user, role=4, name=f"One-class SVM #{algorithm_.id} Predict")
+    new_paper.file.save(f"one_class_svm_{algorithm_.id}_predict.xlsx", table_bin)
     new_paper.save()
     step.predicted_data = new_paper
     step.status = 3

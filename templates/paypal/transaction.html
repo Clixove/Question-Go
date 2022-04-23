@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
 <head>
-    <meta charset="UTF-8">
-    <title>Clixove</title>
-    {% include 'clixove.org/packages.html' %}
+  <meta charset="UTF-8">
+  <title>Clixove</title>
+  {% include 'clixove.org/packages.html' %}
 </head>
-<body>
-<div class="container-fluid">
-    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+<body class="d-flex flex-column h-100">
+{% include 'clixove.org/navigator.html' %}
+<main class="flex-shrink-0"><div class="container-fluid">
+    
     <div class="row alert">
         <div class="col-md-12">
-            <p>My transactions</p>
+            <p class="lead fw-normal text-center">My transactions</p>
             <div style="overflow-x: auto;">
-                <table class="table table-borderless table-hover">
+                <table class="table table-hover">
                     <thead><tr>
                         <th style="min-width: 20ch;">Created at</th>
                         <th style="min-width: 20ch;">Plan</th>
@@ -24,32 +25,24 @@
                     <tbody>
                     {% for transaction in transactions %}
                     <tr>
-                    <td>{{ transaction.created_time | date:'Y-m-d H:i:s' }}</td>
-                    <td>{{ transaction.plan }}</td>
-                    <td>{{ transaction.price }}</td>
-                    <td>{{ transaction.currency }}</td>
-                    <td>{{ transaction.token }}</td>
-                    <td>
-                        {% if transaction.paid %}
-                            <img src="/static/admin/img/icon-yes.svg" alt="True">
-                        {% else %}
-                            <img src="/static/admin/img/icon-no.svg" alt="False">
-                        {% endif %}
-                    </td>
+                        <td>{{ transaction.created_time | date:'Y-m-d H:i:s' }}</td>
+                        <td>{{ transaction.plan }}</td>
+                        <td>{{ transaction.price }}</td>
+                        <td>{{ transaction.currency }}</td>
+                        <td>{{ transaction.token }}</td>
+                        <td>
+                            <img src="/static/admin/img/icon-{% if transaction.paid %}yes{% else %}no{% endif %}.svg"
+                                 alt="{{ transaction.paid }}">
+                        </td>
                     </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
             <p class="helptext">Timezone of transaction's created time is {{ timezone }}.</p>
-            <p class="helptext">
-                To get a refund, please contact our sales. If your subscription hasn't started to take effect, you can
-                get all your money back. Otherwise, you can get a proportional refund based on the remaining
-                subscription time and the price when purchase.
-            </p>
         </div>
     </div>
-    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
-</div>
+</div></main>
+{% include 'clixove.org/copyright.html' %}
 </body>
 </html>

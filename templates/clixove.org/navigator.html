@@ -1,95 +1,129 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark p-1">
+  <div class="container-fluid">
     <a class="navbar-brand" href="/main">Clixove</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-                {% if request.user.openedtask %}
-                    <a class="nav-link text-light" href="/task/{{ request.user.openedtask.task.id }}">Home</a>
-                {% else %}
-                    <a class="nav-link text-light">Home</a>
-                {% endif %}
-            </li>
-            <li class="nav-item"><a class="nav-link text-light" href="/library">Data</a></li>
-            <li class="nav-item dropdown">
-                <div class="nav-link text-light" id="navbar-pricing" role="button" data-bs-toggle="dropdown"
-                     aria-expanded="false">
-                    Pricing
-                </div>
-                <ul class="dropdown-menu" aria-labelledby="navbar-pricing">
-                    <li><a class="dropdown-item" href="/paypal/plans">Plans</a></li>
-                    <li><a class="dropdown-item" href="/paypal/transaction">My transactions</a> </li>
-                    <li><a class="dropdown-item" href="/paypal/subscription">My subscriptions</a> </li>
-                </ul>
-            </li>
-            <li class="nav-item dropdown">
-                <div class="nav-link text-light" id="navbar-help" role="button" data-bs-toggle="dropdown"
-                     aria-expanded="false">
-                    Help
-                </div>
-                <ul class="dropdown-menu" aria-labelledby="navbar-help">
-                    <li><a class="dropdown-item" href="https://github.com/Clixove/Question-Go/issues">
-                        Open an issue on GitHub</a></li>
-                    <li><a class="dropdown-item" href="mailto:cloudy@clixove.com">Contact me</a></li>
-                    <li><a class="dropdown-item" href="https://blog.clixove.com">About clixove</a></li>
-                </ul>
-            </li>
-        </ul>
-        <div class="d-flex">
-            {% if request.user.is_active %}
-            <div class="nav-item dropdown">
-                <div class="nav-link text-light" id="navbar-account" role="button"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    Account
-                </div>
-                <ul class="dropdown-menu" aria-labelledby="navbar-account">
-                    <li><label class="dropdown-item disabled">{{ request.user.username }}</label></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="/admin">Administration</a></li>
-                </ul>
-            </div>
-            <a class="btn btn-outline-light text-nowrap" href="/my_login/delete">Log out</a>
-            {% else %}
-            <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modal-login">
-                Login
-            </button>
+      <ul class="nav me-auto mb-2 mb-lg-0">
 
-            <div class="modal fade" id="modal-login" tabindex="-1" aria-labelledby="modal-login-label" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modal-login-label">Login</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form action="/my_login/add" method="post">
-                        <div class="modal-body">
-                            <div id="login-sheet"></div>
-                        </div>
-                        <div class="modal-footer justify-content-center">
-                            <input type="submit" class="btn btn-outline-success" value="Start" />
-                        </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <script>
-            $.ajax({
-                type: 'GET', url: '/my_login/view',
-                success: (response) => {document.getElementById('login-sheet').innerHTML = response},
-            });
-            </script>
+        <!-- Customized for this software -->
 
-            {% endif %}
+        <li class="nav-item"><a class="nav-link text-light" href="/library">Data</a></li>
+
+        <!-- Customized for this software END -->
+
+        <li class="nav-item dropdown">
+          <div class="nav-link text-light" id="navbar-pricing" role="button" data-bs-toggle="dropdown"
+             aria-expanded="false">
+            Pricing
+          </div>
+          <ul class="dropdown-menu" aria-labelledby="navbar-pricing">
+            <li><a class="dropdown-item" href="/paypal/refund">Refund policy</a> </li>
+            <li><a class="dropdown-item" href="/paypal/plans">Plans</a> </li>
+            <li><a class="dropdown-item" href="/paypal/transaction">My transactions</a> </li>
+            <li><a class="dropdown-item" href="/paypal/subscription">My subscriptions</a> </li>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+          <div class="nav-link text-light" id="navbar-help" role="button" data-bs-toggle="dropdown"
+             aria-expanded="false">
+            Help
+          </div>
+          <ul class="dropdown-menu" aria-labelledby="navbar-help">
+            <li><a class="dropdown-item" href="https://github.com/clixove/question-go/issues">
+              Report a technique issue</a></li>
+            <li><a class="dropdown-item" href="https://www.clixove.com">Clixove webiste</a></li>
+          </ul>
+        </li>
+      </ul>
+      <div class="d-flex">
+        {% if request.user.is_authenticated %}
+        <div class="nav-item dropdown">
+          <div class="nav-link text-light" id="navbar-account" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Account
+          </div>
+          <ul class="dropdown-menu" aria-labelledby="navbar-account">
+            <li><label class="dropdown-item disabled">{{ request.user.username }}</label></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item" href="/admin" target="_blank">Administration</a></li>
+            <li>
+              <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-change-password">
+                Change password
+              </button>
+            </li>
+          </ul>
         </div>
+        <a class="nav-link text-light text-nowrap" href="/my_login/delete">Log out</a>
+
+        {% else %}
+
+        <a type="button" class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#modal-login">
+          Login
+        </a>
+
+        {% endif %}
+
+        <div class="modal fade" id="modal-change-password" tabindex="-1" aria-labelledby="modal-change-password-label" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modal-change-password-label">Change password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form action="/my_login/change_password" method="post">
+                <div class="modal-body">
+                  <div id="change-password-sheet"></div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <input type="submit" class="btn btn-outline-success" value="Submit" />
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="modal-login" tabindex="-1" aria-labelledby="modal-change-password-label" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modal-login-label">Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form action="/my_login/add" method="post">
+                <div class="modal-body">
+                  <div id="login-sheet"></div>
+                  <p>No account? <a href="/my_login/register">Register</a></p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <input type="submit" class="btn btn-outline-success" value="Start" />
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </nav>
+
+<script>
+  $.ajax({
+    type: "GET",
+    url: "/my_login/view",
+    success: (dict) => {
+      document.getElementById("login-sheet").innerHTML = dict["login_sheet"];
+      document.getElementById("change-password-sheet").innerHTML = dict["change_password_sheet"];
+    },
+  });
+</script>
 
 {% if request.GET.message and request.GET.color %}
 <div class="alert alert-{{ request.GET.color }} alert-dismissible fade show mb-0" role="alert">
-    <strong>Message:</strong> {{ request.GET.message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <strong>Message:</strong> {{ request.GET.message }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+  onclick="window.location.href = window.location.href.split('?')[0];"></button>
 </div>
 {% endif %}

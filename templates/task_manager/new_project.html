@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
 <head>
-    <meta charset="UTF-8">
-    <title>Clixove</title>
-    {% include 'clixove.org/packages.html' %}
+  <meta charset="UTF-8">
+  <title>Clixove</title>
+  {% include 'clixove.org/packages.html' %}
 </head>
-<body>
+<body class="d-flex flex-column h-100">
+{% include 'clixove.org/navigator.html' %}
+<main class="flex-shrink-0">
 <div class="container-fluid d-flex flex-column justify-content-between" style="height: 100vh;">
-    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
+    
     <div class="row alert justify-content-center">
         <div class="col-md-6">
             <p class="lead fw-normal text-center">New project</p>
@@ -19,7 +21,7 @@
             </form>
         </div>
     </div>
-    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
-</div>
+</div></main>
+{% include 'clixove.org/copyright.html' %}
 </body>
 </html>

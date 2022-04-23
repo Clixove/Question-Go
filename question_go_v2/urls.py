@@ -41,11 +41,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # my login
     path('my_login/view', v1.view_login),
-    path('my_login/add', v1.add_login),
-    path('my_login/delete', v1.delete_login),
     path('my_login/register', v1.view_register),
+    path('my_login/add', v1.add_login),
     path('my_login/register/add', v1.add_register),
-    path('my_login/register/confirm/<str:invitation_code>', v1.add_user),
+    path('my_login/confirm', v1.view_confirm),
+    path('my_login/confirm/add', v1.add_user),
+    path('my_login/change_password', v1.change_password),
+    path('my_login/delete', v1.delete_login),
     # task manager
     path('main', v2.view_main_page),
     path('task/instances', v2.view_instances),
@@ -64,6 +66,7 @@ urlpatterns = [
     path('step/data/search', v2.search_data),
     path('step/predicted/delete/<int:step_id>', v2.delete_predicted),
     # paypal
+    path('paypal/refund', v3.view_refund_policy),
     path('paypal/plans', v3.view_plans),
     path('paypal/transaction/add', v3.add_transaction),
     path('paypal/transaction', v3.view_transaction),

@@ -1,30 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
 <head>
-    <meta charset="UTF-8">
-    <title>Clixove</title>
-    {% include 'clixove.org/packages.html' %}
+  <meta charset="UTF-8">
+  <title>Clixove</title>
+  {% include 'clixove.org/packages.html' %}
 </head>
-<body>
-<div class="container-fluid">
-    <div class="row">{% include 'clixove.org/navigator.html' %}</div>
-    <div class="row alert justify-content-center">
-        <div class="col-md-8">
-            <p class="lead fw-normal text-center">Register</p>
-            <ul>Rate limit:
-                <li>Each IP address can send 70 registration requests in 10 minutes. (For classrooms)</li>
-                <li>Each username can send 2 registration requests in 1 minute.</li>
-                <li>Each email address can send 1 registration request in 1 minute.</li>
-            </ul>
-            <form role="form" action="/my_login/register/add" method="post">
-                {{ RegisterSheet.as_p }}
-                <div class="text-center">
-                    <input type="submit" class="btn btn-outline-success" value="Send an email" />
-                </div>
-            </form>
+<body class="d-flex flex-column h-100">
+{% include 'clixove.org/navigator.html' %}
+<main class="flex-shrink-0"><div class="container-fluid">
+  <div class="row alert justify-content-center">
+    <div class="col-md-8">
+      <p class="lead fw-normal text-center">Register</p>
+
+      <p><a data-bs-toggle="modal" data-bs-target="#ratelimit" class="text-primary">
+        Know about rate limit
+      </a></p>
+      <!-- Modal -->
+      <div class="modal fade" id="ratelimit" tabindex="-1" aria-labelledby="ratelimitLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Rate limit</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>1. Up to 70 applications for each IP address in 10 minutes</p>
+            <p>2. Up to 1 application for each email address in 1 minute.</p>
+          </div>
         </div>
+        </div>
+      </div>
+      <form action="/my_login/register/add" method="post">
+        {{ RegisterSheet.as_p }}
+        <div class="text-center">
+          <input type="submit" class="btn btn-outline-success" value="Send an email" />
+        </div>
+      </form>
     </div>
-    <div class="row">{% include 'clixove.org/copyright.html' %}</div>
-</div>
+  </div>
+</div></main>
+{% include 'clixove.org/copyright.html' %}
 </body>
 </html>

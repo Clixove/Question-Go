@@ -73,7 +73,7 @@ def view_resampling(req, algo_id):
     variable_picker = VariablePicker()
     variable_picker.link_to_algorithm(algorithm_.id)
     variable_picker.load_choices(algorithm_)
-    y_var = algorithm_.column_set.get(y_column=True)
+    y_var = algorithm_.column_set.filter(y_column=True).first()
     train_config = Train()
     train_config.link_to_algorithm(algorithm_.id)
     context = {

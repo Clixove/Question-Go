@@ -1,72 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <!-- Ensures optimal rendering on mobile devices. -->
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <!-- Optimal Internet Explorer compatibility -->
-        <title>Clixove</title>
-        {% include 'clixove.org/packages.html' %}
-    </head>
-    <body>
-        <div class="container-fluid">
-            <div class="row">
-                {% include 'clixove.org/navigator.html' %}
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Ensures optimal rendering on mobile devices. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Optimal Internet Explorer compatibility -->
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+  </head>
+  <body class="d-flex flex-column h-100">
+    {% include 'clixove.org/navigator.html' %}
+    <main class="flex-shrink-0">
+      <div class="container-fluid">
+        <script async src="https://www.paypal.com/sdk/js?client-id={{ client_id }}"></script>
+        <div class="row alert">
+          {% for plan in plans %}
+          <div class="col-md-4">
+            <div class="alert shadow fade show">
+              <p><b>{{ plan.name }}</b> <span class="badge bg-warning text-dark">{{ plan.badge }}</span></p>
+              <p class="text-center"><span class="display-6">{{ plan.price | floatformat:2 }}</span> {{ plan.currency }}</p>
+              <p class="helptext">Subscription for {{ plan.duration }} days.</p>
+              <hr />
+              <p class="lh-lg">{{ plan.description | linebreaks }}</p>
+              <hr />
+              {% if payment_permission %}
+              <div id="plan-{{ plan.id }}-paypal-button"></div>
+              {% endif %}
             </div>
-            <div class="row alert">
-                {% for plan in plans %}
-                <div class="col-md-4">
-                    <div class="alert shadow fade show">
-                        <p><b>{{ plan.name }}</b> <span class="badge bg-warning text-dark">{{ plan.badge }}</span></p>
-                        <p class="text-center"><span class="display-6">{{ plan.price | floatformat:2 }}</span> {{ plan.currency }}</p>
-                        <p class="helptext">Subscription for {{ plan.duration }} days.</p>
-                        <hr>
-                        <p class="lh-lg">{{ plan.description | linebreaks }}</p>
-                        <hr>
-                        <div id="plan-{{ plan.id }}-paypal-button"></div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="row">{% include 'clixove.org/copyright.html' %}</div>
+            <script>
+              paypal
+                .Buttons({
+                  createOrder: function (data, actions) {
+                    // This function sets up the details of the transaction, including the amount and line item details.
+                    return actions.order.create({
+                      purchase_units: [
+                        {
+                          amount: {
+                            currency_code: "{{ plan.currency }}",
+                            value: "{{ plan.price | floatformat:2 }}",
+                          },
+                        },
+                      ],
+                    });
+                  },
+                  onApprove: function (data, actions) {
+                    // This function captures the funds from the transaction.
+                    return actions.order.capture().then(function (details) {
+                      // This function shows a transaction success message to your buyer.
+                      $.ajax({
+                        type: "POST",
+                        url: "/paypal/transaction/add",
+                        timeout: 5000,
+                        data: "plan={{ plan.id }}&order_id=" + data.orderID.toString(),
+                        success: (url) => {
+                          window.location.href = url;
+                        },
+                      });
+                    });
+                  },
+                })
+                .render("#plan-{{ plan.id }}-paypal-button");
+              //This function displays Smart Payment Buttons on your web page.
+            </script>
+          </div>
+          {% endfor %}
         </div>
-    </body>
+      </div>
+    </main>
+    {% include 'clixove.org/copyright.html' %}
+  </body>
 </html>
-
-{% if payment_permission %}
-<script src="https://www.paypal.com/sdk/js?client-id={{ client_id }}"></script>
-<script>
-    {% for plan in plans %}
-paypal.Buttons({
-    createOrder: function (data, actions) {
-        // This function sets up the details of the transaction, including the amount and line item details.
-        return actions.order.create({
-            purchase_units: [
-                {
-                    amount: {
-                        currency_code: "{{ plan.currency }}",
-                        value: "{{ plan.price | floatformat:2 }}",
-                    },
-                },
-            ],
-        });
-    },
-    onApprove: function(data, actions) {
-      // This function captures the funds from the transaction.
-      return actions.order.capture().then(function(details) {
-        // This function shows a transaction success message to your buyer.
-          $.ajax({
-              type: 'POST',
-              url: '/paypal/transaction/add',
-              timeout: 5000,
-              data: 'plan={{ plan.id }}&order_id=' + data.orderID.toString(),
-              success: (url) => {window.location.href = url},
-          })
-      });
-    }
-}).render("#plan-{{ plan.id }}-paypal-button");
-//This function displays Smart Payment Buttons on your web page.
-    {% endfor %}
-</script>
-{% endif %}

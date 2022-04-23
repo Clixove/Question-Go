@@ -288,8 +288,6 @@ def import_predicting_set_v2(req):
         return None, None, data_picker.errors
     paper = data_picker.cleaned_data['paper']
     step = data_picker.cleaned_data['step']
-    step.status = 2
-    step.save()
     try:
         if data_picker.cleaned_data['data_format'] == '1':
             table = pd.read_excel(paper.file.path)

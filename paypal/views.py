@@ -13,7 +13,8 @@ def view_plans(req):
     context = {
         'client_id': paypal_config['client_id'],
         'plans': Plan.objects.filter(on_sale=True),
-        'payment_permission': req.user.has_perm('paypal.add_transaction'),
+        'payment_permission': req.user.has_perm('paypal.view_transaction'),
+        # degrade permission, preventing users from adding transactions without paying in admin view.
     }
     return render(req, "paypal/plans.html", context)
 
@@ -26,7 +27,8 @@ class Order(forms.Form):
 @csrf_exempt
 @require_POST
 @permission_required(
-    'paypal.add_transaction',
+    'paypal.view_transaction',
+    # degrade permission, preventing users from adding transactions without paying in admin view.
     login_url='/paypal/plans?message=Do not have permission to add transactions.&color=danger'
 )
 def add_transaction(req):
@@ -82,3 +84,7 @@ def view_subscription(req):
         'subscriptions': Subscription.objects.filter(user=req.user).order_by('-expired_time'),
     }
     return render(req, 'paypal/subscription.html', context)
+
+
+def view_refund_policy(req):
+    return render(req, 'paypal/refund_policy.html')

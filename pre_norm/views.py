@@ -80,11 +80,16 @@ def import_data(req):
 
 
 class NormCore(PublicAlgorithm):
+    algorithm = forms.ModelChoiceField(Normalization.objects.all(), widget=forms.HiddenInput())
     columns = forms.ModelMultipleChoiceField(Column.objects.all(), widget=forms.CheckboxSelectMultiple())
     method = forms.ChoiceField(
         choices=[('S', 'Standard normalization'), ('M', 'Zipping to 0~1')],
         widget=forms.Select({"class": "form-select"}),
     )
+
+    def link_to_algorithm(self, algo_id: int):
+        self.fields['algorithm'].initial = Normalization.objects.get(id=algo_id)
+        self.fields['columns'].queryset = Column.objects.filter(algorithm_id=algo_id)
 
 
 @permission_required("pre_norm.view_normalization",
@@ -202,6 +207,8 @@ def transform(req):
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
+    step.status = 2
+    step.save()
     try:
         with open(algorithm_.model.file.path, "rb") as f:
             model = pickle.load(f)
@@ -239,6 +246,8 @@ def inverse_transform(req):
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
+    step.status = 2
+    step.save()
     try:
         with open(algorithm_.model.file.path, "rb") as f:
             model = pickle.load(f)

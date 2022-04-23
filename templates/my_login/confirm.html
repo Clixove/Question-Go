@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+  <meta charset="UTF-8">
+  <title>Clixove</title>
+  {% include 'clixove.org/packages.html' %}
+</head>
+<body class="d-flex flex-column h-100">
+{% include 'clixove.org/navigator.html' %}
+<main class="flex-shrink-0"><div class="container-fluid">
+  <div class="row alert justify-content-center">
+    <div class="col-md-8">
+      <p class="lead text-center fw-normal">Active account</p>
+      <p class="helptext">Don't leave this page before activating, otherwise you'll lose access to
+      this registry application.</p>
+      <form action="/my_login/confirm/add" method="post">
+        {{ invitation_code_sheet.as_p }}
+        <div class="text-center">
+          <input type="submit" value="Confirm" class="btn btn-outline-success">
+        </div>
+      </form>
+    </div>
+  </div>
+</div></main>
+{% include 'clixove.org/copyright.html' %}
+</body>
+</html>

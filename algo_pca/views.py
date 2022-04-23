@@ -197,7 +197,10 @@ def train_model(req):
         dataframe = pd.read_pickle(algorithm_.dataframe.file.path)
         x_col = [x.name for x in Column.objects.filter(algorithm=algorithm_, x_column=True)]
         x = dataframe[x_col].values
-        pca = PCA(n_components=train.cleaned_data['kept_dimensions'])
+        if train.cleaned_data['kept_dimensions']:
+            pca = PCA(n_components=train.cleaned_data['kept_dimensions'])
+        else:
+            pca = PCA()
         pca.fit(x)
         
         intermediate_paper_handle = ContentFile(pickle.dumps(pca))
@@ -265,13 +268,16 @@ def predict(req):
     if not algorithm_.model:
         context = {"color": "danger", "content": "This step doesn't have a trained model."}
         return render(req, "task_manager/hint_widget.html", context)
+    step.status = 2
+    step.save()
     try:
         with open(algorithm_.model.file.path, "rb") as f:
             model = pickle.load(f)
         x_col = [x.name for x in Column.objects.filter(algorithm=algorithm_, x_column=True)]
         x = table[x_col].values
         transformed_x = model.transform(x)
-
+        transformed_x = pd.DataFrame(data=transformed_x,
+                                     columns=[f'component_{i+1}' for i in range(transformed_x.shape[1])])
         intermediate_file_handler = ContentFile(pickle.dumps(transformed_x))
         new_paper = Paper(user=req.user, role=4, name=f"PCA #{algorithm_.id} Predict")
         new_paper.file.save(f"pca_{algorithm_.id}_predict.xlsx", intermediate_file_handler)

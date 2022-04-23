@@ -1,20 +1,18 @@
+from django.contrib.auth.models import Group
 from django.db import models
-from django.contrib.auth.models import Group, User
 
 
-class RegisterGroup(models.Model):
-    group = models.ForeignKey(Group, models.CASCADE)
+class RegistryEntries(models.Model):
+    registry_name = models.CharField(max_length=64, unique=True)
+    groups = models.ManyToManyField(Group)
 
     def __str__(self):
-        return self.group.name
+        return self.registry_name
 
 
-class Register(models.Model):
-    username = models.CharField(max_length=150)
-    password = models.CharField(max_length=150)
+class InvitationCode(models.Model):
     email = models.EmailField()
     invitation_code = models.TextField(unique=True)
-    group = models.ForeignKey(Group, models.CASCADE)
 
     def __str__(self):
-        return self.username
+        return self.email

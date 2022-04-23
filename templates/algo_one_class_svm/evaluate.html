@@ -27,13 +27,12 @@
             {% endfor %}
         </div>
     {% else %}
-        {{ c_mat }}
-             <table class="table table-condensed table-bordered"><tbody>
-                 <tr><td></td><td>Predicted as abnormal</td><td>Predicted as normal</td></tr>
-                 <tr><td>Known as abnormal</td><td>{{ c_mat.0.0 }}</td><td>{{ c_mat.0.1 }}</td></tr>
-                 <tr><td>Known as normal</td><td>{{ c_mat.1.0 }}</td><td>{{ c_mat.1.1 }}</td></tr>
-                 </tbody></table>
-            <p>Hyper-parameters: Nu = {{ h_para.nu }}, Kernel = {{ h_para.kernel }},
-                    Degree = {{ h_para.degree }}</p>
+        <table class="table table-condensed table-bordered"><tbody>
+            <tr><td></td><td>Predicted as abnormal</td><td>Predicted as normal</td></tr>
+            <tr><td>Known as abnormal</td><td>{{ c_mat.0.0 }}</td><td>{{ c_mat.0.1 }}</td></tr>
+            <tr><td>Known as normal</td><td>{{ c_mat.1.0 }}</td><td>{{ c_mat.1.1 }}</td></tr>
+            </tbody></table>
+        <p>Hyper-parameters: Nu = {{ h_para.nu }}, Kernel = {{ h_para.kernel }},
+                  Degree = {{ h_para.degree }}</p>
     {% endif %}
 </div>

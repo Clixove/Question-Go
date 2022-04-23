@@ -73,7 +73,7 @@ def generate_profile(req):
     step.save()
     try:
         dataframe = pd.read_pickle(step.predicted_data.file.path)
-        profile = ProfileReport(dataframe, title=f"Cross-sectional Data Pre-processing #{csp.id}",
+        profile = ProfileReport(dataframe, title=f"Pre-processing Cross-sectional Data #{csp.id}",
                                 plot={"dpi": 200, "image_format": "png"})
         csp.report = profile.to_html()
         csp.save()
@@ -119,7 +119,7 @@ def import_data(req):
         new_paper = Paper(user=req.user, role=2, name=f"Cross-sectional Data Pre-processing #{algorithm_.id} Parsed Data")
         new_paper.file.save(f"csp_{algorithm_.id}_parsed_data.pkl", intermediate_paper_handle)
         new_paper.save()
-        step.linked_data = new_paper
+        # step.linked_data = new_paper
         step.predicted_data = new_paper
         step.save()
         for column in Column.objects.filter(algorithm=algorithm_):
@@ -312,6 +312,11 @@ def sklearn_encode(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
 
 
 class MathOp(PublicPreProcessing):
+    new_name = forms.CharField(
+        widget=forms.TextInput({'class': 'form-control'}),
+        max_length=99,
+        help_text="The name of newly constructed variable."
+    )
     expression = forms.CharField(
         widget=forms.TextInput({"class": "form-control"}),
         max_length=99,
@@ -321,7 +326,10 @@ class MathOp(PublicPreProcessing):
 
 def math_op(config: forms.Form, dataframe: pd.DataFrame) -> pd.DataFrame:
     columns = [x.name for x in config.cleaned_data['targeted_columns']]
-    dataframe[columns] = dataframe[columns].apply(lambda x: safe_eval(config.cleaned_data['expression'], x.values))
+    dataframe[config.cleaned_data['new_name']] = dataframe[columns].apply(
+        lambda x: safe_eval(config.cleaned_data['expression'], x.values))
+    new_column = Column(algorithm=config.cleaned_data['algorithm'], name=config.cleaned_data['new_name'])
+    new_column.save()
     return dataframe
 
 
@@ -362,7 +370,7 @@ def view_csp(req, algo_id):
     return render(req, "pre_cross_sectional/main.html", context)
 
 
-@permission_required("preprocessing.change_preprocessing")
+@permission_required("pre_cross_sectional.change_preprocessing")
 @csrf_exempt
 @require_POST
 def preprocessing_wrapper(req, form_name):
