@@ -35,7 +35,7 @@ class Step(models.Model):
     status = models.IntegerField(choices=[(1, "PREPARED"), (2, "RUNNING"), (3, "DONE"), (4, "INTERRUPTED")], default=1)
 
     linked_data = models.ForeignKey(Paper, models.CASCADE, blank=True, null=True, related_name='linked_data')
-    predicted_data = models.ForeignKey(Paper, models.SET_NULL, blank=True, null=True, related_name='predicted_data')
+    predicted_data = models.ForeignKey(Paper, models.CASCADE, blank=True, null=True, related_name='predicted_data')
     note = models.TextField(blank=True)
     error_message = models.TextField(blank=True)
 

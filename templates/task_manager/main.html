@@ -1,138 +1,80 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
-<head>
-  <meta charset="UTF-8">
-  <title>Clixove</title>
-  {% include 'clixove.org/packages.html' %}
-</head>
-<body class="d-flex flex-column h-100">
-{% include 'clixove.org/navigator.html' %}
-<main class="flex-shrink-0"><div class="container-fluid">
-    
-    <div class="row alert mb-0">
-        <div class="col-md-12">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+  </head>
+  <body class="d-flex flex-column h-100">
+    {% include 'clixove.org/navigator.html' %}
+    <main class="flex-shrink-0">
+      <div class="container-fluid">
+        <div class="row alert mb-0">
+          <div class="col-md-12">
             <div class="text-center">
-                <p class="display-4">QuestionGo</p>
-                <p><i class="lead">Construct and reuse machine learning models</i></p>
-                <p><a class="btn btn-lg btn-outline-primary rounded-pill" href="/task/retrieve">Quick start</a></p>
+              <p class="display-4">Question Go</p>
+              <p><i class="lead">Construct and reuse machine learning models</i></p>
+              <p><a class="btn btn-lg btn-outline-primary rounded-pill" href="/task/retrieve">Quick start</a></p>
             </div>
+          </div>
         </div>
-    </div>
 
-    <!-- Algorithms tab -->
-    <div class="row alert">
-        <div class="col-md-12">
-            <p class="lead">Methods & applications</p>
-            <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link text-dark active" data-bs-toggle="tab" href="#project" role="tab"
-                       aria-selected="true">
-                        Projects
-                    </a>
-                </li>
-                {% for class in registry %}
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link text-dark" data-bs-toggle="tab" href="#auto-card-{{ forloop.counter }}"
-                       role="tab" aria-selected="true">
-                        {{ class.name }}
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-
-    <!-- Algorithms cards -->
-    <div class="tab-content alert">
-        <div class="tab-pane fade show active" id="project" role="tabpanel">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="alert shadow fade show" role="alert">
-                    <p><strong>Projects</strong></p>
-                    <p>View, create, delete, and switch between your projects.</p>
-                    <div class="text-center m-2">
-                        <a href="/task/instances" class="btn btn-outline-primary">Enter</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-        {% for class in registry %}
-        <div class="tab-pane fade show" id="auto-card-{{ forloop.counter }}" role="tabpanel">
-        <div class="row">
-            {% for app in class.applications %}
-            <div class="col-md-4">
-                <div class="alert shadow fade show" role="alert">
-                    <p><strong>{{ app.name }}</strong></p>
-                    <p>{{ app.description }}</p>
-                    <div class="text-center m-2">
-                        <a href="{{ app.opened_link }}" class="btn btn-outline-success">Create</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Feature & advantages -->
-    <div class="row alert">
-        <p class="lead">Features & advantages</p>
-        <div class="col-md-4">
+        <!-- Feature & advantages -->
+        <div class="row alert">
+          <div class="col-md-4">
             <div class="alert bg-light">
-                <p><b>Organize modeling steps</b></p>
-                <span class="badge bg-dark">Difficulty</span>
-                <ul>
-                    <li>Operate different pre-processing for different models</li>
-                    <li>Search for normalizers and transformers previously generated</li>
-                    <li>Migrate some of steps to new tasks</li>
-                </ul>
-                <span class="badge bg-dark">Solution</span>
-                <ul>
-                    <li>Embed normalizers and transformers inside steps</li>
-                    <li>Manage files in a unified space</li>
-                    <li>Link steps head-to-tail (support branches)</li>
-                </ul>
+              <p><b>Organize modeling steps</b></p>
+              <span class="badge bg-dark">Difficulty</span>
+              <ul>
+                <li>Operate different pre-processing for different models</li>
+                <li>Search for normalizers and transformers previously generated</li>
+                <li>Migrate some of steps to new tasks</li>
+              </ul>
+              <span class="badge bg-dark">Solution</span>
+              <ul>
+                <li>Embed normalizers and transformers inside steps</li>
+                <li>Manage files in a unified space</li>
+                <li>Link steps head-to-tail (support branches)</li>
+              </ul>
             </div>
-        </div>
-        <div class="col-md-4">
+          </div>
+          <div class="col-md-4">
             <div class="alert bg-light">
-                <p><b>Recommend best models</b></p>
-                <span class="badge bg-dark">Difficulty</span>
-                <ul>
-                    <li>Draw specialized statistics figures</li>
-                    <li>Search for best hyper-parameters and use best enhancing features</li>
-                    <li>Compare with different models</li>
-                </ul>
-                <span class="badge bg-dark">Solution</span>
-                <ul>
-                    <li>Demonstrate features with statistics meaning</li>
-                    <li>Automatically figure out evaluation metrics</li>
-                    <li>Best models recommended by our data scientist</li>
-                </ul>
+              <p><b>Recommend best models</b></p>
+              <span class="badge bg-dark">Difficulty</span>
+              <ul>
+                <li>Draw specialized statistics figures</li>
+                <li>Search for best hyper-parameters and use best enhancing features</li>
+                <li>Compare with different models</li>
+              </ul>
+              <span class="badge bg-dark">Solution</span>
+              <ul>
+                <li>Demonstrate features with statistics meaning</li>
+                <li>Automatically figure out evaluation metrics</li>
+                <li>Best models recommended by our data scientist</li>
+              </ul>
             </div>
-        </div>
-        <div class="col-md-4">
+          </div>
+          <div class="col-md-4">
             <div class="alert bg-light">
-                <p><b>Internet-oriented applications</b></p>
-                <span class="badge bg-dark">Difficulty</span>
-                <ul>
-                    <li>Work on portable or mobile devices</li>
-                    <li>Get a high-performance computer for development</li>
-                    <li>Share the ideas with cooperators</li>
-                    <li>Repeatedly running models everyday</li>
-                </ul>
-                <span class="badge bg-dark">Solution</span>
-                <ul>
-                    <li>Build a website and run our software</li>
-                    <li>Distribute servers to users center of organizations and enterprises</li>
-                </ul>
+              <p><b>Internet-oriented applications</b></p>
+              <span class="badge bg-dark">Difficulty</span>
+              <ul>
+                <li>Work on portable or mobile devices</li>
+                <li>Get a high-performance computer for development</li>
+                <li>Share the ideas with cooperators</li>
+                <li>Repeatedly running models everyday</li>
+              </ul>
+              <span class="badge bg-dark">Solution</span>
+              <ul>
+                <li>Build a website and run our software</li>
+                <li>Distribute servers to users center of organizations and enterprises</li>
+              </ul>
             </div>
+          </div>
         </div>
-    </div>
-
-</div></main>
-{% include 'clixove.org/copyright.html' %}
-</body>
+      </div>
+    </main>
+    {% include 'clixove.org/copyright.html' %}
+  </body>
 </html>

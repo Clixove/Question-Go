@@ -16,7 +16,7 @@ class RenameTask(forms.Form):
 
 
 def view_main_page(req):
-    return render(req, "task_manager/main.html", {'registry': algorithm_registry})
+    return render(req, "task_manager/main.html")
 
 
 @permission_required("task_manager.view_task", login_url=f"/main?message=No permission to view task.&color=danger")
@@ -44,6 +44,7 @@ def view_task(req, task_id):
     context = {
         "task": this_task,
         "spinner_color_picker": ["primary", "warning", "success", "danger"],
+        'registry': algorithm_registry,
     }
     return render(req, "task_manager/steps.html", context)
 
@@ -168,6 +169,8 @@ def delete_step(req, step_id):
         return redirect(f"/task/{opened_task_id}?message=This step doesn't exist.&color=danger")
     if step.status == 2:
         return redirect(f"/task/{opened_task_id}?message=This step is running so cannot be deleted.&color=danger")
+    step.linked_data.delete()
+    step.predicted_data.delete()
     step.delete()
     return redirect(f"/task/{opened_task_id}?message=Delete successfully.&color=success")
 

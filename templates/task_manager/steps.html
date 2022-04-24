@@ -1,49 +1,102 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
-<head>
-  <meta charset="UTF-8">
-  <title>Clixove</title>
-  {% include 'clixove.org/packages.html' %}
-</head>
-<body class="d-flex flex-column h-100">
-{% include 'clixove.org/navigator.html' %}
-<main class="flex-shrink-0"><div class="container-fluid">
-    
-    <div class="row alert">
-        <div class="col-md-2">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clixove</title>
+    {% include 'clixove.org/packages.html' %}
+  </head>
+  <body class="d-flex flex-column h-100">
+    {% include 'clixove.org/navigator.html' %}
+    <main class="flex-shrink-0">
+      <div class="container-fluid">
+        <div class="row alert">
+          <div class="col-md-2">
             <ul class="nav flex-column">
-                <li class="nav-item"><label class="nav-link disabled">Actions</label></li>
+              <li class="nav-item"><label class="nav-link disabled">Actions</label></li>
+              <li class="nav-item"><a class="nav-link" href="/task/instances">Switch project</a></li>
+              <li class="nav-item"><a class="nav-link" href="/main">Back to cover</a></li>
             </ul>
-        </div>
-        <div class="col-md-10">
-            <label class="lead fw-normal p-2">{{ task.name }}</label>
+          </div>
+          <div class="col-md-10">
+            <p class="lead fw-normal">{{ task.name }}</p>
             <div style="overflow-x: auto;">
-                <table class="table table-hover table-borderless">
-                    <thead>
-                    <tr><th class="text-nowrap">Model ID</th><th>Name</th><th>Status</th><th>Action</th></tr>
-                    </thead>
-                    <tbody>
-                    {% for step in task.step_set.all %}
-                        <tr>
-                            <td>{{ step.model_id }}</td>
-                            <td class="text-nowrap"><a href="{{ step.view_link }}">{{ step.name }}</a></td>
-                            <td class="text-nowrap {{ step.status_color }}">
-                                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                                {{ step.get_status_display }}
-                            </td>
-                            <td>
-                                <a class="btn btn-sm btn-outline-danger rounded-pill" href="/step/delete/{{ step.id }}">
-                                    Delete
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody style="border-width: inherit;">
+                  {% for step in task.step_set.all %}
+                  <tr>
+                    <td class="text-nowrap">
+                      <a href="{{ step.view_link }}">{{ step.name }} #{{ step.model_id }}</a>
+                    </td>
+                    <td class="text-nowrap {{ step.status_color }}">
+                      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                      {{ step.get_status_display }}
+                    </td>
+                    <td><a href="/step/delete/{{ step.id }}">Delete</a></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
+            <!-- Button trigger modal -->
+            <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#add-step-modal">
+              New step
+            </button>
+<!-- Modal -->
+<div class="modal fade" id="add-step-modal" tabindex="-1" aria-labelledby="add-step-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header alert-primary">
+        <h5 class="modal-title" id="add-step-modal-label">Templates of steps</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs" role="tablist">
+          {% for class in registry %}
+          <li class="nav-item" role="presentation">
+            <a class="nav-link text-dark {% if forloop.counter == 1 %}active{% endif %}" data-bs-toggle="tab"
+               href="#auto-card-{{ forloop.counter }}" role="tab" aria-selected="true">
+              {{ class.name }}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+
+        <!-- Algorithm cards -->
+        <div class="tab-content alert">
+          {% for class in registry %}
+          <div class="tab-pane fade show {% if forloop.counter == 1 %}active{% endif %}"
+               id="auto-card-{{ forloop.counter }}" role="tabpanel">
+            <div class="row">
+              {% for app in class.applications %}
+              <div class="col-md-4">
+                <div class="alert shadow fade show" role="alert">
+                  <p><strong>{{ app.name }}</strong></p>
+                  <p>{{ app.description }}</p>
+                  <div class="text-center m-2">
+                    <a href="{{ app.opened_link }}" class="btn btn-outline-success">Create</a>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
         </div>
+      </div>
     </div>
-</div></main>
-{% include 'clixove.org/copyright.html' %}
-</body>
+  </div>
+</div>
+          </div>
+        </div>
+      </div>
+    </main>
+    {% include 'clixove.org/copyright.html' %}
+  </body>
 </html>
