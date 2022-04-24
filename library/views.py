@@ -17,8 +17,6 @@ class PublicSelectMultiplePaper(forms.Form):
 
 
 class AddPaper(forms.Form):
-    role = forms.ChoiceField(widget=forms.Select({"class": "form-select"}),
-                             choices=[(1, "Data"), (2, "Intermediate"), (3, "Model"), (4, "Result")])
     file = forms.FileField(widget=forms.FileInput({"class": "form-control"}))
 
 
@@ -39,8 +37,8 @@ class SearchPaper(forms.Form):
 @permission_required("library.view_paper", login_url="/main?message=No permission to view papers.&color=danger")
 def view_library(req):
     sp = SearchPaper(req.GET)
-    papers = Paper.objects.filter(user=req.user, name__contains=sp.cleaned_data['search']) \
-        if sp.is_valid() else Paper.objects.filter(user=req.user)
+    papers = Paper.objects.filter(user=req.user, name__contains=sp.cleaned_data['search'], role=1) \
+        if sp.is_valid() else Paper.objects.filter(user=req.user, role=1)
     my_storage, created = UserStorage.objects.get_or_create(user=req.user)
     if created:
         my_storage.save()
@@ -50,7 +48,7 @@ def view_library(req):
         "TotalStorage": total_storage,
         "UsedStorage": used_storage,
         "RateStorage": 0 if total_storage == 0 else used_storage / total_storage * 100,
-        "Papers": papers.order_by('role', '-modified_time'),
+        "Papers": papers.order_by('-modified_time'),
         "SearchSheet": SearchPaper(req.GET),
         "AddPaperSheet": AddPaper(),
         "timezone": question_go_v2.settings.TIME_ZONE,
@@ -76,7 +74,7 @@ def add_paper(req):
     if not sheet.is_valid():
         return redirect("/library?message=Submission is not valid.&color=danger")
     my_storage = UserStorage.objects.get(user=req.user)
-    new_paper = Paper(user=req.user, file=sheet.cleaned_data['file'], role=sheet.cleaned_data['role'])
+    new_paper = Paper(user=req.user, file=sheet.cleaned_data['file'], role=1)
     new_paper.name = basename(new_paper.file.name)
     if not my_storage.upload_permission(new_paper.file):
         return redirect("/library?message=Your storage is used up.&color=danger")

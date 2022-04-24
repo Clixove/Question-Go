@@ -15,4 +15,14 @@ class Migration(migrations.Migration):
             name='name',
             field=models.CharField(max_length=256),
         ),
+        migrations.AlterField(
+            model_name='groupstorage',
+            name='user_init_storage',
+            field=models.IntegerField(default=0, verbose_name='Group Storage (MB)'),
+        ),
+        migrations.AlterField(
+            model_name='userstorage',
+            name='specific_storage',
+            field=models.IntegerField(default=0, verbose_name='User Storage (MB)'),
+        ),
     ]

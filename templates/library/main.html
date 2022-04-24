@@ -51,17 +51,17 @@
 
             <!-- Views -->
             <div style="overflow-x: auto;">
-                <table class="table table-borderless table-hover">
+                <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>
-                                <label><input class="form-check-input" type="checkbox"
-                                              onchange="check_all(this, 'papers')" /></label>
-                            </th>
-                            <th>Role</th><th>Name</th><th>Modified Time</th><th>Size</th>
+                            <td><label>
+                              <input class="form-check-input" type="checkbox" onchange="check_all(this, 'papers')" />
+                              All
+                            </label></td>
+                            <th>Name</th><th>Modified Time</th><th>Size</th>
                         </tr>
                     </thead>
-                    <tbody id="papers">
+                    <tbody id="papers" style="border-width: inherit;">
                         {% for paper in Papers %}
                         <tr>
                             <td>
@@ -69,7 +69,6 @@
                                     <input type="checkbox" class="form-check-input" name="papers" value="{{ paper.id }}" />
                                 </label>
                             </td>
-                            <td>{{ paper.get_role_display }}</td>
                             <td><a href="/library/paper/{{ paper.id }}">{{ paper }}</a></td>
                             <td class="text-nowrap">{{ paper.modified_time | date:"Y-m-d H:i:s" }}</td>
                             <td>{{ paper.file.size | filesizeformat }}</td>

@@ -1,6 +1,8 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark p-1">
   <div class="container-fluid">
+    <!-- Customized for this software -->
     <a class="navbar-brand" href="/task/retrieve">Clixove</a>
+    <!-- Customized for this software END -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -9,9 +11,7 @@
       <ul class="nav me-auto mb-2 mb-lg-0">
 
         <!-- Customized for this software -->
-
         <li class="nav-item"><a class="nav-link text-light" href="/library">Data</a></li>
-
         <!-- Customized for this software END -->
 
         <li class="nav-item dropdown">
@@ -60,7 +60,8 @@
 
         {% else %}
 
-        <a type="button" class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#modal-login">
+        <a role="button" class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#modal-login"
+          onclick="show_login_form()">
           Login
         </a>
 
@@ -110,6 +111,7 @@
 </nav>
 
 <script>
+function show_login_form() {
   $.ajax({
     type: "GET",
     url: "/my_login/view",
@@ -118,6 +120,7 @@
       document.getElementById("change-password-sheet").innerHTML = dict["change_password_sheet"];
     },
   });
+}
 </script>
 
 {% if request.GET.message and request.GET.color %}

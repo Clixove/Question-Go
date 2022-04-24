@@ -7,7 +7,7 @@ from django.db import models
 
 class GroupStorage(models.Model):
     group = models.OneToOneField(Group, on_delete=models.CASCADE)
-    user_init_storage = models.IntegerField(verbose_name="Group Storage (MiB)", default=0)
+    user_init_storage = models.IntegerField(verbose_name="Group Storage (MB)", default=0)
 
     def __str__(self):
         return self.group.name
@@ -15,12 +15,12 @@ class GroupStorage(models.Model):
 
 class UserStorage(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    specific_storage = models.IntegerField(verbose_name="User Storage (MiB)", default=0)
+    specific_storage = models.IntegerField(verbose_name="User Storage (MB)", default=0)
 
     def total_storage_bytes(self):
         storages = GroupStorage.objects.filter(group__in=self.user.groups.all())
         storage_mb = sum([x.user_init_storage for x in storages]) + self.specific_storage
-        return storage_mb * 1024 ** 2
+        return storage_mb * 1048576
 
     def __str__(self):
         return self.user.username
@@ -29,7 +29,7 @@ class UserStorage(models.Model):
         return self.used_storage_bytes() + new_file.size <= self.total_storage_bytes()
 
     def used_storage_bytes(self):
-        users_papers = Paper.objects.filter(user=self.user)
+        users_papers = Paper.objects.filter(user=self.user, role=1)
         return sum([x.file.size for x in users_papers])
 
 
