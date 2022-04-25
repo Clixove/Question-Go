@@ -26,9 +26,9 @@ with open("token/django_secret_key", "r") as f:
     SECRET_KEY = f.read()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['10.197.1.71']
 
 
 # Application definition
@@ -148,7 +148,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['templates/static/']
+STATICFILES_DIRS = ['templates/static']
 MEDIA_ROOT = 'storage'
 
 # Default primary key field type

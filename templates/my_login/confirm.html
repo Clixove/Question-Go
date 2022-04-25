@@ -14,6 +14,7 @@
       <p class="helptext">Don't leave this page before activating, otherwise you'll lose access to
       this registry application.</p>
       <form action="/my_login/confirm/add" method="post">
+        {% csrf_token %}
         {{ invitation_code_sheet.as_p }}
         <div class="text-center">
           <input type="submit" value="Confirm" class="btn btn-outline-success">

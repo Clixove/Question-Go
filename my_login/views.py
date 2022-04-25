@@ -9,11 +9,10 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.contrib.auth.models import User
 from ratelimit.decorators import ratelimit
 
 from .models import *
@@ -58,7 +57,6 @@ def view_login(req):
 
 
 @require_POST
-@csrf_exempt
 def add_login(req):
     sheet1 = LoginSheet(req.POST)
     if not sheet1.is_valid():
@@ -113,7 +111,6 @@ class RegistrySheet(forms.Form):
     )
 
 
-@csrf_exempt
 @require_POST
 @ratelimit(key='header:x-real-ip', rate='70/10m', block=True)
 @ratelimit(key='post:email', rate='1/1m', block=True)
@@ -159,7 +156,6 @@ def view_confirm(req):
     return render(req, 'my_login/confirm.html', context)
 
 
-@csrf_exempt
 @require_POST
 def add_user(req):
     registry = RegistrySheet(req.POST)
@@ -186,7 +182,6 @@ def add_user(req):
     return redirect('/main?message=Register successfully.&color=success')
 
 
-@csrf_exempt
 @require_POST
 @login_required(login_url='/main?message=Please log in first.&color=danger')
 def change_password(req):

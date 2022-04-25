@@ -31,6 +31,7 @@
         </div>
       </div>
       <form action="/my_login/register/add" method="post">
+        {% csrf_token %}
         {{ RegisterSheet.as_p }}
         <div class="text-center">
           <input type="submit" class="btn btn-outline-success" value="Send an email" />

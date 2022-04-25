@@ -75,6 +75,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <form action="/my_login/change_password" method="post">
+                {% csrf_token %}
                 <div class="modal-body">
                   <div id="change-password-sheet"></div>
                 </div>
@@ -94,6 +95,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <form action="/my_login/add" method="post">
+                {% csrf_token %}
                 <div class="modal-body">
                   <div id="login-sheet"></div>
                   <p>No account? <a href="/my_login/register">Register</a></p>
