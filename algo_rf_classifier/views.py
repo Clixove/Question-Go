@@ -442,7 +442,6 @@ def train_model(req):
                 auc_in_bayes = np.mean([roc_auc_score(y_1h[:, i], y_hat[:, i])
                                         for i in range(y_1h.shape[1])])
                 return auc_in_bayes
-
             optimizer = BayesianOptimization(f=bayes_rf_full_train, pbounds=hyper_parameters,
                                              random_state=train.cleaned_data['random_seed'])
             optimizer.maximize(init_points=train.cleaned_data['bayes_init_try_times'],
@@ -478,7 +477,8 @@ def train_model(req):
         step.save()
         context = {"color": "danger", "content": "Interrupted.",
                    "refresh": f"/algo_rf_classifier/{algorithm_.id}"}
-        return render(req, "task_manager/hint_widget.html", context)
+        raise e
+        # return render(req, "task_manager/hint_widget.html", context)
     step.status = 3
     step.save()
     context = {"color": "success", "content": "The model has been trained and evaluated.",

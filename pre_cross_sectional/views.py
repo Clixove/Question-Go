@@ -136,8 +136,8 @@ def import_data(req):
         return render(req, "task_manager/hint_widget.html", context)
     # ---------- Asynchronous Algorithm START   ----------
     algorithm_.save()
-    algorithm_.step.status = 3
-    algorithm_.step.save()
+    step.status = 3
+    step.save()
     context = {"color": "success", "content": "The file is successfully parsed.",
                "refresh": f"/pre_cross_sectional/{algorithm_.id}"}
     return render(req, "task_manager/hint_widget.html", context)

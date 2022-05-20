@@ -26,9 +26,9 @@ with open("token/django_secret_key", "r") as f:
     SECRET_KEY = f.read()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['10.197.1.71']
+ALLOWED_HOSTS = ['10.197.1.69', 'question-go.clixove.com']
 
 
 # Application definition

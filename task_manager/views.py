@@ -169,8 +169,8 @@ def delete_step(req, step_id):
         return redirect(f"/task/{opened_task_id}?message=This step doesn't exist.&color=danger")
     if step.status == 2:
         return redirect(f"/task/{opened_task_id}?message=This step is running so cannot be deleted.&color=danger")
-    step.linked_data.delete()
-    step.predicted_data.delete()
+    if step.linked_data: step.linked_data.delete()
+    if step.predicted_data: step.predicted_data.delete()
     step.delete()
     return redirect(f"/task/{opened_task_id}?message=Delete successfully.&color=success")
 
@@ -222,7 +222,7 @@ class DataPicker(forms.Form):
 
     def load_choices(self, user, search):
         queryset = Paper.objects.filter(user=user, name__contains=search)
-        self.fields['step'].queryset = Step.objects.filter(task__user=user, status__in=[1, 3, 4])
+        self.fields['step'].queryset = Step.objects.filter(task__user=user)
         self.fields['paper'].queryset = queryset
 
 
@@ -271,11 +271,13 @@ def import_training_set_v2(req):
     step.save()
     try:
         if data_picker.cleaned_data['data_format'] == '1':
-            table = pd.read_excel(paper.file.path)
+            table = pd.read_excel(paper.file.path, sheet_name=0)
             table.columns = [x.__str__() for x in table.columns]
         else:
             table = pd.read_pickle(paper.file.path)
     except Exception as e:
+        step.status = 4
+        step.save()
         return None, step, e.__str__()
     return table, step, None
 
@@ -293,7 +295,7 @@ def import_predicting_set_v2(req):
     step = data_picker.cleaned_data['step']
     try:
         if data_picker.cleaned_data['data_format'] == '1':
-            table = pd.read_excel(paper.file.path)
+            table = pd.read_excel(paper.file.path, sheet_name=0)
             table.columns = [x.__str__() for x in table.columns]
         else:
             table = pd.read_pickle(paper.file.path)
